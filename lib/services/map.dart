@@ -31,33 +31,35 @@ class _mymapState extends State<mymap> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: Text('Maps Sample App'),
-          backgroundColor: Colors.green[700],
-        ),
-        body: Stack(
-          children: <Widget>[
-            GoogleMap(
-              mapType: _currentMapType,
-              onMapCreated: _onMapCreated,
-              initialCameraPosition: CameraPosition(
-                target: _center,
-                zoom: 11.0,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Align(
-                alignment: Alignment.topRight,
-                child: FloatingActionButton(
-                  onPressed: _onMapTypeButtonPressed,
-                  materialTapTargetSize: MaterialTapTargetSize.padded,
-                  backgroundColor: Colors.green,
-                  child: const Icon(Icons.map, size: 36.0),
+        // appBar: AppBar(
+        //   title: Text('Maps Sample App'),
+        //   backgroundColor: Colors.green[700],
+        // ),
+        body: SafeArea(
+          child: Stack(
+            children: <Widget>[
+              GoogleMap(
+                mapType: _currentMapType,
+                onMapCreated: _onMapCreated,
+                initialCameraPosition: CameraPosition(
+                  target: _center,
+                  zoom: 11.0,
                 ),
               ),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: FloatingActionButton(
+                    onPressed: _onMapTypeButtonPressed,
+                    materialTapTargetSize: MaterialTapTargetSize.padded,
+                    backgroundColor: Colors.green,
+                    child: const Icon(Icons.map, size: 36.0),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
