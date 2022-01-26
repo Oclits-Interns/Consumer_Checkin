@@ -6,26 +6,40 @@ class ListViewBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.green[700],
-        title: Text("Consumer In"),
+        leading: Icon(Icons.menu),
+        backgroundColor: Color(0xffb11118),
+        title: Text("Consumer Check-In"),
         centerTitle: true,
       ),
       body: ListView.builder(
-          itemCount: 5,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-                leading: Icon(Icons.location_on),
-                trailing: IconButton(
-                  icon: const Icon(Icons.arrow_forward_ios_outlined),
-                  tooltip: 'Open Map',
-                  onPressed: () {
-                    if (index == 0) {
+          itemCount: 15,
+          itemBuilder: (context, index) {
+            return index == 0
+                ? GestureDetector(
+                    onTap: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) => MapApp()));
-                    }
-                  },
-                ),
-                title: Text("User $index"));
+                    },
+                    child: const ListTile(
+                      contentPadding: EdgeInsets.all(8.0),
+                      title: Text("Open Map"),
+                      leading: Icon(Icons.location_on,
+                          size: 35, color: Color(0xffb11118)),
+                      trailing: Icon(Icons.arrow_forward_ios_rounded,
+                          color: Colors.black, size: 25),
+                    ),
+                  )
+                : ListTile(
+                    contentPadding: EdgeInsets.all(8.0),
+                    title: Text("Consumer No $index"),
+                    leading: Icon(
+                      Icons.location_on,
+                      size: 35,
+                      color: Color(0xffb11118),
+                    ),
+                    trailing: Icon(Icons.arrow_forward_ios_rounded,
+                        color: Colors.black, size: 25),
+                  );
           }),
     );
   }

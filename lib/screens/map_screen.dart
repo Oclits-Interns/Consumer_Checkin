@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:consumer_checkin/main.dart';
+import 'package:consumer_checkin/screens/camera_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -59,9 +61,102 @@ class _MapAppState extends State<MapApp> {
               ),
             ),
             actions: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [Text("TAKE IMAGE"), Text("SAVE"), Text("MORE")],
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => CameraApp()));
+                      },
+                      child: Text(
+                        "TAKE IMAGE",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.red),
+                      ),
+                    ),
+                    Text(
+                      "SAVE",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.red),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        _showAlertMoreDetails();
+                      },
+                      child: Text(
+                        "MORE",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.red),
+                      ),
+                    )
+                  ],
+                ),
+              )
+              // RaisedButton(
+              //     child: Text("Submit"),
+              //     onPressed: () {
+              //       // your code
+              //     })
+            ],
+          );
+        });
+  }
+
+  void _showAlertMoreDetails() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            // backgroundColor: Colors.red,
+            scrollable: true,
+            title: Text('More Information'),
+            content: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Form(
+                child: Column(
+                  children: <Widget>[
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Electric Company Id',
+                      ),
+                    ),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Gas Company Id',
+                      ),
+                    ),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Land Line Id',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "BACK",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.red),
+                    ),
+                    Text(
+                      "SAVE",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.red),
+                    ),
+                  ],
+                ),
               )
               // RaisedButton(
               //     child: Text("Submit"),
@@ -119,8 +214,10 @@ class _MapAppState extends State<MapApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Consumer In'),
-          backgroundColor: Colors.green[700],
+          leading: Icon(Icons.menu),
+          centerTitle: true,
+          title: Text('Consumer Check-In'),
+          backgroundColor: Color(0xffb11118),
         ),
         body: Stack(
           children: <Widget>[
@@ -143,15 +240,18 @@ class _MapAppState extends State<MapApp> {
                     FloatingActionButton(
                       onPressed: _onMapTypeButtonPressed,
                       materialTapTargetSize: MaterialTapTargetSize.padded,
-                      backgroundColor: Colors.green,
+                      backgroundColor: Color(0xffb11118),
                       child: const Icon(Icons.map, size: 36.0),
                     ),
                     SizedBox(height: 16.0),
                     FloatingActionButton(
                       onPressed: _onAddMarkerButtonPressed,
                       materialTapTargetSize: MaterialTapTargetSize.padded,
-                      backgroundColor: Colors.green,
-                      child: const Icon(Icons.add_location, size: 36.0),
+                      backgroundColor: Color(0xffb11118),
+                      child: const Icon(
+                        Icons.add_location,
+                        size: 36.0,
+                      ),
                     ),
                   ],
                 ),
