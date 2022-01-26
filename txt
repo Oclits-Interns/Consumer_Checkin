@@ -1,20 +1,47 @@
+import 'package:consumer_checkin/services/current_location.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
+import 'current_location.dart';
 
 class mymap extends StatefulWidget {
-  const mymap({this.lan, this.lat});
-  final lan;
-  final lat;
+  const mymap({Key? key}) : super(key: key);
 
   @override
   _mymapState createState() => _mymapState();
 }
 
 class _mymapState extends State<mymap> {
-  Completer<GoogleMapController> _controller = Completer();
+  @override
+  late double latitude;
+  late double longitude;
+  var _center;
 
-  // static const LatLng _center = const LatLng(25.381929, 68.373039);
+  getCurrentLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.low);
+      latitude = position.latitude;
+      longitude = position.longitude;
+
+      LatLng _center = LatLng(latitude, longitude);
+      return _center;
+
+      print(latitude);
+      print(longitude);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  @override
+  void initState() async {
+    super.initState();
+    _center = await getCurrentLocation();
+  }
+
+  Completer<GoogleMapController> _controller = Completer();
 
   void _onMapCreated(GoogleMapController controller) {
     _controller.complete(controller);
@@ -31,8 +58,6 @@ class _mymapState extends State<mymap> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.lan);
-    print(widget.lat);
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -42,12 +67,11 @@ class _mymapState extends State<mymap> {
         body: Stack(
           children: <Widget>[
             GoogleMap(
-              myLocationEnabled: true,
               mapType: _currentMapType,
               onMapCreated: _onMapCreated,
               initialCameraPosition: CameraPosition(
-                target: LatLng(widget.lat, widget.lan),
-                zoom: 13.0,
+                target: _center,
+                zoom: 11.0,
               ),
             ),
             Padding(

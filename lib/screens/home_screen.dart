@@ -2,6 +2,7 @@ import 'package:consumer_checkin/app_theme.dart';
 import 'package:consumer_checkin/services/map.dart';
 import 'package:flutter/material.dart';
 import 'package:consumer_checkin/services/map.dart';
+import 'package:consumer_checkin/screens/loading_screen.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -27,8 +28,10 @@ class _HomeState extends State<Home> {
             return index == 0
                 ? GestureDetector(
                     onTap: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => mymap()));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => LoadingScreen()));
                     },
                     child: const ListTile(
                       contentPadding: EdgeInsets.all(8.0),
