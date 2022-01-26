@@ -21,14 +21,14 @@ class _LoadingScreenState extends State<LoadingScreen> {
   Future<void> getCurrentLocation() async {
     try {
       Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
+          desiredAccuracy: LocationAccuracy.best);
       double latitud = position.latitude;
       double longitud = position.longitude;
       print(latitud);
       print(longitud);
       print("on");
       Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return mymap(lan: longitud, lat: latitud);
+        return MapApp(lan: longitud, lat: latitud);
       }));
     } catch (e) {
       print(e);
@@ -50,7 +50,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
               indicatorType: Indicator.lineScalePulseOutRapid,
 
               /// Required, The loading type of the widget
-              colors: const [Colors.amber],
+              colors: const [Colors.red],
 
               /// Optional, The color collections
               strokeWidth: 1,

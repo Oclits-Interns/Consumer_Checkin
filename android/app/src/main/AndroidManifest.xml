@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.consumer_checkin">
+  
    <application
         android:label="consumer_checkin"
         android:name="${applicationName}"
