@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:consumer_checkin/main.dart';
 import 'package:consumer_checkin/screens/camera_screen.dart';
+import 'package:consumer_checkin/screens/capture_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -40,6 +41,7 @@ class _MapAppState extends State<MapApp> {
                       decoration: InputDecoration(
                         labelText: 'Mobile Number',
                       ),
+                      keyboardType: TextInputType.number,
                     ),
                     TextFormField(
                       decoration: InputDecoration(
@@ -71,7 +73,8 @@ class _MapAppState extends State<MapApp> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => CameraApp()));
+                                builder: (context) =>
+                                    TakePictureScreen(camera: firstCamera)));
                       },
                       child: Text(
                         "TAKE IMAGE",
@@ -100,7 +103,6 @@ class _MapAppState extends State<MapApp> {
               // RaisedButton(
               //     child: Text("Submit"),
               //     onPressed: () {
-              //       // your code
               //     })
             ],
           );
@@ -145,10 +147,15 @@ class _MapAppState extends State<MapApp> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      "BACK",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.red),
+                    GestureDetector(
+                      onTap: () {
+                        _showAlertDialog();
+                      },
+                      child: Text(
+                        "BACK",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.red),
+                      ),
                     ),
                     Text(
                       "SAVE",
@@ -161,7 +168,6 @@ class _MapAppState extends State<MapApp> {
               // RaisedButton(
               //     child: Text("Submit"),
               //     onPressed: () {
-              //       // your code
               //     })
             ],
           );
