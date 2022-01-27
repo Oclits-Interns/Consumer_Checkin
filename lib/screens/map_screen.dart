@@ -1,9 +1,8 @@
 import 'dart:async';
-
-import 'package:consumer_checkin/main.dart';
 import 'package:consumer_checkin/screens/camera_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:consumer_checkin/constant/colors_constant.dart';
 
 class MapApp extends StatefulWidget {
   const MapApp({this.lan, this.lat});
@@ -20,7 +19,6 @@ class _MapAppState extends State<MapApp> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            // backgroundColor: Colors.red,
             scrollable: true,
             title: Text('Consumer Check-In'),
             content: Padding(
@@ -77,14 +75,14 @@ class _MapAppState extends State<MapApp> {
                       },
                       child: Text(
                         "TAKE IMAGE",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.red),
+                        style:
+                            TextStyle(fontWeight: FontWeight.bold, color: kRed),
                       ),
                     ),
                     Text(
                       "SAVE",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.red),
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, color: kRed),
                     ),
                     GestureDetector(
                       onTap: () {
@@ -92,8 +90,8 @@ class _MapAppState extends State<MapApp> {
                       },
                       child: Text(
                         "MORE",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.red),
+                        style:
+                            TextStyle(fontWeight: FontWeight.bold, color: kRed),
                       ),
                     )
                   ],
@@ -114,7 +112,6 @@ class _MapAppState extends State<MapApp> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            // backgroundColor: Colors.red,
             scrollable: true,
             title: Text('More Information'),
             content: Padding(
@@ -149,22 +146,17 @@ class _MapAppState extends State<MapApp> {
                   children: [
                     Text(
                       "BACK",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.red),
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, color: kRed),
                     ),
                     Text(
                       "SAVE",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.red),
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, color: kRed),
                     ),
                   ],
                 ),
               )
-              // RaisedButton(
-              //     child: Text("Submit"),
-              //     onPressed: () {
-              //       // your code
-              //     })
             ],
           );
         });
@@ -223,20 +215,15 @@ class _MapAppState extends State<MapApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: SafeArea(
         child: Scaffold(
-          // appBar: AppBar(
-          //   leading: Icon(Icons.menu),
-          //   centerTitle: true,
-          //   title: Text('Consumer Check-In'),
-          //   backgroundColor: Color(0xffb11118),
-          // ),
           body: Stack(
             children: <Widget>[
               GoogleMap(
                 onMapCreated: _onMapCreated,
                 myLocationEnabled: true,
-                myLocationButtonEnabled: true,
+                myLocationButtonEnabled: false,
                 compassEnabled: true,
                 initialCameraPosition: CameraPosition(
                   target: LatLng(widget.lat, widget.lan),
@@ -255,14 +242,14 @@ class _MapAppState extends State<MapApp> {
                       FloatingActionButton(
                         onPressed: _onMapTypeButtonPressed,
                         materialTapTargetSize: MaterialTapTargetSize.padded,
-                        backgroundColor: Color(0xffb11118),
+                        backgroundColor: kMaroon,
                         child: const Icon(Icons.map, size: 36.0),
                       ),
                       SizedBox(height: 16.0),
                       FloatingActionButton(
                         onPressed: _onAddMarkerButtonPressed,
                         materialTapTargetSize: MaterialTapTargetSize.padded,
-                        backgroundColor: Color(0xffb11118),
+                        backgroundColor: kMaroon,
                         child: const Icon(
                           Icons.add_location,
                           size: 36.0,
@@ -270,10 +257,9 @@ class _MapAppState extends State<MapApp> {
                       ),
                       FloatingActionButton(
                         onPressed: _goToTheLake,
-                        materialTapTargetSize: MaterialTapTargetSize.padded,
-                        backgroundColor: Color(0xffb11118),
+                        backgroundColor: kMaroon,
                         child: const Icon(
-                          Icons.add_location,
+                          Icons.my_location,
                           size: 36.0,
                         ),
                       ),

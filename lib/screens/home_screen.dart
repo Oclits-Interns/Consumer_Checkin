@@ -1,8 +1,6 @@
-import 'package:consumer_checkin/app_theme.dart';
-import 'package:consumer_checkin/services/map.dart';
+import 'package:consumer_checkin/constant/colors_constant.dart';
 import 'package:flutter/material.dart';
-import 'package:consumer_checkin/services/map.dart';
-import 'package:consumer_checkin/screens/loading_screen.dart';
+import 'package:consumer_checkin/services/loading_screen.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
