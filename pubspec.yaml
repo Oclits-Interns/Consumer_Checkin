@@ -43,6 +43,7 @@ dependencies:
   http: ^0.13.4
   loading_indicator: ^3.0.2
   camera: ^0.9.4+7
+  permission_handler: ^8.3.0
 
 flutter_native_splash:
   color: "##e3eba9"
