@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapApp extends StatefulWidget {
-  const MapApp({Key? key}) : super(key: key);
+  const MapApp({this.lan, this.lat});
+  final lan;
+  final lat;
 
   @override
   _MapAppState createState() => _MapAppState();
@@ -41,7 +43,6 @@ class _MapAppState extends State<MapApp> {
                       decoration: InputDecoration(
                         labelText: 'Mobile Number',
                       ),
-                      keyboardType: TextInputType.number,
                     ),
                     TextFormField(
                       decoration: InputDecoration(
@@ -73,8 +74,9 @@ class _MapAppState extends State<MapApp> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) =>
-                                    TakePictureScreen(camera: firstCamera)));
+                                builder: (context) => TakePictureScreen(
+                                      camera: firstCamera,
+                                    )));
                       },
                       child: Text(
                         "TAKE IMAGE",
@@ -103,6 +105,7 @@ class _MapAppState extends State<MapApp> {
               // RaisedButton(
               //     child: Text("Submit"),
               //     onPressed: () {
+              //       // your code
               //     })
             ],
           );
@@ -149,7 +152,7 @@ class _MapAppState extends State<MapApp> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        _showAlertDialog();
+                        Navigator.of(context, rootNavigator: true).pop();
                       },
                       child: Text(
                         "BACK",
@@ -168,6 +171,7 @@ class _MapAppState extends State<MapApp> {
               // RaisedButton(
               //     child: Text("Submit"),
               //     onPressed: () {
+              //       // your code
               //     })
             ],
           );
@@ -184,6 +188,14 @@ class _MapAppState extends State<MapApp> {
 
   MapType _currentMapType = MapType.normal;
 
+  Future<void> _goToTheLake() async {
+    GoogleMapController controller = await _controller.future;
+    controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+      target: LatLng(widget.lat, widget.lan),
+      zoom: 21.0,
+    )));
+  }
+
   void _onMapTypeButtonPressed() {
     setState(() {
       _currentMapType = _currentMapType == MapType.normal
@@ -196,8 +208,9 @@ class _MapAppState extends State<MapApp> {
     setState(() {
       _markers.add(Marker(
         // This marker id can be anything that uniquely identifies each marker.
-        markerId: MarkerId(_lastMapPosition.toString()),
-        position: _lastMapPosition,
+        markerId: MarkerId(LatLng(widget.lat, widget.lan).toString()),
+        position: LatLng(widget.lat, widget.lan),
+
         onTap: () {
           _showAlertDialog();
         },
@@ -218,52 +231,67 @@ class _MapAppState extends State<MapApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          leading: Icon(Icons.menu),
-          centerTitle: true,
-          title: Text('Consumer Check-In'),
-          backgroundColor: Color(0xffb11118),
-        ),
-        body: Stack(
-          children: <Widget>[
-            GoogleMap(
-              onMapCreated: _onMapCreated,
-              initialCameraPosition: CameraPosition(
-                target: _center,
-                zoom: 11.0,
+      home: SafeArea(
+        child: Scaffold(
+          // appBar: AppBar(
+          //   leading: Icon(Icons.menu),
+          //   centerTitle: true,
+          //   title: Text('Consumer Check-In'),
+          //   backgroundColor: Color(0xffb11118),
+          // ),
+          body: Stack(
+            children: <Widget>[
+              GoogleMap(
+                onMapCreated: _onMapCreated,
+                myLocationEnabled: true,
+                myLocationButtonEnabled: true,
+                compassEnabled: true,
+                initialCameraPosition: CameraPosition(
+                  target: LatLng(widget.lat, widget.lan),
+                  zoom: 10.0,
+                ),
+                mapType: _currentMapType,
+                markers: _markers,
+                onCameraMove: _onCameraMove,
               ),
-              mapType: _currentMapType,
-              markers: _markers,
-              onCameraMove: _onCameraMove,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Align(
-                alignment: Alignment.topRight,
-                child: Column(
-                  children: <Widget>[
-                    FloatingActionButton(
-                      onPressed: _onMapTypeButtonPressed,
-                      materialTapTargetSize: MaterialTapTargetSize.padded,
-                      backgroundColor: Color(0xffb11118),
-                      child: const Icon(Icons.map, size: 36.0),
-                    ),
-                    SizedBox(height: 16.0),
-                    FloatingActionButton(
-                      onPressed: _onAddMarkerButtonPressed,
-                      materialTapTargetSize: MaterialTapTargetSize.padded,
-                      backgroundColor: Color(0xffb11118),
-                      child: const Icon(
-                        Icons.add_location,
-                        size: 36.0,
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: Column(
+                    children: <Widget>[
+                      FloatingActionButton(
+                        onPressed: _onMapTypeButtonPressed,
+                        materialTapTargetSize: MaterialTapTargetSize.padded,
+                        backgroundColor: Color(0xffb11118),
+                        child: const Icon(Icons.map, size: 36.0),
                       ),
-                    ),
-                  ],
+                      SizedBox(height: 16.0),
+                      FloatingActionButton(
+                        onPressed: _onAddMarkerButtonPressed,
+                        materialTapTargetSize: MaterialTapTargetSize.padded,
+                        backgroundColor: Color(0xffb11118),
+                        child: const Icon(
+                          Icons.add_location,
+                          size: 36.0,
+                        ),
+                      ),
+                      SizedBox(height: 400),
+                      FloatingActionButton(
+                        onPressed: _goToTheLake,
+                        materialTapTargetSize: MaterialTapTargetSize.padded,
+                        backgroundColor: Color(0xffb11118),
+                        child: const Icon(
+                          Icons.my_location_outlined,
+                          size: 30.0,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

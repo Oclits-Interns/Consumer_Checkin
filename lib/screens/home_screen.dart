@@ -1,3 +1,4 @@
+import 'package:consumer_checkin/screens/loading_screen.dart';
 import 'package:consumer_checkin/screens/map_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -17,8 +18,10 @@ class ListViewBuilder extends StatelessWidget {
             return index == 0
                 ? GestureDetector(
                     onTap: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => MapApp()));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => LoadingScreen()));
                     },
                     child: const ListTile(
                       contentPadding: EdgeInsets.all(8.0),
