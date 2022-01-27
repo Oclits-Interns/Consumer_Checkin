@@ -1,6 +1,116 @@
+import 'package:consumer_checkin/services/current_location.dart';
+import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
+import 'current_location.dart';
+
+class mymap extends StatefulWidget {
+  const mymap({Key? key}) : super(key: key);
+
+  @override
+  _mymapState createState() => _mymapState();
+}
+
+class _mymapState extends State<mymap> {
+  @override
+  late double latitude;
+  late double longitude;
+  var _center;
+
+  getCurrentLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.low);
+      latitude = position.latitude;
+      longitude = position.longitude;
+
+      LatLng _center = LatLng(latitude, longitude);
+      return _center;
+
+      print(latitude);
+      print(longitude);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  @override
+  void initState() async {
+    super.initState();
+    _center = await getCurrentLocation();
+  }
+
+  Completer<GoogleMapController> _controller = Completer();
+
+  void _onMapCreated(GoogleMapController controller) {
+    _controller.complete(controller);
+  }
+
+  MapType _currentMapType = MapType.normal;
+  void _onMapTypeButtonPressed() {
+    setState(() {
+      _currentMapType = _currentMapType == MapType.normal
+          ? MapType.satellite
+          : MapType.normal;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Maps Sample App'),
+          backgroundColor: Colors.green[700],
+        ),
+        body: Stack(
+          children: <Widget>[
+            GoogleMap(
+              mapType: _currentMapType,
+              onMapCreated: _onMapCreated,
+              initialCameraPosition: CameraPosition(
+                target: _center,
+                zoom: 11.0,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Align(
+                alignment: Alignment.topRight,
+                child: FloatingActionButton(
+                  onPressed: _onMapTypeButtonPressed,
+                  materialTapTargetSize: MaterialTapTargetSize.padded,
+                  backgroundColor: Colors.green,
+                  child: const Icon(Icons.map, size: 36.0),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 import 'package:consumer_checkin/screens/camera_screen.dart';
-import 'package:consumer_checkin/services/db_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'dart:async';
+import 'package:consumer_checkin/main.dart';
+import 'package:consumer_checkin/screens/camera_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -14,27 +124,6 @@ class MapApp extends StatefulWidget {
 }
 
 class _MapAppState extends State<MapApp> {
-
-  int consumerID = 0;
-  String name = "";
-  String number = "";
-  String email = "";
-  String address = "";
-  String newAddress = "";
-  String gasCompany = "";
-  String electricCompany = "";
-  String landlineCompany = "";
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  DatabaseService _db = DatabaseService();
-
-
-  // @override
-  // void dispose() {
-  //   super.dispose();
-  // }
-
-  final GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey<ScaffoldState>();
-
   void _showAlertDialog() {
     showDialog(
         context: context,
@@ -46,52 +135,37 @@ class _MapAppState extends State<MapApp> {
             content: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Form(
-                key: _formKey,
                 child: Column(
                   children: <Widget>[
                     TextFormField(
                       decoration: InputDecoration(
                         labelText: 'Consumer Id',
                       ),
-                        onChanged: (val) => setState(() {consumerID = int.parse(val);}),
-                      validator: (String? val) {
-                        if(val == null || val.trim().length == 0) {
-                          return "Consumer ID is mandatory";
-                        }
-                        else {
-                          return null;
-                        }
-                      },
                     ),
                     TextFormField(
                       decoration: InputDecoration(
                         labelText: 'Consumer Name',
                       ),
-                        onChanged: (val) => setState(() {name = val;})
                     ),
                     TextFormField(
                       decoration: InputDecoration(
                         labelText: 'Mobile Number',
                       ),
-                        onChanged: (val) => setState(() {number = val;})
                     ),
                     TextFormField(
                       decoration: InputDecoration(
                         labelText: 'Email',
                       ),
-                        onChanged: (val) => setState(() {email = val;})
                     ),
                     TextFormField(
                       decoration: InputDecoration(
                         labelText: 'Address',
                       ),
-                        onChanged: (val) => setState(() {address = val;})
                     ),
                     TextFormField(
                       decoration: InputDecoration(
                         labelText: 'Enter New Address',
                       ),
-                        onChanged: (val) => setState(() {newAddress = val;})
                     ),
                   ],
                 ),
@@ -116,19 +190,10 @@ class _MapAppState extends State<MapApp> {
                             fontWeight: FontWeight.bold, color: Colors.red),
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        if(_formKey.currentState!.validate()) {
-                          _db.addConsumerEntry(consumerID, name, number, email, address, newAddress, gasCompany, electricCompany, landlineCompany);
-                          ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
-                              content: const Text("Data Inserted")));
-                        }
-                      },
-                      child: Text(
-                        "SAVE",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.red),
-                      ),
+                    Text(
+                      "SAVE",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.red),
                     ),
                     GestureDetector(
                       onTap: () {
@@ -143,6 +208,11 @@ class _MapAppState extends State<MapApp> {
                   ],
                 ),
               )
+              // RaisedButton(
+              //     child: Text("Submit"),
+              //     onPressed: () {
+              //       // your code
+              //     })
             ],
           );
         });
@@ -165,19 +235,16 @@ class _MapAppState extends State<MapApp> {
                       decoration: InputDecoration(
                         labelText: 'Electric Company Id',
                       ),
-                      onChanged: (val) => setState(() {electricCompany = val;})
                     ),
                     TextFormField(
                       decoration: InputDecoration(
                         labelText: 'Gas Company Id',
                       ),
-                        onChanged: (val) => setState(() {gasCompany = val;})
                     ),
                     TextFormField(
                       decoration: InputDecoration(
                         labelText: 'Land Line Id',
                       ),
-                        onChanged: (val) => setState(() {landlineCompany = val;})
                     ),
                   ],
                 ),
@@ -189,15 +256,10 @@ class _MapAppState extends State<MapApp> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    GestureDetector(
-                      onTap: (){
-                        Navigator.of(context, rootNavigator: true).pop();
-                      },
-                      child: Text(
-                        "BACK",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.red),
-                      ),
+                    Text(
+                      "BACK",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.red),
                     ),
                     Text(
                       "SAVE",
@@ -207,6 +269,11 @@ class _MapAppState extends State<MapApp> {
                   ],
                 ),
               )
+              // RaisedButton(
+              //     child: Text("Submit"),
+              //     onPressed: () {
+              //       // your code
+              //     })
             ],
           );
         });
@@ -222,14 +289,6 @@ class _MapAppState extends State<MapApp> {
 
   MapType _currentMapType = MapType.normal;
 
-  Future<void> _goToTheLake() async {
-    GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-      target: LatLng(widget.lat, widget.lan),
-      zoom: 19.0,
-    )));
-  }
-
   void _onMapTypeButtonPressed() {
     setState(() {
       _currentMapType = _currentMapType == MapType.normal
@@ -242,9 +301,8 @@ class _MapAppState extends State<MapApp> {
     setState(() {
       _markers.add(Marker(
         // This marker id can be anything that uniquely identifies each marker.
-        markerId: MarkerId(LatLng(widget.lat, widget.lan).toString()),
-        position: LatLng(widget.lat, widget.lan),
-
+        markerId: MarkerId(_lastMapPosition.toString()),
+        position: _lastMapPosition,
         onTap: () {
           _showAlertDialog();
         },
@@ -264,70 +322,55 @@ class _MapAppState extends State<MapApp> {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.lan);
+    print(widget.lat);
     return MaterialApp(
-      home: SafeArea(
-        child: Scaffold(
-          key: _scaffoldkey,
-          // appBar: AppBar(
-          //   leading: Icon(Icons.menu),
-          //   centerTitle: true,
-          //   title: Text('Consumer Check-In'),
-          //   backgroundColor: Color(0xffb11118),
-          // ),
-          body: Stack(
-            children: <Widget>[
-              GoogleMap(
-                onMapCreated: _onMapCreated,
-                myLocationEnabled: true,
-                myLocationButtonEnabled: true,
-                compassEnabled: true,
-                initialCameraPosition: CameraPosition(
-                  target: LatLng(widget.lat, widget.lan),
-                  zoom: 15.0,
-                ),
-                mapType: _currentMapType,
-                markers: _markers,
-                onCameraMove: _onCameraMove,
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Maps Sample App'),
+          backgroundColor: Colors.green[700],
+        ),
+        body: Stack(
+          children: <Widget>[
+            GoogleMap(
+              myLocationEnabled: true,
+              mapType: _currentMapType,
+              onMapCreated: _onMapCreated,
+              initialCameraPosition: CameraPosition(
+                target: _center,
+                zoom: 13.0,
               ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: Column(
-                    children: <Widget>[
-                      FloatingActionButton(
-                        onPressed: _onMapTypeButtonPressed,
-                        materialTapTargetSize: MaterialTapTargetSize.padded,
-                        backgroundColor: Color(0xffb11118),
-                        child: const Icon(Icons.map, size: 36.0),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Align(
+                alignment: Alignment.topRight,
+                child: Column(
+                  children: <Widget>[
+                    FloatingActionButton(
+                      onPressed: _onMapTypeButtonPressed,
+                      materialTapTargetSize: MaterialTapTargetSize.padded,
+                      backgroundColor: Color(0xffb11118),
+                      child: const Icon(Icons.map, size: 36.0),
+                    ),
+                    SizedBox(height: 16.0),
+                    FloatingActionButton(
+                      onPressed: _onAddMarkerButtonPressed,
+                      materialTapTargetSize: MaterialTapTargetSize.padded,
+                      backgroundColor: Color(0xffb11118),
+                      child: const Icon(
+                        Icons.add_location,
+                        size: 36.0,
                       ),
-                      SizedBox(height: 16.0),
-                      FloatingActionButton(
-                        onPressed: _onAddMarkerButtonPressed,
-                        materialTapTargetSize: MaterialTapTargetSize.padded,
-                        backgroundColor: Color(0xffb11118),
-                        child: const Icon(
-                          Icons.add_location,
-                          size: 36.0,
-                        ),
-                      ),
-                      FloatingActionButton(
-                        onPressed: _goToTheLake,
-                        materialTapTargetSize: MaterialTapTargetSize.padded,
-                        backgroundColor: Color(0xffb11118),
-                        child: const Icon(
-                          Icons.add_location,
-                          size: 36.0,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
+
