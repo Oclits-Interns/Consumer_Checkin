@@ -21,7 +21,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
   Future<void> getCurrentLocation() async {
     try {
       Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.best);
+          desiredAccuracy: LocationAccuracy.high);
       double latitud = position.latitude;
       double longitud = position.longitude;
       print(latitud);

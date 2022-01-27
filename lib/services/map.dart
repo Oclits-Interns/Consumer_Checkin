@@ -180,6 +180,14 @@ class _MapAppState extends State<MapApp> {
 
   MapType _currentMapType = MapType.normal;
 
+  Future<void> _goToTheLake() async {
+    GoogleMapController controller = await _controller.future;
+    controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+      target: LatLng(widget.lat, widget.lan),
+      zoom: 19.0,
+    )));
+  }
+
   void _onMapTypeButtonPressed() {
     setState(() {
       _currentMapType = _currentMapType == MapType.normal
@@ -229,6 +237,7 @@ class _MapAppState extends State<MapApp> {
                 onMapCreated: _onMapCreated,
                 myLocationEnabled: true,
                 myLocationButtonEnabled: true,
+                compassEnabled: true,
                 initialCameraPosition: CameraPosition(
                   target: LatLng(widget.lat, widget.lan),
                   zoom: 15.0,
@@ -259,31 +268,15 @@ class _MapAppState extends State<MapApp> {
                           size: 36.0,
                         ),
                       ),
-                      // FloatingActionButton(
-                      //   onPressed: () {
-                      //     setState(() {
-                      //       GoogleMap(
-                      //         onMapCreated: _onMapCreated,
-                      //         myLocationEnabled: true,
-                      //         myLocationButtonEnabled: true,
-                      //         initialCameraPosition: CameraPosition(
-                      //           target: LatLng(widget.lat, widget.lan),
-                      //           zoom: 25.0,
-                      //         ),
-                      //         mapType: _currentMapType,
-                      //         markers: _markers,
-                      //         onCameraMove: _onCameraMove,
-                      //       );
-                      //     });
-                      //   },
-                      //   materialTapTargetSize: MaterialTapTargetSize.padded,
-                      //   backgroundColor: Color(0xffb11118),
-                      //   child: const Icon(
-                      //     Icons.add_location,
-                      //     size: 36.0,
-                      //   ),
-                      // ),
-                    
+                      FloatingActionButton(
+                        onPressed: _goToTheLake,
+                        materialTapTargetSize: MaterialTapTargetSize.padded,
+                        backgroundColor: Color(0xffb11118),
+                        child: const Icon(
+                          Icons.add_location,
+                          size: 36.0,
+                        ),
+                      ),
                     ],
                   ),
                 ),
