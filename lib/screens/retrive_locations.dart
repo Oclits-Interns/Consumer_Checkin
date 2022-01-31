@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class retriveMarkers extends StatefulWidget {
+  
   @override
   _retriveMarkersState createState() => _retriveMarkersState();
+  
+  
 }
 
 class _retriveMarkersState extends State<retriveMarkers> {
@@ -57,7 +60,7 @@ class _retriveMarkersState extends State<retriveMarkers> {
         onTap: () => _showAlertDialog(),
         infoWindow: InfoWindow(
           title: 'Data',
-          snippet: specify["Address"],
+          snippet: specify["Address"]
         ));
     setState(() {
       markers[markerId] = marker;

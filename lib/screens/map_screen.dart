@@ -26,12 +26,19 @@ class _MapAppState extends State<MapApp> {
   String gasCompany = "";
   String electricCompany = "";
   String landlineCompany = "";
-  double long = 0.0;
-  double lati = 0.0;
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   DatabaseService _db = DatabaseService();
 
-  final GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey<ScaffoldState>();
+  var _Addresstextcontroller = TextEditingController();
+  var _Emailtextcontroller = TextEditingController();
+  var _Consumer_Idtextcontroller = TextEditingController();
+  var _Consumer_Nametextcontroller = TextEditingController();
+  var _Mobile_Numbertextcontroller = TextEditingController();
+  var _Enter_New_Addresstextcontroller = TextEditingController();
+  var _Land_Line_Idtextcontroller = TextEditingController();
+  var _Gas_Company_Idtextcontroller = TextEditingController();
+  var _Electric_Company_Idtextcontroller = TextEditingController();
 
   void _showAlertDialog() {
     showDialog(
@@ -48,6 +55,7 @@ class _MapAppState extends State<MapApp> {
                 child: Column(
                   children: <Widget>[
                     TextFormField(
+                      controller: _Consumer_Idtextcontroller,
                       decoration: InputDecoration(
                         labelText: 'Consumer Id',
                       ),
@@ -63,6 +71,7 @@ class _MapAppState extends State<MapApp> {
                       },
                     ),
                     TextFormField(
+                        controller: _Consumer_Nametextcontroller,
                         decoration: InputDecoration(
                           labelText: 'Consumer Name',
                         ),
@@ -70,6 +79,7 @@ class _MapAppState extends State<MapApp> {
                               name = val;
                             })),
                     TextFormField(
+                        controller: _Mobile_Numbertextcontroller,
                         decoration: InputDecoration(
                           labelText: 'Mobile Number',
                         ),
@@ -77,6 +87,7 @@ class _MapAppState extends State<MapApp> {
                               number = val;
                             })),
                     TextFormField(
+                        controller: _Emailtextcontroller,
                         decoration: InputDecoration(
                           labelText: 'Email',
                         ),
@@ -84,6 +95,7 @@ class _MapAppState extends State<MapApp> {
                               email = val;
                             })),
                     TextFormField(
+                        controller: _Addresstextcontroller,
                         decoration: InputDecoration(
                           labelText: 'Address',
                         ),
@@ -91,6 +103,7 @@ class _MapAppState extends State<MapApp> {
                               address = val;
                             })),
                     TextFormField(
+                        controller: _Enter_New_Addresstextcontroller,
                         decoration: InputDecoration(
                           labelText: 'Enter New Address',
                         ),
@@ -124,27 +137,48 @@ class _MapAppState extends State<MapApp> {
                       onTap: () {
                         if (_formKey.currentState!.validate()) {
                           _db.addConsumerEntry(
-                              location: GeoPoint(widget.lat, widget.lan),
-                              consumerID: consumerID,
-                              name: name,
-                              number: number,
-                              email: email,
-                              address: address,
-                              newAddress: newAddress,
-                              gasCompany: gasCompany,
-                              electricCompany: electricCompany,
-                              landlineCompany: landlineCompany,
-                              long: widget.lan,
-                              lati: widget.lat);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              new SnackBar(
-                                  content: const Text("Data Inserted")));
+                            location: GeoPoint(widget.lat, widget.lan),
+                            consumerID: consumerID,
+                            name: name,
+                            number: number,
+                            email: email,
+                            address: address,
+                            newAddress: newAddress,
+                            gasCompany: gasCompany,
+                            electricCompany: electricCompany,
+                            landlineCompany: landlineCompany,
+                          );
                         }
+
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                content: const Text("Data Uploaded!"),
+                                actions: [
+                                  GestureDetector(
+                                      onTap: () {
+                                        _Consumer_Idtextcontroller.clear();
+                                        _Consumer_Nametextcontroller.clear();
+                                        _Mobile_Numbertextcontroller.clear();
+                                        _Enter_New_Addresstextcontroller
+                                            .clear();
+                                        _Land_Line_Idtextcontroller.clear();
+                                        _Gas_Company_Idtextcontroller.clear();
+                                        _Electric_Company_Idtextcontroller
+                                            .clear();
+                                        _Emailtextcontroller.clear();
+                                        _Addresstextcontroller.clear();
+                                      },
+                                      child: Text("Go Back"))
+                                ],
+                              );
+                            });
                       },
                       child: Text(
                         "SAVE",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.red),
+                        style:
+                            TextStyle(fontWeight: FontWeight.bold, color: kRed),
                       ),
                     ),
                     GestureDetector(
@@ -179,6 +213,7 @@ class _MapAppState extends State<MapApp> {
                 child: Column(
                   children: <Widget>[
                     TextFormField(
+                        controller: _Electric_Company_Idtextcontroller,
                         decoration: InputDecoration(
                           labelText: 'Electric Company Id',
                         ),
@@ -186,6 +221,7 @@ class _MapAppState extends State<MapApp> {
                               electricCompany = val;
                             })),
                     TextFormField(
+                        controller: _Gas_Company_Idtextcontroller,
                         decoration: InputDecoration(
                           labelText: 'Gas Company Id',
                         ),
@@ -193,6 +229,7 @@ class _MapAppState extends State<MapApp> {
                               gasCompany = val;
                             })),
                     TextFormField(
+                        controller: _Land_Line_Idtextcontroller,
                         decoration: InputDecoration(
                           labelText: 'Land Line Id',
                         ),
@@ -233,8 +270,6 @@ class _MapAppState extends State<MapApp> {
   }
 
   final Completer<GoogleMapController> _controller = Completer();
-
-  static const LatLng _center = const LatLng(25.3960, 68.3578);
 
   final Set<Marker> _markers = {};
 
@@ -284,7 +319,6 @@ class _MapAppState extends State<MapApp> {
     return MaterialApp(
       home: SafeArea(
         child: Scaffold(
-          key: _scaffoldkey,
           drawer: Drawer(
             child: ListView(
               // Important: Remove any padding from the ListView.
@@ -297,7 +331,7 @@ class _MapAppState extends State<MapApp> {
                   child: Text('Drawer Header'),
                 ),
                 ListTile(
-                  title: const Text('Item 1'),
+                  title: const Text('Load data'),
                   onTap: () {
                     Navigator.push(
                         context,
@@ -345,12 +379,13 @@ class _MapAppState extends State<MapApp> {
                           size: 36.0,
                         ),
                       ),
+                      SizedBox(height: 16.0),
                       FloatingActionButton(
                         onPressed: _goToTheLake,
                         materialTapTargetSize: MaterialTapTargetSize.padded,
                         backgroundColor: Color(0xffb11118),
                         child: const Icon(
-                          Icons.add_location,
+                          Icons.my_location,
                           size: 36.0,
                         ),
                       ),
