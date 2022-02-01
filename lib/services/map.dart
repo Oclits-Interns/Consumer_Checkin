@@ -268,12 +268,6 @@ class _MapAppState extends State<MapApp> {
       home: SafeArea(
         child: Scaffold(
           key: _scaffoldkey,
-          // appBar: AppBar(
-          //   leading: Icon(Icons.menu),
-          //   centerTitle: true,
-          //   title: Text('Consumer Check-In'),
-          //   backgroundColor: Color(0xffb11118),
-          // ),
           body: Stack(
             children: <Widget>[
               GoogleMap(

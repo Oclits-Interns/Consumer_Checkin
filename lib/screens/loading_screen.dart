@@ -27,7 +27,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
       print(latitud);
       print(longitud);
       print("on");
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
         return MapApp(lan: longitud, lat: latitud);
       }));
     } catch (e) {

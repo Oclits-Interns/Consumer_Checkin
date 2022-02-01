@@ -1,7 +1,6 @@
 import 'package:consumer_checkin/app_theme.dart';
-import 'package:consumer_checkin/services/map.dart';
+import 'package:consumer_checkin/services/auth.dart';
 import 'package:flutter/material.dart';
-import 'package:consumer_checkin/services/map.dart';
 import 'package:consumer_checkin/screens/loading_screen.dart';
 
 class Home extends StatefulWidget {
@@ -12,6 +11,9 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
+  AuthService _auth = AuthService();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,6 +23,12 @@ class _HomeState extends State<Home> {
           Icons.search,
           color: Colors.black,
         ),
+        actions: [
+          GestureDetector(
+            onTap: _auth.signOut,
+              child: Icon(Icons.logout, color: Colors.black)
+          )
+        ],
       ),
       body: ListView.builder(
           itemCount: 15,

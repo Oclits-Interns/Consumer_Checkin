@@ -47,10 +47,12 @@ dependencies:
   camera: ^0.9.4+7
   firebase_core: ^1.11.0
   cloud_firestore: ^3.1.6
+  firebase_auth: ^3.3.6
+  provider: ^6.0.2
+  connectivity_plus: ^2.2.0
 
 flutter_native_splash:
-  color: "##e3eba9"
-  image: assets/logo.png
+  color: "#ffe791"
   android_gravity: center
   fullscreen: true
 
@@ -92,17 +94,14 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
+  fonts:
+    - family: Montserrat
+      fonts:
+       - asset: assets/fonts/Montserrat-Italic-VariableFont_wght.ttf
+       - asset: assets/fonts/Montserrat-VariableFont_wght.ttf
+    - family: Oswald
+      fonts:
+       - asset: assets/fonts/Oswald-VariableFont_wght.ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
