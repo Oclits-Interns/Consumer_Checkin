@@ -4,11 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class retriveMarkers extends StatefulWidget {
-  
   @override
   _retriveMarkersState createState() => _retriveMarkersState();
-  
-  
 }
 
 class _retriveMarkersState extends State<retriveMarkers> {
@@ -57,11 +54,60 @@ class _retriveMarkersState extends State<retriveMarkers> {
         markerId: markerId,
         position:
             LatLng(specify["location"].latitude, specify["location"].longitude),
-        onTap: () => _showAlertDialog(),
-        infoWindow: InfoWindow(
-          title: 'Data',
-          snippet: specify["Address"]
-        ));
+        onTap: () => showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                // backgroundColor: Colors.red,
+                scrollable: true,
+                title: Text('Consumer Check-In'),
+                content: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Consumer_ID : " +
+                              specify["ConsumerID"].toString()),
+                          SizedBox(height: 5),
+                          Text("Name : " + specify["Name"]),
+                          SizedBox(height: 5),
+                          Text("Email : " + specify["Email"]),
+                          SizedBox(height: 5),
+                          Text("Number : " + specify["Number"].toString()),
+                          SizedBox(height: 5),
+                          Text("Electric_Company : " +
+                              specify["ElectricCompany"]),
+                          SizedBox(height: 5),
+                          Text("Gas_Company : " + specify["GasCompany"]),
+                          SizedBox(height: 5),
+                          Text("Landline_Company : " +
+                              specify["ElectricCompany"]),
+                        ],
+                      ),
+                    )),
+                actions: [
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                          onTap: () {},
+                          child: Text(
+                            "Show IMAGE",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              );
+            }),
+        infoWindow: InfoWindow(title: "oks", snippet: specify["Name"]));
     setState(() {
       markers[markerId] = marker;
     });
