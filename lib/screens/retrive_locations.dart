@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:consumer_checkin/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -72,6 +71,7 @@ class _retriveMarkersState extends State<retriveMarkers> {
                               specify["ConsumerID"].toString()),
                           SizedBox(height: 5),
                           Text("Name : " + specify["Name"]),
+                          Text("Id : " + specifyId),
                           SizedBox(height: 5),
                           Text("Email : " + specify["Email"]),
                           SizedBox(height: 5),
@@ -93,6 +93,38 @@ class _retriveMarkersState extends State<retriveMarkers> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        GestureDetector(
+                          onTap: () {
+                            FirebaseFirestore.instance
+                                .collection('Consumers')
+                                .doc(specifyId)
+                                .delete();
+
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    content: const Text("Data Uploaded!"),
+                                    actions: [
+                                      GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        retriveMarkers()));
+                                          },
+                                          child: Text("Go"))
+                                    ],
+                                  );
+                                });
+                          },
+                          child: Text(
+                            "Delet",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, color: Colors.red),
+                          ),
+                        ),
                         GestureDetector(
                           onTap: () {},
                           child: Text(
