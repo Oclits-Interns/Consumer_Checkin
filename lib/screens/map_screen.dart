@@ -1,13 +1,19 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:consumer_checkin/main.dart';
-import 'package:consumer_checkin/screens/camera_screen.dart';
-import 'package:consumer_checkin/screens/capture_image.dart';
+import 'package:consumer_checkin/screens/qr_code_screen.dart';
+import 'package:consumer_checkin/services/firebase_services.dart';
+import 'package:consumer_checkin/services/image_upload.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 
 class MapApp extends StatefulWidget {
-  const MapApp({this.lan, this.lat});
+  MapApp({this.lan, this.lat});
   final lan;
   final lat;
 
@@ -16,6 +22,35 @@ class MapApp extends StatefulWidget {
 }
 
 class _MapAppState extends State<MapApp> {
+  ImagePicker imagePicker = ImagePicker();
+  late File file;
+  late String imageUrl;
+
+  FirebaseAuth auth = FirebaseAuth.instance;
+  FirebaseFirestore db = FirebaseFirestore.instance;
+  final TextEditingController userId = TextEditingController();
+  final TextEditingController userName = TextEditingController();
+  final TextEditingController userEmail = TextEditingController();
+  final TextEditingController userAdress = TextEditingController();
+  final TextEditingController userNewAdress = TextEditingController();
+  final TextEditingController userMobile = TextEditingController();
+  final TextEditingController gasCompanyId = TextEditingController();
+  final TextEditingController electicCompanyId = TextEditingController();
+  final TextEditingController landLineId = TextEditingController();
+  DatabaseService _db = DatabaseService();
+
+  PickedFile? imageFile = null;
+
+  void _openCamera(BuildContext context) async {
+    final pickedFile = await ImagePicker().getImage(
+      source: ImageSource.camera,
+    );
+    setState(() {
+      imageFile = pickedFile!;
+    });
+    Navigator.pop(context);
+  }
+
   void _showAlertDialog() {
     showDialog(
         context: context,
@@ -29,32 +64,90 @@ class _MapAppState extends State<MapApp> {
               child: Form(
                 child: Column(
                   children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => QRViewExample()));
+                            },
+                            child: Text(
+                              "Scan QR/Barcode",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xffb11118)),
+                            )),
+                      ],
+                    ),
                     TextFormField(
+                      controller: userId,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Enter Conusmer Id';
+                        }
+                        return null;
+                      },
                       decoration: InputDecoration(
                         labelText: 'Consumer Id',
                       ),
                     ),
                     TextFormField(
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Enter Conusmer Name';
+                        }
+                        return null;
+                      },
+                      controller: userName,
                       decoration: InputDecoration(
                         labelText: 'Consumer Name',
                       ),
                     ),
                     TextFormField(
+                      validator: (value) {
+                        if (value!.trim().length != 11) {
+                          return 'Enter Mobile Number';
+                        }
+                        return null;
+                      },
+                      controller: userMobile,
                       decoration: InputDecoration(
                         labelText: 'Mobile Number',
                       ),
                     ),
                     TextFormField(
+                      validator: (value) {
+                        if (!value!.contains("@")) {
+                          return 'Enter Valid Email';
+                        }
+                        return null;
+                      },
+                      controller: userEmail,
                       decoration: InputDecoration(
                         labelText: 'Email',
                       ),
                     ),
                     TextFormField(
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Enter Address';
+                        }
+                        return null;
+                      },
+                      controller: userAdress,
                       decoration: InputDecoration(
                         labelText: 'Address',
                       ),
                     ),
                     TextFormField(
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Enter New Address';
+                        }
+                        return null;
+                      },
+                      controller: userNewAdress,
                       decoration: InputDecoration(
                         labelText: 'Enter New Address',
                       ),
@@ -71,23 +164,44 @@ class _MapAppState extends State<MapApp> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => TakePictureScreen(
-                                      camera: firstCamera,
-                                    )));
+                        _openCamera(context);
+                        // Navigator.push(
+                        //     context,
+                        //     MaterialPageRoute(
+                        //         builder: (context) => CameraApp())
+                        //         );
                       },
                       child: Text(
                         "TAKE IMAGE",
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.red),
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xffb11118)),
                       ),
                     ),
-                    Text(
-                      "SAVE",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.red),
+                    GestureDetector(
+                      onTap: () {
+                        _db.addConsumerData(
+                            userId.text,
+                            userName.text,
+                            userEmail.text,
+                            userMobile.text,
+                            userAdress.text,
+                            userNewAdress.text,
+                            imageFile.toString());
+
+                        userId.clear();
+                        userName.clear();
+                        userEmail.clear();
+                        userMobile.clear();
+                        userAdress.clear();
+                        userNewAdress.clear();
+                      },
+                      child: Text(
+                        "SAVE",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xffb11118)),
+                      ),
                     ),
                     GestureDetector(
                       onTap: () {
@@ -96,17 +210,13 @@ class _MapAppState extends State<MapApp> {
                       child: Text(
                         "MORE",
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.red),
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xffb11118)),
                       ),
                     )
                   ],
                 ),
               )
-              // RaisedButton(
-              //     child: Text("Submit"),
-              //     onPressed: () {
-              //       // your code
-              //     })
             ],
           );
         });
@@ -126,16 +236,19 @@ class _MapAppState extends State<MapApp> {
                 child: Column(
                   children: <Widget>[
                     TextFormField(
+                      controller: electicCompanyId,
                       decoration: InputDecoration(
                         labelText: 'Electric Company Id',
                       ),
                     ),
                     TextFormField(
+                      controller: gasCompanyId,
                       decoration: InputDecoration(
                         labelText: 'Gas Company Id',
                       ),
                     ),
                     TextFormField(
+                      controller: landLineId,
                       decoration: InputDecoration(
                         labelText: 'Land Line Id',
                       ),
@@ -160,19 +273,23 @@ class _MapAppState extends State<MapApp> {
                             fontWeight: FontWeight.bold, color: Colors.red),
                       ),
                     ),
-                    Text(
-                      "SAVE",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.red),
+                    GestureDetector(
+                      onTap: () {
+                        _db.consumerMoreDetails(electicCompanyId.text,
+                            gasCompanyId.text, landLineId.text);
+                        electicCompanyId.clear();
+                        gasCompanyId.clear();
+                        landLineId.clear();
+                      },
+                      child: Text(
+                        "SAVE",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.red),
+                      ),
                     ),
                   ],
                 ),
               )
-              // RaisedButton(
-              //     child: Text("Submit"),
-              //     onPressed: () {
-              //       // your code
-              //     })
             ],
           );
         });
@@ -233,12 +350,6 @@ class _MapAppState extends State<MapApp> {
     return MaterialApp(
       home: SafeArea(
         child: Scaffold(
-          // appBar: AppBar(
-          //   leading: Icon(Icons.menu),
-          //   centerTitle: true,
-          //   title: Text('Consumer Check-In'),
-          //   backgroundColor: Color(0xffb11118),
-          // ),
           body: Stack(
             children: <Widget>[
               GoogleMap(

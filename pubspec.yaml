@@ -44,7 +44,12 @@ dependencies:
   firebase_core: 
   firebase_auth: ^3.3.4
   cloud_firestore: ^3.1.5
-  firebase_storage: ^10.2.4
+  firebase_storage: ^10.2.6
+  image_picker: ^0.8.4+5
+  file_picker: ^4.3.3
+  qr_code_scanner: ^0.6.1
+  http: ^0.13.4
+  gsheets: ^0.3.2
  
 
 

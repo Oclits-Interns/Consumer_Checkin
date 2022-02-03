@@ -1,31 +1,37 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+import 'package:image_picker_platform_interface/src/types/picked_file/unsupported.dart';
 
-class FirebaseServices {
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+class DatabaseService {
+  //Collection Reference
+  final CollectionReference userCollection =
+      FirebaseFirestore.instance.collection("Consumers");
 
-  void register() async {
-    FirebaseAuth auth = FirebaseAuth.instance;
-    FirebaseFirestore db = FirebaseFirestore.instance;
+  Future addConsumerData(
+      String userId,
+      String userName,
+      String userEmail,
+      String userMobile,
+      String userAdress,
+      String userNewAdress,
+      String imageFile) async {
+    return await userCollection.doc().set({
+      "ConsumerUserID": userId,
+      "ConsumerName": userName,
+      "ConsumerEmail": userEmail,
+      "ConsumerAddress": userAdress,
+      "ConsumerNewAddress": userNewAdress,
+      "ConsumerMobileNumber": userMobile,
+      "imageFileURL": imageFile,
+    });
+  }
 
-    final String username = usernameController.text;
-
-    final String email = emailController.text;
-    final String password = passwordController.text;
-
-    try {
-      final UserCredential user = await auth.createUserWithEmailAndPassword(
-          email: email, password: password);
-      db.collection("user").doc(user.user!.uid).set({
-        "user name": username,
-        "email": email,
-        "password": password,
+  Future consumerMoreDetails(
+      String electricCompanyId, String gasCompanyId, String landLineId) async {
+    return await FirebaseFirestore.instance.collection("Consumers").doc()
+      ..collection("MoreDetails").add({
+        "Category": electricCompanyId,
+        "Item_name": gasCompanyId,
+        "price": landLineId,
       });
-    } catch (e) {
-      print("Error");
-    }
   }
 }
