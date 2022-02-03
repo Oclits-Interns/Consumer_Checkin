@@ -21,19 +21,21 @@ class DBProvider {
     return _database;
   }
 
+
+
   initDB() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, "ConsumerDB.db");
     return await openDatabase(path, version: 1, onOpen: (db) {
     }, onCreate: (Database db, int version) async {
       await db.execute('''CREATE TABLE Consumers(
-          "id INTEGER PRIMARY KEY",
-          "name TEXT",
-          "number INT",
-          "email_address TEXT",
-          "address TEXT",
-          "gas_company_id INT",
-          "electricity_company_id INT",
+          "id INTEGER PRIMARY KEY,"
+          "name TEXT,"
+          "number INT,"
+          "email_address TEXT,"
+          "address TEXT,"
+          "gas_company_id INT,"
+          "electricity_company_id INT,"
           "landline_company_id INT"
           )''');
     });
@@ -68,15 +70,21 @@ class DBProvider {
   }
 
   //Validation without Internet connection
-  Future<int?> ValidateWithoutInternet(String username, String password) async {
+  Future<int> ValidateWithoutInternet(String _email, String _password) async {
     _database = await db.ValidateDBAtLogin();
     dynamic userValidated = Sqflite.firstIntValue(
         await _database!.rawQuery('''
-      SELECT COUNT(*) FROM $table WHERE $email = '$username' $password = '$password'
-    ''')
+      SELECT COUNT(*) FROM $table WHERE $email=? AND $password=?
+    ''',
+        ['$_email', '$_password'])
     );
     return userValidated;
   }
+  //
+  // //to delete entire table
+  // Future deleteTable() async {
+  //   return await _database?.execute('DELETE TABLE $table ');
+  // }
 
   //to clear a table content
   Future DeleteSigninUser() async {

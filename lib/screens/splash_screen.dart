@@ -1,4 +1,5 @@
 import 'package:consumer_checkin/app_theme.dart';
+import 'package:consumer_checkin/screens/authentication/offline_signIn_Screen.dart';
 import 'package:consumer_checkin/widgets/logo.dart';
 import 'package:consumer_checkin/wrapper.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +41,7 @@ class _SplashState extends State<Splash> {
       }
       );
     } else if (connectivityResult == ConnectivityResult.wifi) {
-      NavigateToHome();
+      navigateToOnlineAuth();
       // showDialog(
       //     context: context, builder: (BuildContext context) {
       //     return AlertDialog(
@@ -58,26 +59,17 @@ class _SplashState extends State<Splash> {
       // );
     }
     else {
-      showDialog(
-          context: context, builder: (BuildContext context) {
-        return AlertDialog(
-          content: const Text("You're not connected to the internet"),
-          actions: [
-            GestureDetector(
-                onTap: () {
-                  Navigator.of(context, rootNavigator: true).pop();
-                },
-                child: Text("OK")
-            )
-          ],
-        );
-      }
-      );
+      navigateToOfflineAuth();
     }
   }
 
-  NavigateToHome() async {
-    await Future.delayed(const Duration(milliseconds: 3000), () {});
+  navigateToOfflineAuth() async {
+    await Future.delayed(const Duration(milliseconds: 1500), () {});
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const OfflineSignIn()));
+  }
+
+  navigateToOnlineAuth() async {
+    await Future.delayed(const Duration(milliseconds: 1500), () {});
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Wrapper()));
   }
 
