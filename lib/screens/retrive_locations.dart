@@ -8,42 +8,18 @@ class retriveMarkers extends StatefulWidget {
 }
 
 class _retriveMarkersState extends State<retriveMarkers> {
-  void _showAlertDialog() {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            // backgroundColor: Colors.red,
-            scrollable: true,
-            title: Text('Consumer Check-In'),
-            content: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  child: Column(),
-                )),
-            actions: [
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () {},
-                      child: Text(
-                        "Show IMAGE",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.red),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            ],
-          );
-        });
-  }
+  int consumerID = 0;
+  String name = "";
+  String number = "";
+  String email = "";
+  String address = "";
+  String newAddress = "";
+  String gasCompany = "";
+  String electricCompany = "";
+  String landlineCompany = "";
 
   late GoogleMapController controller;
+
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
 
   void initMarker(specify, specifyId) async {
@@ -57,9 +33,8 @@ class _retriveMarkersState extends State<retriveMarkers> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                // backgroundColor: Colors.red,
                 scrollable: true,
-                title: Text('Consumer Check-In'),
+                title: Text('Consumer Details'),
                 content: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Container(
@@ -95,6 +70,150 @@ class _retriveMarkersState extends State<retriveMarkers> {
                       children: [
                         GestureDetector(
                           onTap: () {
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    // backgroundColor: Colors.red,
+                                    scrollable: true,
+                                    title: Text('Consumer Check-In'),
+                                    content: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Form(
+                                        child: Column(
+                                          children: <Widget>[
+                                            TextFormField(
+                                              controller: TextEditingController(
+                                                  text: specify["ConsumerID"]
+                                                      .toString()),
+                                              onChanged: (val) => setState(() {
+                                                consumerID = int.parse(val);
+                                              }),
+                                            ),
+                                            TextFormField(
+                                                controller:
+                                                    TextEditingController(
+                                                        text: specify["Name"]),
+                                                onChanged: (val) =>
+                                                    setState(() {
+                                                      name = val;
+                                                    })),
+                                            TextFormField(
+                                                controller:
+                                                    TextEditingController(
+                                                        text: specify["Email"]),
+                                                onChanged: (val) =>
+                                                    setState(() {
+                                                      email = val;
+                                                    })),
+                                            // TextFormField(
+                                            //     controller:
+                                            //       TextEditingController(text: specify["Name"]),
+
+                                            //     onChanged: (val) =>
+                                            //         setState(() {
+                                            //           email = val;
+                                            //         })),
+                                            // TextFormField(
+                                            //    controller:
+                                            //       TextEditingController(text: specify["Name"]),
+                                            //     decoration: InputDecoration(
+                                            //       labelText: 'Address',
+                                            //     ),
+                                            //     onChanged: (val) =>
+                                            //         setState(() {
+                                            //           address = val;
+                                            //         })),
+                                            // TextFormField(
+                                            //    controller:
+                                            //       TextEditingController(text: specify["Name"]),
+                                            //     decoration: InputDecoration(
+                                            //       labelText:
+                                            //           'Enter New Address',
+                                            //     ),
+                                            //     onChanged: (val) =>
+                                            //         setState(() {
+                                            //           newAddress = val;
+                                            //         })),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    actions: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(12.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            GestureDetector(
+                                              child: Text(
+                                                "SAVE",
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.black),
+                                              ),
+                                              onTap: () {
+                                                showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return AlertDialog(
+                                                        content: const Text(
+                                                            "Edit Deleted!"),
+                                                        actions: [
+                                                          GestureDetector(
+                                                              onTap: () {
+                                                                FirebaseFirestore
+                                                                    .instance
+                                                                    .collection(
+                                                                        'Consumers')
+                                                                    .doc(
+                                                                        specifyId)
+                                                                    .update({
+                                                                  "ConsumerID":
+                                                                      consumerID,
+                                                                  "Name": name,
+                                                                  "Number":
+                                                                      number,
+                                                                  "Email":
+                                                                      email,
+                                                                  // address: address,
+                                                                  // newAddress: newAddress,
+                                                                  // gasCompany: gasCompany,
+                                                                  // electricCompany:
+                                                                  //     electricCompany,
+                                                                  // landlineCompany:
+                                                                  //     landlineCompany,
+                                                                });
+                                                                Navigator.pushReplacement(
+                                                                    context,
+                                                                    MaterialPageRoute(
+                                                                        builder:
+                                                                            (context) =>
+                                                                                retriveMarkers()));
+                                                              },
+                                                              child: Text("OK"))
+                                                        ],
+                                                      );
+                                                    });
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  );
+                                });
+                          },
+                          child: Text(
+                            "Edit Data",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, color: Colors.red),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
                             FirebaseFirestore.instance
                                 .collection('Consumers')
                                 .doc(specifyId)
@@ -104,23 +223,23 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
-                                    content: const Text("Data Uploaded!"),
+                                    content: const Text("Data Deleted!"),
                                     actions: [
                                       GestureDetector(
                                           onTap: () {
-                                            Navigator.push(
+                                            Navigator.pushReplacement(
                                                 context,
                                                 MaterialPageRoute(
                                                     builder: (context) =>
                                                         retriveMarkers()));
                                           },
-                                          child: Text("Go"))
+                                          child: Text("OK"))
                                     ],
                                   );
                                 });
                           },
                           child: Text(
-                            "Delet",
+                            "Delet Data",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, color: Colors.red),
                           ),
@@ -180,7 +299,7 @@ class _retriveMarkersState extends State<retriveMarkers> {
             mapType: MapType.normal,
             markers: Set<Marker>.of(markers.values),
             initialCameraPosition: CameraPosition(
-              target: LatLng(21.1458, 79.2882),
+              target: LatLng(25.3960, 68.3578),
               zoom: 15.0,
             ),
             onMapCreated: (GoogleMapController controller) {
