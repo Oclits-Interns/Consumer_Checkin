@@ -52,13 +52,15 @@ class _retriveMarkersState extends State<retriveMarkers> {
                           SizedBox(height: 5),
                           Text("Number : " + specify["Number"].toString()),
                           SizedBox(height: 5),
+                          SizedBox(height: 5),
+                          Text("Address : " + specify["Address"]),
                           Text("Electric_Company : " +
                               specify["ElectricCompany"]),
                           SizedBox(height: 5),
                           Text("Gas_Company : " + specify["GasCompany"]),
                           SizedBox(height: 5),
                           Text("Landline_Company : " +
-                              specify["ElectricCompany"]),
+                              specify["LandlineCompany"]),
                         ],
                       ),
                     )),
@@ -89,11 +91,17 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                               onChanged: (val) => setState(() {
                                                 consumerID = int.parse(val);
                                               }),
+                                              decoration: InputDecoration(
+                                                labelText: 'EnterConsumerID',
+                                              ),
                                             ),
                                             TextFormField(
                                                 controller:
                                                     TextEditingController(
                                                         text: specify["Name"]),
+                                                decoration: InputDecoration(
+                                                  labelText: 'Enter Name',
+                                                ),
                                                 onChanged: (val) =>
                                                     setState(() {
                                                       name = val;
@@ -101,40 +109,77 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                             TextFormField(
                                                 controller:
                                                     TextEditingController(
+                                                        text:
+                                                            specify["Number"]),
+                                                decoration: InputDecoration(
+                                                  labelText: 'Enter Number',
+                                                ),
+                                                onChanged: (val) =>
+                                                    setState(() {
+                                                      number = val;
+                                                    })),
+                                            TextFormField(
+                                                controller:
+                                                    TextEditingController(
                                                         text: specify["Email"]),
+                                                decoration: InputDecoration(
+                                                  labelText: 'Enter Email',
+                                                ),
                                                 onChanged: (val) =>
                                                     setState(() {
                                                       email = val;
                                                     })),
-                                            // TextFormField(
-                                            //     controller:
-                                            //       TextEditingController(text: specify["Name"]),
-
-                                            //     onChanged: (val) =>
-                                            //         setState(() {
-                                            //           email = val;
-                                            //         })),
-                                            // TextFormField(
-                                            //    controller:
-                                            //       TextEditingController(text: specify["Name"]),
-                                            //     decoration: InputDecoration(
-                                            //       labelText: 'Address',
-                                            //     ),
-                                            //     onChanged: (val) =>
-                                            //         setState(() {
-                                            //           address = val;
-                                            //         })),
-                                            // TextFormField(
-                                            //    controller:
-                                            //       TextEditingController(text: specify["Name"]),
-                                            //     decoration: InputDecoration(
-                                            //       labelText:
-                                            //           'Enter New Address',
-                                            //     ),
-                                            //     onChanged: (val) =>
-                                            //         setState(() {
-                                            //           newAddress = val;
-                                            //         })),
+                                            TextFormField(
+                                                controller:
+                                                    TextEditingController(
+                                                        text:
+                                                            specify["Address"]),
+                                                decoration: InputDecoration(
+                                                  labelText: 'Enter Address',
+                                                ),
+                                                onChanged: (val) =>
+                                                    setState(() {
+                                                      address = val;
+                                                    })),
+                                            TextFormField(
+                                                controller:
+                                                    TextEditingController(
+                                                        text: specify[
+                                                            "ElectricCompany"]),
+                                                decoration: InputDecoration(
+                                                  labelText:
+                                                      'Enter Electric Company',
+                                                ),
+                                                onChanged: (val) =>
+                                                    setState(() {
+                                                      electricCompany = val;
+                                                    })),
+                                            TextFormField(
+                                                controller:
+                                                    TextEditingController(
+                                                        text: specify[
+                                                            "GasCompany"]),
+                                                decoration: InputDecoration(
+                                                  labelText:
+                                                      'Enter Gas Company',
+                                                ),
+                                                onChanged: (val) =>
+                                                    setState(() {
+                                                      gasCompany = val;
+                                                    })),
+                                            TextFormField(
+                                                controller:
+                                                    TextEditingController(
+                                                        text: specify[
+                                                            "LandlineCompany"]),
+                                                decoration: InputDecoration(
+                                                  labelText:
+                                                      'Enter Landline Company',
+                                                ),
+                                                onChanged: (val) =>
+                                                    setState(() {
+                                                      landlineCompany = val;
+                                                    })),
                                           ],
                                         ),
                                       ),
@@ -178,13 +223,14 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                                                       number,
                                                                   "Email":
                                                                       email,
-                                                                  // address: address,
-                                                                  // newAddress: newAddress,
-                                                                  // gasCompany: gasCompany,
-                                                                  // electricCompany:
-                                                                  //     electricCompany,
-                                                                  // landlineCompany:
-                                                                  //     landlineCompany,
+                                                                  "Address":
+                                                                      address,
+                                                                  "GasCompany":
+                                                                      gasCompany,
+                                                                  "ElectricCompany":
+                                                                      electricCompany,
+                                                                  "LandlineCompany":
+                                                                      landlineCompany,
                                                                 });
                                                                 Navigator.pushReplacement(
                                                                     context,
