@@ -18,6 +18,13 @@ class _mymapState extends State<mymap> {
   late double longitude;
   var _center;
 oks ali
+AnimatedBuilder(
+  animation: animation,
+  child: child,
+  builder: (BuildContext context, Widget child) {
+    return ;
+  },
+),
   getCurrentLocation() async {
     try {
       Position position = await Geolocator.getCurrentPosition(
