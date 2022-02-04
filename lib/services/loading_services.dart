@@ -37,10 +37,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // getfuture();4
     getCurrentLocation();
-    // print(latitud);
-    // print(longitud);
     return Scaffold(
       body: Center(
         child: SizedBox(
@@ -48,11 +45,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
           height: 50,
           child: LoadingIndicator(
               indicatorType: Indicator.lineScalePulseOutRapid,
-
-              /// Required, The loading type of the widget
               colors: const [Colors.red],
-
-              /// Optional, The color collections
               strokeWidth: 1,
 
               /// Optional, The stroke of the line, only applicable to widget which contains line

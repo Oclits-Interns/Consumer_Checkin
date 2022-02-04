@@ -10,9 +10,9 @@ class DBProvider {
   static final DBProvider db = DBProvider._();
 
   static Database? _database;
-  static final table = 'UserCredentials';
-  static final email = 'email';
-  static final password = 'password';
+  static const table = 'UserCredentials';
+  static const email = 'email';
+  static const password = 'password';
 
   Future<Database?> get database async {
     if (_database != null) return _database;
@@ -21,33 +21,45 @@ class DBProvider {
     return _database;
   }
 
-
-
   initDB() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, "ConsumerDB.db");
     return await openDatabase(path, version: 1, onOpen: (db) {
     }, onCreate: (Database db, int version) async {
-      await db.execute('''CREATE TABLE Consumers(
-          "id INTEGER PRIMARY KEY,"
-          "name TEXT,"
-          "number INT,"
-          "email_address TEXT,"
-          "address TEXT,"
-          "gas_company_id INT,"
-          "electricity_company_id INT,"
-          "landline_company_id INT"
-          )''');
+      await db.execute('''
+      CREATE TABLE IF NOT EXISTS Consumers(
+          id INTEGER PRIMARY KEY  ,
+          plot_type TEXT  ,
+          name TEXT ,
+          number INT  ,
+          email_address TEXT  ,
+          uc_num TEXT ,
+          ward_num  TEXT  ,
+          address TEXT  ,
+          new_address TEXT ,
+          gas_company_id INT  ,
+          electricity_company_id INT  ,
+          landline_company_id INT
+           )
+           
+          ''');
     });
   }
 
-  Future<Database?> ValidateDBExistsWithoutInternet() async {
+  Future insertConsumerEntryOffline(int consumerId, String plotType, String name, String number, String email, String ucNum, String wardNumber, String address, String newAddress, String gasCompany, String electricCompany, String landlineCompany) async {
+    await _database!.execute('''
+    INSERT INTO Consumers(id, plot_type, name, number, email_address, uc_num, ward_num, address, new_address, gas_company_id, electricity_company_id, landline_company_id)
+    VALUES ('$consumerId', '$plotType', '$name', '$number', '$email', '$ucNum', '$wardNumber', '$address', '$newAddress', '$gasCompany', '$electricCompany', '$landlineCompany') 
+    ''');
+  }
+
+  Future<Database?> validateDBExistsWithoutInternet() async {
     {
       if (_database != null) return _database;
     }
   }
 
-  Future<Database?> ValidateDBAtLogin() async {
+  Future<Database?> validateDBAtLogin() async {
     //Future<Database> get database async
     {
       if (_database != null) return _database;
@@ -57,10 +69,10 @@ class DBProvider {
     }
   }
 
-  Future CreateTableAtLogin() async {
+  Future createTableAtLogin() async {
 
 
-    _database = await db.ValidateDBAtLogin();
+    _database = await db.validateDBAtLogin();
     await _database?.execute('''
           CREATE TABLE IF NOT EXISTS $table(
       $email nvarchar  ,
@@ -70,8 +82,8 @@ class DBProvider {
   }
 
   //Validation without Internet connection
-  Future<int> ValidateWithoutInternet(String _email, String _password) async {
-    _database = await db.ValidateDBAtLogin();
+  Future<int> validateWithoutInternet(String _email, String _password) async {
+    _database = await db.validateDBAtLogin();
     dynamic userValidated = Sqflite.firstIntValue(
         await _database!.rawQuery('''
       SELECT COUNT(*) FROM $table WHERE $email=? AND $password=?
@@ -80,22 +92,18 @@ class DBProvider {
     );
     return userValidated;
   }
-  //
-  // //to delete entire table
-  // Future deleteTable() async {
-  //   return await _database?.execute('DELETE TABLE $table ');
-  // }
+
 
   //to clear a table content
-  Future DeleteSigninUser() async {
-    _database = await db.ValidateDBAtLogin();
+  Future deleteSigninUser() async {
+    _database = await db.validateDBAtLogin();
     _database?.rawQuery('''
       DELETE FROM $table
     ''');
   }
 
-  Future InsertSigninUser(String _email, String _password) async {
-    _database = await db.ValidateDBAtLogin();
+  Future insertSigninUser(String _email, String _password) async {
+    _database = await db.validateDBAtLogin();
     _database?.rawInsert('''
       INSERT INTO $table($email, $password)  VALUES("$_email", "$_password")
     ''');

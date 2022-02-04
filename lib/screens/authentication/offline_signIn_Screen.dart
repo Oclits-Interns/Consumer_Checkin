@@ -1,4 +1,4 @@
-import 'package:consumer_checkin/app_theme.dart';
+import 'package:consumer_checkin/constant/colors_constant.dart';
 import 'package:consumer_checkin/local_DB/local_db.dart';
 import 'package:consumer_checkin/screens/home_screen.dart';
 import 'package:consumer_checkin/widgets/logo.dart';
@@ -87,11 +87,11 @@ class _OfflineSignInState extends State<OfflineSignIn> {
                             if(_formKey.currentState!.validate()) {
 
                               // First we check whether DB exists or not, if it doesn't the method below creates it
-                              await DBProvider.db.ValidateDBExistsWithoutInternet();
+                              await DBProvider.db.validateDBExistsWithoutInternet();
                               // Then we check whether table SignInUser exists, if it doesn't we create it first
-                              await DBProvider.db.CreateTableAtLogin();
+                              await DBProvider.db.createTableAtLogin();
                               // If Database is found, we look for the user with the provided credentials in the SignInUser table,
-                                SignInUser = await DBProvider.db.ValidateWithoutInternet(_email, _password);
+                                SignInUser = await DBProvider.db.validateWithoutInternet(_email, _password);
                               // The above method will return 1 if user is found, and 0 or garbage value if not found
                               if(SignInUser == 1){
                                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Home()));
@@ -102,7 +102,7 @@ class _OfflineSignInState extends State<OfflineSignIn> {
                                       content: const Text("Multiple records found, please wait"),
                                       duration: new Duration(milliseconds: 3000),
                                     ));
-                                DBProvider.db.DeleteSigninUser();
+                                DBProvider.db.deleteSigninUser();
                               }
                               else {
                                 ScaffoldMessenger.of(context).showSnackBar(

@@ -1,5 +1,10 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:consumer_checkin/constant/colors_constant.dart';
+import 'package:consumer_checkin/local_DB/local_db.dart';
 import 'package:consumer_checkin/screens/camera_screen.dart';
+import 'package:consumer_checkin/screens/retrive_locations.dart';
 import 'package:consumer_checkin/services/db_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -14,26 +19,43 @@ class MapApp extends StatefulWidget {
 }
 
 class _MapAppState extends State<MapApp> {
-
   int consumerID = 0;
+  String plotType = "";
   String name = "";
   String number = "";
   String email = "";
+  String ucNum = "";
+  String wardNum = "";
   String address = "";
   String newAddress = "";
   String gasCompany = "";
   String electricCompany = "";
   String landlineCompany = "";
+  bool isConnected = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   DatabaseService _db = DatabaseService();
-
-
-  // @override
-  // void dispose() {
-  //   super.dispose();
-  // }
-
-  final GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey<ScaffoldState>();
+  checkConn() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      setState(() {
+        isConnected = false;
+      });
+    }
+    else {
+      setState(() {
+        isConnected = true;
+      });
+    }
+  }
+  var _Addresstextcontroller = TextEditingController();
+  var _Emailtextcontroller = TextEditingController();
+  var _Consumer_Idtextcontroller = TextEditingController();
+  var _Consumer_Nametextcontroller = TextEditingController();
+  var _Mobile_Numbertextcontroller = TextEditingController();
+  var _Enter_New_Addresstextcontroller = TextEditingController();
+  var _Land_Line_Idtextcontroller = TextEditingController();
+  var _Gas_Company_Idtextcontroller = TextEditingController();
+  var _Electric_Company_Idtextcontroller = TextEditingController();
 
   void _showAlertDialog() {
     showDialog(
@@ -50,49 +72,61 @@ class _MapAppState extends State<MapApp> {
                 child: Column(
                   children: <Widget>[
                     TextFormField(
+                      controller: _Consumer_Idtextcontroller,
                       decoration: InputDecoration(
                         labelText: 'Consumer Id',
                       ),
-                        onChanged: (val) => setState(() {consumerID = int.parse(val);}),
+                      onChanged: (val) => setState(() {
+                        consumerID = int.parse(val);
+                      }),
                       validator: (String? val) {
-                        if(val == null || val.trim().length == 0) {
+                        if (val == null || val.trim().length == 0) {
                           return "Consumer ID is mandatory";
-                        }
-                        else {
+                        } else {
                           return null;
                         }
                       },
                     ),
                     TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'Consumer Name',
-                      ),
-                        onChanged: (val) => setState(() {name = val;})
-                    ),
+                        controller: _Consumer_Nametextcontroller,
+                        decoration: InputDecoration(
+                          labelText: 'Consumer Name',
+                        ),
+                        onChanged: (val) => setState(() {
+                              name = val;
+                            })),
                     TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'Mobile Number',
-                      ),
-                        onChanged: (val) => setState(() {number = val;})
-                    ),
+                        controller: _Mobile_Numbertextcontroller,
+                        decoration: InputDecoration(
+                          labelText: 'Mobile Number',
+                        ),
+                        onChanged: (val) => setState(() {
+                              number = val;
+                            })),
                     TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                      ),
-                        onChanged: (val) => setState(() {email = val;})
-                    ),
+                        controller: _Emailtextcontroller,
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                        ),
+                        onChanged: (val) => setState(() {
+                              email = val;
+                            })),
                     TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'Address',
-                      ),
-                        onChanged: (val) => setState(() {address = val;})
-                    ),
+                        controller: _Addresstextcontroller,
+                        decoration: InputDecoration(
+                          labelText: 'Address',
+                        ),
+                        onChanged: (val) => setState(() {
+                              address = val;
+                            })),
                     TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'Enter New Address',
-                      ),
-                        onChanged: (val) => setState(() {newAddress = val;})
-                    ),
+                        controller: _Enter_New_Addresstextcontroller,
+                        decoration: InputDecoration(
+                          labelText: 'Enter New Address',
+                        ),
+                        onChanged: (val) => setState(() {
+                              newAddress = val;
+                            })),
                   ],
                 ),
               ),
@@ -119,9 +153,52 @@ class _MapAppState extends State<MapApp> {
                     GestureDetector(
                       onTap: () {
                         if(_formKey.currentState!.validate()) {
-                          _db.addConsumerEntry(consumerID, name, number, email, address, newAddress, gasCompany, electricCompany, landlineCompany);
-                          ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
-                              content: const Text("Data Inserted")));
+                          if(isConnected) {
+                            _db.addConsumerEntry(
+                                consumerID: consumerID,
+                                name: name,
+                                number: number,
+                                email: email,
+                                address: address,
+                                newAddress: newAddress,
+                                gasCompany: gasCompany,
+                                electricCompany: electricCompany,
+                                landlineCompany: landlineCompany,
+                                location: GeoPoint(widget.lat, widget.lan));
+                            showDialog(
+                                context: context, builder: (BuildContext context) {
+                              return AlertDialog(
+                                content: const Text("Data inserted"),
+                                actions: [
+                                  GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context, rootNavigator: true).pop();
+                                      },
+                                      child: Text("OK")
+                                  )
+                                ],
+                              );
+                            }
+                            );
+                          }
+                          else {
+                            DBProvider.db.insertConsumerEntryOffline(consumerID, plotType, name, number, email, ucNum, wardNum, address, newAddress, gasCompany, electricCompany, landlineCompany);
+                            showDialog(
+                                context: context, builder: (BuildContext context) {
+                              return AlertDialog(
+                                content: const Text("Data inserted to local database"),
+                                actions: [
+                                  GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context, rootNavigator: true).pop();
+                                      },
+                                      child: Text("OK")
+                                  )
+                                ],
+                              );
+                            }
+                            );
+                          }
                         }
                       },
                       child: Text(
@@ -162,23 +239,29 @@ class _MapAppState extends State<MapApp> {
                 child: Column(
                   children: <Widget>[
                     TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'Electric Company Id',
-                      ),
-                      onChanged: (val) => setState(() {electricCompany = val;})
-                    ),
+                        controller: _Electric_Company_Idtextcontroller,
+                        decoration: InputDecoration(
+                          labelText: 'Electric Company Id',
+                        ),
+                        onChanged: (val) => setState(() {
+                              electricCompany = val;
+                            })),
                     TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'Gas Company Id',
-                      ),
-                        onChanged: (val) => setState(() {gasCompany = val;})
-                    ),
+                        controller: _Gas_Company_Idtextcontroller,
+                        decoration: InputDecoration(
+                          labelText: 'Gas Company Id',
+                        ),
+                        onChanged: (val) => setState(() {
+                              gasCompany = val;
+                            })),
                     TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'Land Line Id',
-                      ),
-                        onChanged: (val) => setState(() {landlineCompany = val;})
-                    ),
+                        controller: _Land_Line_Idtextcontroller,
+                        decoration: InputDecoration(
+                          labelText: 'Land Line Id',
+                        ),
+                        onChanged: (val) => setState(() {
+                              landlineCompany = val;
+                            })),
                   ],
                 ),
               ),
@@ -190,7 +273,7 @@ class _MapAppState extends State<MapApp> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     GestureDetector(
-                      onTap: (){
+                      onTap: () {
                         Navigator.of(context, rootNavigator: true).pop();
                       },
                       child: Text(
@@ -214,11 +297,7 @@ class _MapAppState extends State<MapApp> {
 
   final Completer<GoogleMapController> _controller = Completer();
 
-  static const LatLng _center = const LatLng(25.3960, 68.3578);
-
   final Set<Marker> _markers = {};
-
-  LatLng _lastMapPosition = _center;
 
   MapType _currentMapType = MapType.normal;
 
@@ -254,20 +333,41 @@ class _MapAppState extends State<MapApp> {
     });
   }
 
-  void _onCameraMove(CameraPosition position) {
-    _lastMapPosition = position.target;
-  }
+  void _onCameraMove(CameraPosition position) {}
 
   void _onMapCreated(GoogleMapController controller) {
     _controller.complete(controller);
   }
 
+  Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: SafeArea(
         child: Scaffold(
-          key: _scaffoldkey,
+          drawer: Drawer(
+            child: ListView(
+              // Important: Remove any padding from the ListView.
+              padding: EdgeInsets.zero,
+              children: [
+                const DrawerHeader(
+                  decoration: BoxDecoration(
+                    color: Color(0xffb11118),
+                  ),
+                  child: Text('Drawer Header'),
+                ),
+                ListTile(
+                  title: const Text('Load data'),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => retriveMarkers()));
+                  },
+                ),
+              ],
+            ),
+          ),
           body: Stack(
             children: <Widget>[
               GoogleMap(
@@ -305,12 +405,13 @@ class _MapAppState extends State<MapApp> {
                           size: 36.0,
                         ),
                       ),
+                      SizedBox(height: 16.0),
                       FloatingActionButton(
                         onPressed: _goToTheLake,
                         materialTapTargetSize: MaterialTapTargetSize.padded,
                         backgroundColor: Color(0xffb11118),
                         child: const Icon(
-                          Icons.add_location,
+                          Icons.my_location,
                           size: 36.0,
                         ),
                       ),

@@ -1,4 +1,4 @@
-import 'package:consumer_checkin/app_theme.dart';
+import 'package:consumer_checkin/local_DB/local_db.dart';
 import 'package:consumer_checkin/screens/authentication/offline_signIn_Screen.dart';
 import 'package:consumer_checkin/widgets/logo.dart';
 import 'package:consumer_checkin/wrapper.dart';
@@ -18,7 +18,6 @@ class _SplashState extends State<Splash> {
   void initState() {
     super.initState();
     CheckConnection();
-    //NavigateToHome();
   }
 
   CheckConnection() async {
@@ -42,23 +41,9 @@ class _SplashState extends State<Splash> {
       );
     } else if (connectivityResult == ConnectivityResult.wifi) {
       navigateToOnlineAuth();
-      // showDialog(
-      //     context: context, builder: (BuildContext context) {
-      //     return AlertDialog(
-      //       content: const Text("Connected to WiFi"),
-      //       actions: [
-      //         GestureDetector(
-      //           onTap: () {
-      //             Navigator.of(context, rootNavigator: true).pop();
-      //           },
-      //             child: Text("OK")
-      //         )
-      //       ],
-      //     );
-      //   }
-      // );
     }
     else {
+      DBProvider.db.initDB();
       navigateToOfflineAuth();
     }
   }

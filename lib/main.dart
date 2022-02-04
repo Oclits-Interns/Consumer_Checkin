@@ -1,6 +1,4 @@
-import 'package:consumer_checkin/screens/home_screen.dart';
 import 'package:consumer_checkin/screens/splash_screen.dart';
-import 'package:consumer_checkin/wrapper.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -26,7 +24,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.red
         ),
         home: const Splash(),
-      ),
+      )
     );
   }
 }

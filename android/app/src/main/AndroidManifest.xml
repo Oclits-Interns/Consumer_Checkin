@@ -1,5 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.consumer_checkin">
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+
   
    <application
         android:label="consumer_checkin"
@@ -7,6 +12,8 @@
         android:icon="@mipmap/ic_launcher">
         <meta-data android:name="com.google.android.geo.API_KEY"
         android:value="AIzaSyAOLvE2sYeiZuH7HW5jkD3nOxV_lnBk-pI"/>
+        <meta-data android:name="com.mapbox.token"
+        android:value="pk.eyJ1IjoiYW5hc2toYW44ODIzIiwiYSI6ImNrejNwYzZyZzAweHYydmp3eTF3dXJqenMifQ.V5nkuR9NI3ukogPuj66JVA" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -34,4 +41,5 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+  
 </manifest>

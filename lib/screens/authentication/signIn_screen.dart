@@ -1,4 +1,4 @@
-import 'package:consumer_checkin/app_theme.dart';
+import 'package:consumer_checkin/constant/colors_constant.dart';
 import 'package:consumer_checkin/services/auth.dart';
 import 'package:consumer_checkin/widgets/logo.dart';
 import 'package:flutter/material.dart';

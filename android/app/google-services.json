@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "project_info": {
     "project_number": "558986261729",
     "project_id": "consumer-checkin-fb752",
@@ -37,3 +38,43 @@
   ],
   "configuration_version": "1"
 }
+=======
+    "project_info": {
+      "project_number": "558986261729",
+      "project_id": "consumer-checkin-fb752",
+      "storage_bucket": "consumer-checkin-fb752.appspot.com"
+    },
+    "client": [
+      {
+        "client_info": {
+          "mobilesdk_app_id": "1:558986261729:android:dbf096483605bf378973a0",
+          "android_client_info": {
+            "package_name": "com.example.consumer_checkin"
+          }
+        },
+        "oauth_client": [
+          {
+            "client_id": "558986261729-qsllpekj9d0fciv8hesft1ape9adcbd6.apps.googleusercontent.com",
+            "client_type": 3
+          }
+        ],
+        "api_key": [
+          {
+            "current_key": "AIzaSyAJGjvjCWTONopTklbekkpzMAp5Wec0lfc"
+          }
+        ],
+        "services": {
+          "appinvite_service": {
+            "other_platform_oauth_client": [
+              {
+                "client_id": "558986261729-qsllpekj9d0fciv8hesft1ape9adcbd6.apps.googleusercontent.com",
+                "client_type": 3
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "configuration_version": "1"
+  }
+>>>>>>> 524e9460c2d5a8cc86b19ea7dea7c6d1fb25788b

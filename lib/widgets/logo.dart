@@ -1,4 +1,4 @@
-import 'package:consumer_checkin/app_theme.dart';
+import 'package:consumer_checkin/constant/colors_constant.dart';
 import 'package:flutter/material.dart';
 
 class Logo extends StatelessWidget {
