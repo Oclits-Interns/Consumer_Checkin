@@ -48,6 +48,7 @@ dependencies:
   cloud_firestore: ^3.1.7
   flutter_slider_drawer: ^2.1.1
   flutter_map: ^0.14.0
+  qr_code_scanner: ^0.6.1
  
   
   

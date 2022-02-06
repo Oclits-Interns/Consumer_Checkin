@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:consumer_checkin/constant/colors_constant.dart';
 import 'package:consumer_checkin/screens/camera_screen.dart';
+import 'package:consumer_checkin/screens/qr_code_screen.dart';
 import 'package:consumer_checkin/screens/retrive_locations.dart';
 import 'package:consumer_checkin/services/db_firestore.dart';
 import 'package:flutter/material.dart';
@@ -54,6 +55,22 @@ class _MapAppState extends State<MapApp> {
                 key: _formKey,
                 child: Column(
                   children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => QRViewExample()));
+                            },
+                            child: Text(
+                              "Scan QR/Barcode",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xffb11118)),
+                            )),
+                      ],
+                    ),
                     TextFormField(
                       controller: _Consumer_Idtextcontroller,
                       decoration: InputDecoration(
