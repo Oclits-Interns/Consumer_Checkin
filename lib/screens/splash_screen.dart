@@ -21,7 +21,6 @@ class _SplashState extends State<Splash> {
   }
 
   CheckConnection() async {
-
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.mobile) {
       showDialog(

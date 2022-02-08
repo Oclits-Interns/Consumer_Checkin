@@ -19,10 +19,13 @@ class DatabaseService {
   }
 
   Future addConsumerEntry({
+    required String plotType,
     required int consumerID,
     required String name,
     required String number,
     required String email,
+    required String ucNum,
+    required String wardNum,
     required String address,
     required String newAddress,
     required String gasCompany,
@@ -32,10 +35,13 @@ class DatabaseService {
   }) async {
     try {
       return await _consumersCollection.add({
+        "plotType" : plotType,
         "ConsumerID": consumerID,
         "Name": name,
         "Number": number,
         "Email": email,
+        "ucNum" : ucNum,
+        "wardNum" : wardNum,
         "Address": address,
         "NewAddress": newAddress,
         "GasCompany": gasCompany,

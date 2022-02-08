@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:consumer_checkin/constant/colors_constant.dart';
 import 'package:consumer_checkin/local_DB/local_db.dart';
 import 'package:consumer_checkin/screens/camera_screen.dart';
+import 'package:consumer_checkin/screens/qr_code_screen.dart';
 import 'package:consumer_checkin/screens/retrive_locations.dart';
 import 'package:consumer_checkin/services/db_firestore.dart';
 import 'package:flutter/material.dart';
@@ -33,29 +33,48 @@ class _MapAppState extends State<MapApp> {
   String landlineCompany = "";
   bool isConnected = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  var plotTypeDropDown = ["Domestic", "Commercial"];
   DatabaseService _db = DatabaseService();
-  checkConn() async {
+  final _ucNumTextEditingController = TextEditingController();
+  final _wardNumTextEditingController = TextEditingController();
+  final _Addresstextcontroller = TextEditingController();
+  final _Emailtextcontroller = TextEditingController();
+  final _Consumer_Idtextcontroller = TextEditingController();
+  final _Consumer_Nametextcontroller = TextEditingController();
+  final _Mobile_Numbertextcontroller = TextEditingController();
+  final _Enter_New_Addresstextcontroller = TextEditingController();
+  final _Land_Line_Idtextcontroller = TextEditingController();
+  final _Gas_Company_Idtextcontroller = TextEditingController();
+  final _Electric_Company_Idtextcontroller = TextEditingController();
+
+  void clearForm() {
+    _Consumer_Idtextcontroller.clear();
+    _Consumer_Nametextcontroller.clear();
+    _Addresstextcontroller.clear();
+    _Mobile_Numbertextcontroller.clear();
+    _Emailtextcontroller.clear();
+    _Enter_New_Addresstextcontroller.clear();
+    _Land_Line_Idtextcontroller.clear();
+    _Gas_Company_Idtextcontroller.clear();
+    _Electric_Company_Idtextcontroller.clear();
+    _ucNumTextEditingController.clear();
+    _wardNumTextEditingController.clear();
+  }
+
+ void checkConn() async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
-      setState(() {
-        isConnected = false;
-      });
-    }
-    else {
-      setState(() {
-        isConnected = true;
-      });
+      setState(() => isConnected = false);
+    } else {
+      setState(() => isConnected = true);
     }
   }
-  var _Addresstextcontroller = TextEditingController();
-  var _Emailtextcontroller = TextEditingController();
-  var _Consumer_Idtextcontroller = TextEditingController();
-  var _Consumer_Nametextcontroller = TextEditingController();
-  var _Mobile_Numbertextcontroller = TextEditingController();
-  var _Enter_New_Addresstextcontroller = TextEditingController();
-  var _Land_Line_Idtextcontroller = TextEditingController();
-  var _Gas_Company_Idtextcontroller = TextEditingController();
-  var _Electric_Company_Idtextcontroller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    checkConn();
+  }
 
   void _showAlertDialog() {
     showDialog(
@@ -65,71 +84,131 @@ class _MapAppState extends State<MapApp> {
             // backgroundColor: Colors.red,
             scrollable: true,
             title: Text('Consumer Check-In'),
-            content: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: <Widget>[
-                    TextFormField(
-                      controller: _Consumer_Idtextcontroller,
-                      decoration: InputDecoration(
-                        labelText: 'Consumer Id',
-                      ),
-                      onChanged: (val) => setState(() {
-                        consumerID = int.parse(val);
-                      }),
-                      validator: (String? val) {
-                        if (val == null || val.trim().length == 0) {
-                          return "Consumer ID is mandatory";
-                        } else {
-                          return null;
-                        }
-                      },
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) {
+                      return const BarCodeScanner();
+                    }));
+                  },
+                  child: Text(
+                      "Scan QR/Bar code",
+                    style: TextStyle(
+                      color: Colors.blue[600],
                     ),
-                    TextFormField(
-                        controller: _Consumer_Nametextcontroller,
-                        decoration: InputDecoration(
-                          labelText: 'Consumer Name',
-                        ),
-                        onChanged: (val) => setState(() {
-                              name = val;
-                            })),
-                    TextFormField(
-                        controller: _Mobile_Numbertextcontroller,
-                        decoration: InputDecoration(
-                          labelText: 'Mobile Number',
-                        ),
-                        onChanged: (val) => setState(() {
-                              number = val;
-                            })),
-                    TextFormField(
-                        controller: _Emailtextcontroller,
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                        ),
-                        onChanged: (val) => setState(() {
-                              email = val;
-                            })),
-                    TextFormField(
-                        controller: _Addresstextcontroller,
-                        decoration: InputDecoration(
-                          labelText: 'Address',
-                        ),
-                        onChanged: (val) => setState(() {
-                              address = val;
-                            })),
-                    TextFormField(
-                        controller: _Enter_New_Addresstextcontroller,
-                        decoration: InputDecoration(
-                          labelText: 'Enter New Address',
-                        ),
-                        onChanged: (val) => setState(() {
-                              newAddress = val;
-                            })),
-                  ],
+                  ),
                 ),
-              ),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: <Widget>[
+                      DropdownButtonFormField(
+                        decoration: InputDecoration(
+                          labelText: "Plot Type",
+                          suffixText: '*',
+                          suffixStyle: TextStyle(
+                            color: Colors.red,
+                          ),
+                        ),
+                          items: plotTypeDropDown.map((plotType) {
+                            return DropdownMenuItem(
+                              child: new Text(plotType),
+                              value: plotType,
+                            );
+                          }).toList(),
+                          validator: (String? val) {
+                            if(val == null || val.trim().isEmpty) {
+                              return "Please select a plot type first";
+                            }
+                            else {
+                              return null;
+                            }
+                          },
+                          onChanged: (val) {
+                            setState(() => plotType = val.toString());
+                          }),
+                      TextFormField(
+                        controller: _Consumer_Idtextcontroller,
+                        decoration: InputDecoration(
+                          labelText: 'Consumer Id',
+                          suffixText: '*',
+                          suffixStyle: TextStyle(
+                            color: Colors.red,
+                          ),
+                        ),
+                        onChanged: (val) => setState(() {
+                          consumerID = int.parse(val);
+                        }),
+                        validator: (String? val) {
+                          if (val == null || val.trim().isEmpty) {
+                            return "Consumer ID is mandatory";
+                          } else {
+                            return null;
+                          }
+                        },
+                      ),
+                      TextFormField(
+                          controller: _Consumer_Nametextcontroller,
+                          decoration: InputDecoration(
+                            labelText: 'Consumer Name',
+                          ),
+                          onChanged: (val) => setState(() {
+                                name = val;
+                              })),
+                      TextFormField(
+                          controller: _Mobile_Numbertextcontroller,
+                          decoration: InputDecoration(
+                            labelText: 'Mobile Number',
+                          ),
+                          onChanged: (val) => setState(() {
+                                number = val;
+                              })),
+                      TextFormField(
+                          controller: _Emailtextcontroller,
+                          decoration: InputDecoration(
+                            labelText: 'Email',
+                          ),
+                          onChanged: (val) => setState(() {
+                                email = val;
+                              })),
+                      TextFormField(
+                          controller: _ucNumTextEditingController,
+                          decoration: InputDecoration(
+                            labelText: 'UC Number',
+                          ),
+                          onChanged: (val) => setState(() {
+                            ucNum = val;
+                          })),
+                      TextFormField(
+                          controller: _wardNumTextEditingController,
+                          decoration: InputDecoration(
+                            labelText: 'Zone-Ward Number',
+                          ),
+                          onChanged: (val) => setState(() {
+                            wardNum = val;
+                          })),
+                      TextFormField(
+                          controller: _Addresstextcontroller,
+                          decoration: InputDecoration(
+                            labelText: 'Address',
+                          ),
+                          onChanged: (val) => setState(() {
+                                address = val;
+                              })),
+                      TextFormField(
+                          controller: _Enter_New_Addresstextcontroller,
+                          decoration: InputDecoration(
+                            labelText: 'Enter New Address',
+                          ),
+                          onChanged: (val) => setState(() {
+                                newAddress = val;
+                              })),
+                    ],
+                  ),
+                ),
+              ],
             ),
             actions: [
               Padding(
@@ -155,49 +234,47 @@ class _MapAppState extends State<MapApp> {
                         if(_formKey.currentState!.validate()) {
                           if(isConnected) {
                             _db.addConsumerEntry(
+                              plotType: plotType,
                                 consumerID: consumerID,
                                 name: name,
                                 number: number,
                                 email: email,
+                                ucNum: ucNum,
+                                wardNum: wardNum,
                                 address: address,
                                 newAddress: newAddress,
                                 gasCompany: gasCompany,
                                 electricCompany: electricCompany,
                                 landlineCompany: landlineCompany,
                                 location: GeoPoint(widget.lat, widget.lan));
+                            clearForm();
                             showDialog(
-                                context: context, builder: (BuildContext context) {
-                              return AlertDialog(
-                                content: const Text("Data inserted"),
-                                actions: [
-                                  GestureDetector(
-                                      onTap: () {
-                                        Navigator.of(context, rootNavigator: true).pop();
-                                      },
-                                      child: Text("OK")
-                                  )
-                                ],
-                              );
-                            }
-                            );
+                              barrierDismissible: false,
+                                context: context,
+                                builder: (context) {
+                                  Future.delayed(const Duration(milliseconds: 1500), () {
+                                    Navigator.of(context).pop(true);
+                                  });
+                                  return const AlertDialog(
+                                    title: Text('Data Inserted'),
+                                  );
+                                });
                           }
                           else {
+                            // If network detected is found to be false, the the consumer records are stored in SQLite db using the method below
                             DBProvider.db.insertConsumerEntryOffline(consumerID, plotType, name, number, email, ucNum, wardNum, address, newAddress, gasCompany, electricCompany, landlineCompany);
+                            clearForm();
                             showDialog(
-                                context: context, builder: (BuildContext context) {
-                              return AlertDialog(
-                                content: const Text("Data inserted to local database"),
-                                actions: [
-                                  GestureDetector(
-                                      onTap: () {
-                                        Navigator.of(context, rootNavigator: true).pop();
-                                      },
-                                      child: Text("OK")
-                                  )
-                                ],
-                              );
-                            }
-                            );
+                              barrierDismissible: false,
+                                context: context,
+                                builder: (context) {
+                                  Future.delayed(const Duration(milliseconds: 1500), () {
+                                    Navigator.of(context).pop(true);
+                                  });
+                                  return const AlertDialog(
+                                    title: Text('Data Inserted to local database'),
+                                  );
+                                });
                           }
                         }
                       },
