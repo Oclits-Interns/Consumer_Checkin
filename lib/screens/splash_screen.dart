@@ -18,6 +18,7 @@ class _SplashState extends State<Splash> {
   void initState() {
     super.initState();
     CheckConnection();
+    DBProvider.db.initDB();
   }
 
   CheckConnection() async {
@@ -42,7 +43,6 @@ class _SplashState extends State<Splash> {
       navigateToOnlineAuth();
     }
     else {
-      DBProvider.db.initDB();
       navigateToOfflineAuth();
     }
   }

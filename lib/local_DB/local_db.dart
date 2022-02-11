@@ -10,7 +10,8 @@ class DBProvider {
   static final DBProvider db = DBProvider._();
 
   static Database? _database;
-  static const table = 'UserCredentials';
+  static const userCredentialsTable = 'UserCredentials';
+  static const consumersTable = "Consumers";
   static const email = 'email';
   static const password = 'password';
 
@@ -28,35 +29,61 @@ class DBProvider {
     }, onCreate: (Database db, int version) async {
       await db.execute('''
       CREATE TABLE IF NOT EXISTS Consumers(
-          id INTEGER PRIMARY KEY  ,
-          plot_type TEXT  ,
-          name TEXT ,
-          number INT  ,
-          email_address TEXT  ,
-          uc_num TEXT ,
-          ward_num  TEXT  ,
-          address TEXT  ,
-          new_address TEXT ,
-          gas_company_id INT  ,
-          electricity_company_id INT  ,
-          landline_company_id INT
+          Consumer_Id INTEGER PRIMARY KEY  ,
+          Plot_Type TEXT  ,
+          Consumer_Name TEXT ,
+          Number TEXT  ,
+          CNIC TEXT  ,
+          Email TEXT  ,
+          Taluka TEXT ,
+          UC_Num TEXT ,
+          Zone_Ward_Num  TEXT  ,
+          Area TEXT ,
+          Street TEXT ,
+          Block TEXT  ,
+          House_Number  ,
+          Address TEXT  ,
+          New_address TEXT ,
+          Gas_Company_Id INT  ,
+          Electricity_Company_Id INT  ,
+          Landline_Company_Id INT
            )
            
           ''');
     });
   }
 
-  Future insertConsumerEntryOffline(int consumerId, String plotType, String name, String number, String email, String ucNum, String wardNumber, String address, String newAddress, String gasCompany, String electricCompany, String landlineCompany) async {
+  // All of the rows are returned as a list of maps, where each map is
+  // a key-value list of columns.
+  Future<List<Map<String, dynamic>>> queryAllRows() async {
+
+    if(_database == null) {
+      _database = await initDB();
+      return await _database!.rawQuery('SELECT * FROM $consumersTable');
+    }
+    else {
+      return await _database!.rawQuery('SELECT * FROM $consumersTable');
+    }
+  }
+
+  Future insertConsumerEntryOffline(String consumerId, String plotType, String name, String number, String email, String cnic, String taluka, String ucNum, String wardNumber, String area, String street, String block, String houseNum, String address, String newAddress, String gasCompany, String electricCompany, String landlineCompany) async {
     await _database!.execute('''
-    INSERT INTO Consumers(id, plot_type, name, number, email_address, uc_num, ward_num, address, new_address, gas_company_id, electricity_company_id, landline_company_id)
-    VALUES ('$consumerId', '$plotType', '$name', '$number', '$email', '$ucNum', '$wardNumber', '$address', '$newAddress', '$gasCompany', '$electricCompany', '$landlineCompany') 
+    INSERT INTO Consumers(Consumer_Id, Plot_Type, Consumer_Name, Number, Email, CNIC, Taluka, UC_Num, Zone_Ward_Num, Area, Street, Block, House_Number, Address, New_Address, Gas_Company_Id, Electricity_Company_Id, Landline_Company_Id)
+    VALUES ('$consumerId', '$plotType', '$name', '$number', '$email', '$cnic', '$taluka', '$ucNum', '$wardNumber', '$area', '$street', '$block', '$houseNum', '$address', '$newAddress', '$gasCompany', '$electricCompany', '$landlineCompany') 
     ''');
+  }
+
+  void deleteFromConsumersTable() async {
+    if(_database != null) {
+      _database?.execute('DELETE FROM $consumersTable');
+    }
   }
 
   Future<Database?> validateDBExistsWithoutInternet() async {
     {
       if (_database != null) return _database;
     }
+    return null;
   }
 
   Future<Database?> validateDBAtLogin() async {
@@ -74,7 +101,7 @@ class DBProvider {
 
     _database = await db.validateDBAtLogin();
     await _database?.execute('''
-          CREATE TABLE IF NOT EXISTS $table(
+          CREATE TABLE IF NOT EXISTS $userCredentialsTable(
       $email nvarchar  ,
       $password nvarchar
   )
@@ -86,7 +113,7 @@ class DBProvider {
     _database = await db.validateDBAtLogin();
     dynamic userValidated = Sqflite.firstIntValue(
         await _database!.rawQuery('''
-      SELECT COUNT(*) FROM $table WHERE $email=? AND $password=?
+      SELECT COUNT(*) FROM $userCredentialsTable WHERE $email=? AND $password=?
     ''',
         ['$_email', '$_password'])
     );
@@ -98,14 +125,14 @@ class DBProvider {
   Future deleteSigninUser() async {
     _database = await db.validateDBAtLogin();
     _database?.rawQuery('''
-      DELETE FROM $table
+      DELETE FROM $userCredentialsTable
     ''');
   }
 
   Future insertSigninUser(String _email, String _password) async {
     _database = await db.validateDBAtLogin();
     _database?.rawInsert('''
-      INSERT INTO $table($email, $password)  VALUES("$_email", "$_password")
+      INSERT INTO $userCredentialsTable($email, $password)  VALUES("$_email", "$_password")
     ''');
   }
 }

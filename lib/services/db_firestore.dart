@@ -1,9 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DatabaseService {
-  CollectionReference _consumersCollection =
-  FirebaseFirestore.instance.collection("Consumers");
-  final CollectionReference userCollection = FirebaseFirestore.instance.collection("users");
+  final CollectionReference _consumersCollection = FirebaseFirestore.instance.collection("Consumers");
+  CollectionReference userCollection = FirebaseFirestore.instance.collection("Consumers");
 
   Future addUser(String name, String email, String password, String uid) async {
     try {
@@ -19,39 +18,52 @@ class DatabaseService {
   }
 
   Future addConsumerEntry({
+    required String consumerID,
+    required String zone,
+    required String ward,
     required String plotType,
-    required int consumerID,
     required String name,
     required String number,
     required String email,
-    required String ucNum,
-    required String wardNum,
     required String address,
     required String newAddress,
     required String gasCompany,
     required String electricCompany,
     required String landlineCompany,
     required GeoPoint location,
+    required String nicNum,
+    required String street,
+    required String block,
+    required String uc,
+    required String area,
+    required String houseNum,
+    required String taluka,
   }) async {
     try {
       return await _consumersCollection.add({
-        "plotType" : plotType,
         "ConsumerID": consumerID,
+        "Zone": zone,
+        "Ward": ward,
         "Name": name,
         "Number": number,
         "Email": email,
-        "ucNum" : ucNum,
-        "wardNum" : wardNum,
         "Address": address,
         "NewAddress": newAddress,
         "GasCompany": gasCompany,
         "ElectricCompany": electricCompany,
         "LandlineCompany": landlineCompany,
         "location": location,
+        "Plot_type": plotType,
+        "NicNumber": nicNum,
+        "HouseNO": houseNum,
+        "Area": area,
+        "Block": block,
+        "UC": uc,
+        "Street": street,
+        "Taluka": taluka,
       });
     } catch (e) {
       print(e.toString());
-      //return;
     }
   }
 }
