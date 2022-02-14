@@ -25,10 +25,6 @@ class MapApp extends StatefulWidget {
 }
 
 class _MapAppState extends State<MapApp> {
-  ImagePicker imagePicker = ImagePicker();
-  late File file;
-  late String imageUrl;
-
   String consumerID = "";
   int zone = 0;
   int ward = 0;
@@ -51,6 +47,8 @@ class _MapAppState extends State<MapApp> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final DatabaseService _db = DatabaseService();
+  
+  
   //final String _scanBarcode = "";
 
   Future<void> scanBarcodeNormal() async {
@@ -121,18 +119,6 @@ class _MapAppState extends State<MapApp> {
   var _area_textcontroller = TextEditingController();
   var _uc_textcontroller = TextEditingController();
   var _taluka_Numbertextcontroller = TextEditingController();
-
-  PickedFile? imageFile = null;
-
-  void _openCamera(BuildContext context) async {
-    final pickedFile = await ImagePicker().getImage(
-      source: ImageSource.camera,
-    );
-    setState(() {
-      imageFile = pickedFile!;
-    });
-    Navigator.pop(context);
-  }
 
   var plotTypeDropDown = ["Domestic", "Commercial"];
   var talukas = [
@@ -560,8 +546,7 @@ class _MapAppState extends State<MapApp> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                      UploadingImageToFirebaseStorage()));
+                                  builder: (context) => AddImage()));
                         },
                         child: const Text(
                           "TAKE IMAGE",
@@ -594,6 +579,7 @@ class _MapAppState extends State<MapApp> {
                               houseno: houseno,
                               taluka: taluka,
                             );
+
                             showDialog(
                                 barrierDismissible: false,
                                 context: context,
@@ -608,6 +594,7 @@ class _MapAppState extends State<MapApp> {
                                 });
 
                             _formKey.currentState!.reset();
+
                             Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
