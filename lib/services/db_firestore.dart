@@ -19,8 +19,8 @@ class DatabaseService {
 
   Future addConsumerEntry({
     required String consumerID,
-    required String zone,
-    required String ward,
+    required int zone,
+    required int ward,
     required String plotType,
     required String name,
     required String number,
@@ -34,9 +34,9 @@ class DatabaseService {
     required String nicNum,
     required String street,
     required String block,
-    required String uc,
+    required int uc,
     required String area,
-    required String houseNum,
+    required int houseNum,
     required String taluka,
   }) async {
     try {

@@ -7,7 +7,8 @@ class ConsumerFields {
   static const email = "Email";
   static const taluka = "Taluka";
   static const ucNum = "UC_Num";
-  static const zone_ward = "Zone_Ward_Num";
+  static const zoneNum = "Zone_Num";
+  static const wardNum = "Ward_Num";
   static const area = "Area";
   static const street = "Street";
   static const block = "Block";
@@ -27,7 +28,8 @@ class ConsumerFields {
     email,
     taluka,
     ucNum,
-    zone_ward,
+    zoneNum,
+    wardNum,
     area,
     street,
     block,

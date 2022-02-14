@@ -24,23 +24,23 @@ class MapApp extends StatefulWidget {
 
 class _MapAppState extends State<MapApp> {
   String consumerID = "";
-  String zone = "";
-  String ward = "";
   String plottype = "";
   String name = "";
   String number = "";
   String email = "";
+  int zone = 0;
+  int ward = 0;
+  int uc = 0;
+  int houseNum = 0;
+  String area = "";
+  String street = "";
+  String block = "";
   String address = "";
   String newAddress = "";
   String gasCompany = "";
   String electricCompany = "";
   String landlineCompany = "";
   String nicnumber = "";
-  String street = "";
-  String block = "";
-  String uc = "";
-  String area = "";
-  String houseno = "";
   String taluka = "";
   bool isConnected = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -319,7 +319,7 @@ class _MapAppState extends State<MapApp> {
                               ),
                             ),
                             onChanged: (val) => setState(() {
-                              zone = val;
+                              zone = int.parse(val);
                             }),
                             validator: (String? val) {
                               if (val == null || val.trim().isEmpty) {
@@ -343,7 +343,7 @@ class _MapAppState extends State<MapApp> {
                             ),
                           ),
                           onChanged: (val) => setState(() {
-                            ward = val;
+                            ward = int.parse(val);
                           }),
                           validator: (String? val) {
                             if (val == null || val.trim().isEmpty) {
@@ -396,7 +396,7 @@ class _MapAppState extends State<MapApp> {
                             ),
                           ),
                           onChanged: (val) => setState(() {
-                            uc = val;
+                            uc = int.parse(val);
                           }),
                           validator: (String? val) {
                             if (val == null || val.trim().isEmpty) {
@@ -473,7 +473,7 @@ class _MapAppState extends State<MapApp> {
                             ),
                           ),
                           onChanged: (val) => setState(() {
-                            houseno = val;
+                            houseNum = int.parse(val);
                           }),
                           validator: (String? val) {
                             if (val == null || val.trim().isEmpty) {
@@ -493,22 +493,14 @@ class _MapAppState extends State<MapApp> {
                         ),
                         onChanged: (val) => setState(() {
                           address = (val +
-                              uc +
+                              uc.toString() +
                               block +
                               taluka +
                               ward.toString() +
                               street +
-                              houseno +
+                              houseNum.toString() +
                               zone.toString());
                         })),
-                    // TextFormField(
-                    //     controller: _Enter_New_Addresstextcontroller,
-                    //     decoration: const InputDecoration(
-                    //       labelText: 'Enter New Address',
-                    //     ),
-                    //     onChanged: (val) => setState(() {
-                    //           newAddress = val;
-                    //         })),
                   ],
                 ),
               ),
@@ -537,7 +529,7 @@ class _MapAppState extends State<MapApp> {
                         if(_formKey.currentState!.validate()) {
                           if(!isConnected) {
                             // If network detected is found to be false, the the consumer records are stored in SQLite db using the method below
-                            DBProvider.db.insertConsumerEntryOffline(consumerID, plottype, name, number, email, nicnumber, taluka, uc, ward, area, street, block, houseno, address, newAddress, gasCompany, electricCompany, landlineCompany);
+                            DBProvider.db.insertConsumerEntryOffline(consumerID, plottype, name, number, email, nicnumber, taluka, uc, zone ,ward, area, street, block, houseNum, address, newAddress, gasCompany, electricCompany, landlineCompany);
                             showDialog(
                                 barrierDismissible: false,
                                 context: context,
@@ -560,11 +552,12 @@ class _MapAppState extends State<MapApp> {
                               ConsumerFields.email : email,
                               ConsumerFields.taluka : taluka,
                               ConsumerFields.ucNum : uc,
-                              ConsumerFields.zone_ward : ward,
+                              ConsumerFields.zoneNum : zone,
+                              ConsumerFields.wardNum : ward,
                               ConsumerFields.area : area,
                               ConsumerFields.street : street,
                               ConsumerFields.block : block,
-                              ConsumerFields.houseNum : houseno,
+                              ConsumerFields.houseNum : houseNum,
                               ConsumerFields.address : address,
                               ConsumerFields.newAddress : newAddress,
                               ConsumerFields.gasCompanyId : gasCompany,
@@ -593,12 +586,12 @@ class _MapAppState extends State<MapApp> {
                               email: email,
                               taluka: taluka,
                               uc: uc,
-                              ward: ward,
                               zone: zone,
+                              ward: ward,
                               block: block,
                               street: street,
                               area: area,
-                              houseNum: houseno,
+                              houseNum: houseNum,
                               nicNum: nicnumber,
                               address: address,
                               newAddress: newAddress,
@@ -806,7 +799,7 @@ class _MapAppState extends State<MapApp> {
                             ConsumerFields.email : element["Email"],
                             ConsumerFields.taluka : element["Taluka"],
                             ConsumerFields.ucNum : element["UC_Num"],
-                            ConsumerFields.zone_ward : element["Ward_Num"],
+                            ConsumerFields.zoneNum : element["Ward_Num"],
                             ConsumerFields.area : element["Area"],
                             ConsumerFields.street : element["Street"],
                             ConsumerFields.block : element["Block"],

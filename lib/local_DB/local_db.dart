@@ -29,24 +29,25 @@ class DBProvider {
     }, onCreate: (Database db, int version) async {
       await db.execute('''
       CREATE TABLE IF NOT EXISTS Consumers(
-          Consumer_Id INTEGER PRIMARY KEY  ,
+          Consumer_Id TEXT PRIMARY KEY  ,
           Plot_Type TEXT  ,
           Consumer_Name TEXT ,
           Number TEXT  ,
           CNIC TEXT  ,
           Email TEXT  ,
           Taluka TEXT ,
-          UC_Num TEXT ,
-          Zone_Ward_Num  TEXT  ,
+          UC_Num INT ,
+          Zone_Num INT ,
+          Ward_Num  INT  ,
           Area TEXT ,
           Street TEXT ,
           Block TEXT  ,
-          House_Number  ,
+          House_Number  INT,
           Address TEXT  ,
           New_address TEXT ,
-          Gas_Company_Id INT  ,
-          Electricity_Company_Id INT  ,
-          Landline_Company_Id INT
+          Gas_Company_Id TEXT  ,
+          Electricity_Company_Id TEXT  ,
+          Landline_Company_Id TEXT
            )
            
           ''');
@@ -66,10 +67,10 @@ class DBProvider {
     }
   }
 
-  Future insertConsumerEntryOffline(String consumerId, String plotType, String name, String number, String email, String cnic, String taluka, String ucNum, String wardNumber, String area, String street, String block, String houseNum, String address, String newAddress, String gasCompany, String electricCompany, String landlineCompany) async {
+  Future insertConsumerEntryOffline(String consumerId, String plotType, String name, String number, String email, String cnic, String taluka, int ucNum, int zone, int wardNumber, String area, String street, String block, int houseNum, String address, String newAddress, String gasCompany, String electricCompany, String landlineCompany) async {
     await _database!.execute('''
-    INSERT INTO Consumers(Consumer_Id, Plot_Type, Consumer_Name, Number, Email, CNIC, Taluka, UC_Num, Zone_Ward_Num, Area, Street, Block, House_Number, Address, New_Address, Gas_Company_Id, Electricity_Company_Id, Landline_Company_Id)
-    VALUES ('$consumerId', '$plotType', '$name', '$number', '$email', '$cnic', '$taluka', '$ucNum', '$wardNumber', '$area', '$street', '$block', '$houseNum', '$address', '$newAddress', '$gasCompany', '$electricCompany', '$landlineCompany') 
+    INSERT INTO Consumers(Consumer_Id, Plot_Type, Consumer_Name, Number, Email, CNIC, Taluka, UC_Num, Zone_Num, Ward_Num, Area, Street, Block, House_Number, Address, New_Address, Gas_Company_Id, Electricity_Company_Id, Landline_Company_Id)
+    VALUES ('$consumerId', '$plotType', '$name', '$number', '$email', '$cnic', '$taluka', '$ucNum', '$zone', '$wardNumber', '$area', '$street', '$block', '$houseNum', '$address', '$newAddress', '$gasCompany', '$electricCompany', '$landlineCompany') 
     ''');
   }
 
