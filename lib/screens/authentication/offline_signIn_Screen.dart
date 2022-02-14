@@ -113,14 +113,17 @@ class _OfflineSignInState extends State<OfflineSignIn> {
                               }
                             }
                           },
-                          child: Container(
-                            height: 50,
-                            width: MediaQuery.of(context).size.width * 0.70,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                color: kMaroon
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 20.0),
+                            child: Container(
+                              height: 50,
+                              width: MediaQuery.of(context).size.width * 0.70,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: kMaroon
+                              ),
+                              child: Center(child: Text("Login", style: TextStyle(color: Colors.black),)),
                             ),
-                            child: Center(child: Text("Login", style: TextStyle(color: Colors.black),)),
                           ),
                         ),
                       ),

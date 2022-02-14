@@ -24,21 +24,7 @@ class _SplashState extends State<Splash> {
   CheckConnection() async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.mobile) {
-      showDialog(
-          context: context, builder: (BuildContext context) {
-        return AlertDialog(
-          content: const Text("Connected to mobile data"),
-          actions: [
-            GestureDetector(
-                onTap: () {
-                  Navigator.of(context, rootNavigator: true).pop();
-                },
-                child: Text("OK")
-            )
-          ],
-        );
-      }
-      );
+      navigateToOnlineAuth();
     } else if (connectivityResult == ConnectivityResult.wifi) {
       navigateToOnlineAuth();
     }
@@ -77,32 +63,32 @@ class _SplashState extends State<Splash> {
           child: Stack(
             alignment: Alignment.center,
             children : [
-              Positioned(
-                top: 0,
-                child: Text("Go offline",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red,
-                ),),
-              ),
-              Positioned(
-                top: 18.0,
-                child: Container(
-                  height: 50,
-                  width: 80,
-                  decoration: BoxDecoration(
-                    color: Colors.red[900],
-                  ),
-                  child: Center(
-                    child: Text("OFFLINE",
-                    style: TextStyle(
-                      // fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      color: Colors.black
-                    ),),
-                  ),
-                ),
-              ),
+              // Positioned(
+              //   top: 0,
+              //   child: Text("Go offline",
+              //   style: TextStyle(
+              //     fontWeight: FontWeight.bold,
+              //     color: Colors.red,
+              //   ),),
+              // ),
+              // Positioned(
+              //   top: 18.0,
+              //   child: Container(
+              //     height: 50,
+              //     width: 80,
+              //     decoration: BoxDecoration(
+              //       color: Colors.red[900],
+              //     ),
+              //     child: Center(
+              //       child: Text("OFFLINE",
+              //       style: TextStyle(
+              //         // fontWeight: FontWeight.bold,
+              //         fontSize: 14,
+              //         color: Colors.black
+              //       ),),
+              //     ),
+              //   ),
+              // ),
               Logo(),
             ]
           ),
