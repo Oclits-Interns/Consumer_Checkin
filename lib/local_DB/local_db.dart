@@ -36,7 +36,7 @@ class DBProvider {
           CNIC TEXT  ,
           Email TEXT  ,
           Taluka TEXT ,
-          UC_Num INT ,
+          UC_Num TEXT ,
           Zone_Num INT ,
           Ward_Num  INT  ,
           Area TEXT ,
@@ -67,7 +67,7 @@ class DBProvider {
     }
   }
 
-  Future insertConsumerEntryOffline(String consumerId, String plotType, String name, String number, String email, String cnic, String taluka, int ucNum, int zone, int wardNumber, String area, String street, String block, int houseNum, String address, String newAddress, String gasCompany, String electricCompany, String landlineCompany) async {
+  Future insertConsumerEntryOffline(String consumerId, String plotType, String name, String number, String email, String cnic, String taluka, String ucNum, int zone, int wardNumber, String area, String street, String block, int houseNum, String address, String newAddress, String gasCompany, String electricCompany, String landlineCompany) async {
     await _database!.execute('''
     INSERT INTO Consumers(Consumer_Id, Plot_Type, Consumer_Name, Number, Email, CNIC, Taluka, UC_Num, Zone_Num, Ward_Num, Area, Street, Block, House_Number, Address, New_Address, Gas_Company_Id, Electricity_Company_Id, Landline_Company_Id)
     VALUES ('$consumerId', '$plotType', '$name', '$number', '$email', '$cnic', '$taluka', '$ucNum', '$zone', '$wardNumber', '$area', '$street', '$block', '$houseNum', '$address', '$newAddress', '$gasCompany', '$electricCompany', '$landlineCompany') 

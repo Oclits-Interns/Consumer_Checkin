@@ -34,7 +34,7 @@ class DatabaseService {
     required String nicNum,
     required String street,
     required String block,
-    required int uc,
+    required String uc,
     required String area,
     required int houseNum,
     required String taluka,

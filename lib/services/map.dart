@@ -30,7 +30,7 @@ class _MapAppState extends State<MapApp> {
   String email = "";
   int zone = 0;
   int ward = 0;
-  int uc = 0;
+  String uc = "";
   int houseNum = 0;
   String area = "";
   String street = "";
@@ -43,13 +43,17 @@ class _MapAppState extends State<MapApp> {
   String nicnumber = "";
   String taluka = "";
   bool isConnected = false;
+  bool isLocked = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   var plotTypeDropDown = ["Domestic", "Commercial"];
-  var talukas = [
-    "Hyderabad Taluka",
-    "Qasimabad Taluka",
-    "Latifabad Taluka",
-    "Hyderabad City Taluka"
+  final List<String> _talukaList = ["Hyderabad Taluka", "Qasimabad Taluka", "Latifabad Taluka", "Hyderabad City Taluka"];
+  final List<String> _ucNumList = [
+    "UC # 1",
+    "UC # 2",
+    "UC # 3",
+    "UC # 4",
+    "UC # 5",
+    "UC # 6",
   ];
   final DatabaseService _db = DatabaseService();
   final _addressTextController = TextEditingController();
@@ -67,8 +71,6 @@ class _MapAppState extends State<MapApp> {
   final _streetTextController = TextEditingController();
   final _blockTextController = TextEditingController();
   final _areaTextController = TextEditingController();
-  final _ucNumTextController = TextEditingController();
-  final _talukaNumTextController = TextEditingController();
 
   Future<void> scanBarcodeNormal() async {
     String barcodeScanRes;
@@ -102,11 +104,14 @@ class _MapAppState extends State<MapApp> {
     });
   }
 
-  var nummberFormatter = new MaskTextInputFormatter(
+  var nummberFormatter = MaskTextInputFormatter(
       mask: '####-#######', filter: {"#": RegExp(r'[0-9]')});
 
-  var nicmnumberFormatter = new MaskTextInputFormatter(
+  var nicmnumberFormatter = MaskTextInputFormatter(
       mask: '#####-#######-#', filter: {"#": RegExp(r'[0-9]')});
+
+  var blockFormatter = MaskTextInputFormatter(
+      mask: '*-##', filter: {"#": RegExp(r'[0-9]'), "*": RegExp(r'[A-Z]')});
 
   // void clearForm() {
   //   _consumerIDTextController.clear();
@@ -145,7 +150,9 @@ class _MapAppState extends State<MapApp> {
             insetPadding: EdgeInsets.zero,
             scrollable: true,
             title: const Text('Consumer Check-In'),
-            content: Padding(
+            content: StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
+                return Padding(
               padding: const EdgeInsets.all(8.0),
               child: Form(
                 key: _formKey,
@@ -282,25 +289,74 @@ class _MapAppState extends State<MapApp> {
                         email = val;
                       }),
                     ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DropdownButtonFormField(
+                              decoration: const InputDecoration(
+                                labelText: "Taluka",
+                              ),
+                              items: _talukaList.map((taluka) {
+                                return DropdownMenuItem(
+                                  child: new Text(taluka),
+                                  value: taluka,
+                                );
+                              }).toList(),
+                              validator: (String? val) {
+                                if (val == null || val.trim().isEmpty) {
+                                  return "Please select a Taluka";
+                                } else {
+                                  return null;
+                                }
+                              },
+                              onChanged: (val) {
+                                setState(() => taluka = val.toString());
+                              }),
+                        ),
+                        const Divider(),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Switch(
+                              activeTrackColor: kYellow,
+                              activeColor: kMaroon,
+                              value: isLocked, onChanged: (val) {
+                              setState(() => isLocked = val);
+                            },),
+                            !isLocked ?
+                            const Text(
+                              "Lock",
+                              style: TextStyle(
+                                  fontSize: 14
+                              ),
+                            )
+                                : const Text(
+                                "Locked",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                ),
+                          ],
+                        )
+                      ],
+                    ),
                     DropdownButtonFormField(
                         decoration: const InputDecoration(
-                          labelText: "Taluka",
+                          labelText: "UC",
                         ),
-                        items: talukas.map((taluka) {
+                        items: _ucNumList.map((ucNum) {
                           return DropdownMenuItem(
-                            child: new Text(taluka),
-                            value: taluka,
+                            child: new Text(ucNum),
+                            value: ucNum,
                           );
                         }).toList(),
                         validator: (String? val) {
                           if (val == null || val.trim().isEmpty) {
-                            return "Please select a Taluka";
+                            return "Please select a UC";
                           } else {
                             return null;
                           }
                         },
                         onChanged: (val) {
-                          setState(() => taluka = val.toString());
+                          setState(() => uc = val.toString());
                         }),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -386,26 +442,26 @@ class _MapAppState extends State<MapApp> {
                         const SizedBox(width: 20),
                         Expanded(
                           child: TextFormField(
-                          controller: _ucNumTextController,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            labelText: 'Uc',
-                            suffixText: '*',
-                            suffixStyle: TextStyle(
-                              color: Colors.red,
+                            controller: _houseNumTextController,
+                            keyboardType: TextInputType.number,
+                            decoration: const InputDecoration(
+                              labelText: 'H #',
+                              suffixText: '*',
+                              suffixStyle: TextStyle(
+                                color: Colors.red,
+                              ),
                             ),
-                          ),
-                          onChanged: (val) => setState(() {
-                            uc = int.parse(val);
-                          }),
-                          validator: (String? val) {
-                            if (val == null || val.trim().isEmpty) {
-                              return "Please select a plot type first";
-                            } else {
-                              return null;
-                            }
-                          },
-                        ),)
+                            onChanged: (val) => setState(() {
+                              houseNum = int.parse(val);
+                            }),
+                            validator: (String? val) {
+                              if (val == null || val.trim().isEmpty) {
+                                return "Please enter a house or plot number";
+                              } else {
+                                return null;
+                              }
+                            },
+                          ),)
                       ],
                     ),
                     Row(
@@ -429,7 +485,7 @@ class _MapAppState extends State<MapApp> {
                             }),
                             validator: (String? val) {
                               if (val == null || val.trim().isEmpty) {
-                                return "Please select a plot type first";
+                                return "Please enter street number";
                               } else {
                                 return null;
                               }
@@ -439,8 +495,9 @@ class _MapAppState extends State<MapApp> {
                         const SizedBox(width: 10),
                       Expanded(
                        child: TextFormField(
+                         inputFormatters: [blockFormatter],
                           controller: _blockTextController,
-                          keyboardType: TextInputType.number,
+                          keyboardType: TextInputType.streetAddress,
                           decoration: const InputDecoration(
                             labelText: 'Block',
                             suffixText: '*',
@@ -453,36 +510,13 @@ class _MapAppState extends State<MapApp> {
                           }),
                           validator: (String? val) {
                             if (val == null || val.trim().isEmpty) {
-                              return "Please select a plot type first";
+                              return "Please enter block number";
                             } else {
                               return null;
                             }
                           },
                         )
                       ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: TextFormField(
-                          controller: _houseNumTextController,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            labelText: 'H #',
-                            suffixText: '*',
-                            suffixStyle: TextStyle(
-                              color: Colors.red,
-                            ),
-                          ),
-                          onChanged: (val) => setState(() {
-                            houseNum = int.parse(val);
-                          }),
-                          validator: (String? val) {
-                            if (val == null || val.trim().isEmpty) {
-                              return "Please select a plot type first";
-                            } else {
-                              return null;
-                            }
-                          },
-                        ),)
                       ],
                     ),
                     TextFormField(
@@ -504,7 +538,8 @@ class _MapAppState extends State<MapApp> {
                   ],
                 ),
               ),
-            ),
+            );
+                }),
             actions: [
               Padding(
                 padding: const EdgeInsets.all(12.0),
@@ -799,7 +834,8 @@ class _MapAppState extends State<MapApp> {
                             ConsumerFields.email : element["Email"],
                             ConsumerFields.taluka : element["Taluka"],
                             ConsumerFields.ucNum : element["UC_Num"],
-                            ConsumerFields.zoneNum : element["Ward_Num"],
+                            ConsumerFields.zoneNum : element["Zone_Num"],
+                            ConsumerFields.wardNum : element["Ward_Num"],
                             ConsumerFields.area : element["Area"],
                             ConsumerFields.street : element["Street"],
                             ConsumerFields.block : element["Block"],
@@ -807,7 +843,7 @@ class _MapAppState extends State<MapApp> {
                             ConsumerFields.address : element["Address"],
                             ConsumerFields.newAddress : element["New_Address"],
                             ConsumerFields.gasCompanyId : element["Gas_Company_Id"],
-                            ConsumerFields.electricCompanyId : element["Electric_Company_Id"],
+                            ConsumerFields.electricCompanyId : element["Electricity_Company_Id"],
                             ConsumerFields.landlineCompanyId : element["Landline_Company_Id"],
                         };
                           await ConsumerSheetsAPI.insert([consumer]);
@@ -870,6 +906,7 @@ class _MapAppState extends State<MapApp> {
                   child: Column(
                     children: <Widget>[
                       FloatingActionButton(
+                        heroTag: "btn1",
                         onPressed: _onMapTypeButtonPressed,
                         materialTapTargetSize: MaterialTapTargetSize.padded,
                         backgroundColor: const Color(0xffb11118),
@@ -877,6 +914,7 @@ class _MapAppState extends State<MapApp> {
                       ),
                       const SizedBox(height: 16.0),
                       FloatingActionButton(
+                        heroTag: "btn2",
                         onPressed: _onAddMarkerButtonPressed,
                         materialTapTargetSize: MaterialTapTargetSize.padded,
                         backgroundColor: const Color(0xffb11118),
@@ -887,6 +925,7 @@ class _MapAppState extends State<MapApp> {
                       ),
                       const SizedBox(height: 16.0),
                       FloatingActionButton(
+                        heroTag: "btn3",
                         onPressed: _goToTheLake,
                         materialTapTargetSize: MaterialTapTargetSize.padded,
                         backgroundColor: const Color(0xffb11118),
