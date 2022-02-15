@@ -1,14 +1,27 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DatabaseService {
-  CollectionReference _consumersCollection =
-      FirebaseFirestore.instance.collection("Consumers");
+  final CollectionReference _consumersCollection = FirebaseFirestore.instance.collection("Consumers");
+  CollectionReference userCollection = FirebaseFirestore.instance.collection("Consumers");
+
+  Future addUser(String name, String email, String password, String uid) async {
+    try {
+      return await userCollection.doc(uid).set({
+        "userName" : name,
+        "Email" : email,
+        "Password" : password
+      });
+    }
+    catch(e) {
+      print(e.toString());
+    }
+  }
 
   Future addConsumerEntry({
     required String consumerID,
     required int zone,
     required int ward,
-    required String plottype,
+    required String plotType,
     required String name,
     required String number,
     required String email,
@@ -18,12 +31,12 @@ class DatabaseService {
     required String electricCompany,
     required String landlineCompany,
     required GeoPoint location,
-    required String nicnumber,
+    required String nicNum,
     required String street,
     required String block,
     required String uc,
     required String area,
-    required String houseno,
+    required int houseNum,
     required String taluka,
   }) async {
     try {
@@ -40,9 +53,9 @@ class DatabaseService {
         "ElectricCompany": electricCompany,
         "LandlineCompany": landlineCompany,
         "location": location,
-        "Plottype": plottype,
-        "NicNumber": nicnumber,
-        "HouseNO": houseno,
+        "Plot_type": plotType,
+        "NicNumber": nicNum,
+        "HouseNO": houseNum,
         "Area": area,
         "Block": block,
         "UC": uc,
@@ -51,7 +64,6 @@ class DatabaseService {
       });
     } catch (e) {
       print(e.toString());
-      //return;
     }
   }
 }

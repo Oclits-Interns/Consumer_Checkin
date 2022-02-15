@@ -1,4 +1,4 @@
-import 'package:consumer_checkin/screens/map_screen.dart';
+import 'package:consumer_checkin/services/map.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:loading_indicator/loading_indicator.dart';
@@ -24,27 +24,35 @@ class _LoadingScreenState extends State<LoadingScreen> {
           desiredAccuracy: LocationAccuracy.high);
       double latitud = position.latitude;
       double longitud = position.longitude;
+      // print(latitud);
+      // print(longitud);
+      // print("on");
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
         return MapApp(lan: longitud, lat: latitud);
       }));
     } catch (e) {
-      print(e);
+      showDialog(context: context, builder: (BuildContext context) {
+        return const AlertDialog(
+          content: Text("There seems to be a problem, restart the app and try again"),
+        );
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     getCurrentLocation();
-    return Scaffold(
+    return const Scaffold(
       body: Center(
         child: SizedBox(
           width: 60,
           height: 50,
           child: LoadingIndicator(
               indicatorType: Indicator.lineScalePulseOutRapid,
-              colors: const [Colors.red],
+              colors: [Colors.red],
               strokeWidth: 1,
-              pathBackgroundColor: Colors.black),
+              pathBackgroundColor: Colors.black
+          ),
         ),
       ),
     );

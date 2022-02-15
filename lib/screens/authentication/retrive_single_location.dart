@@ -3,15 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
-class retriveMarkers extends StatefulWidget {
-  const retriveMarkers([this.id]);
+class retriveSingleMarker extends StatefulWidget {
+  const retriveSingleMarker([this.id, this.lat, this.lon]);
 
   final id;
+  final lat;
+  final lon;
   @override
-  _retriveMarkersState createState() => _retriveMarkersState();
+  _retriveSingleMarkerState createState() => _retriveSingleMarkerState();
 }
 
-class _retriveMarkersState extends State<retriveMarkers> {
+class _retriveSingleMarkerState extends State<retriveSingleMarker> {
   int consumerID = 0;
   String name = "";
   String number = "";
@@ -296,7 +298,7 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                                                     MaterialPageRoute(
                                                                         builder:
                                                                             (context) =>
-                                                                                retriveMarkers()));
+                                                                                retriveSingleMarker()));
                                                               },
                                                               child: Text("OK"))
                                                         ],
@@ -336,7 +338,7 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                                 context,
                                                 MaterialPageRoute(
                                                     builder: (context) =>
-                                                        retriveMarkers()));
+                                                        retriveSingleMarker()));
                                           },
                                           child: Text("OK"))
                                     ],
@@ -370,11 +372,13 @@ class _retriveMarkersState extends State<retriveMarkers> {
   }
 
   getmarkerdata() async {
-    FirebaseFirestore.instance.collection('Consumers').get().then((myMocDoc) {
-      if (myMocDoc.docs.isNotEmpty) {
-        for (int a = 0; a < myMocDoc.docs.length; a++) {
-          initMarker(myMocDoc.docs[a].data(), myMocDoc.docs[a].id);
-        }
+    FirebaseFirestore.instance
+        .collection('Consumers')
+        .doc(widget.id)
+        .get()
+        .then((myMocDoc) {
+      if (myMocDoc.data()!.isNotEmpty) {
+        initMarker(myMocDoc.data(), widget.id);
       }
     });
   }
@@ -404,7 +408,7 @@ class _retriveMarkersState extends State<retriveMarkers> {
             mapType: MapType.normal,
             markers: Set<Marker>.of(markers.values),
             initialCameraPosition: CameraPosition(
-              target: LatLng(25.3960, 68.3578),
+              target: LatLng(widget.lat, widget.lon),
               zoom: 15.0,
             ),
             onMapCreated: (GoogleMapController controller) {

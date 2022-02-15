@@ -1,0 +1,140 @@
+import 'package:consumer_checkin/constant/colors_constant.dart';
+import 'package:consumer_checkin/services/auth.dart';
+import 'package:consumer_checkin/widgets/logo.dart';
+import 'package:flutter/material.dart';
+import 'package:consumer_checkin/local_DB/local_db.dart';
+
+class SignUp extends StatefulWidget {
+  final void Function() toggleView;
+  const SignUp({required this.toggleView, Key? key}) : super(key: key);
+
+  @override
+  _SignUpState createState() => _SignUpState();
+}
+
+class _SignUpState extends State<SignUp> {
+
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  AuthService _auth = AuthService();
+  String _userName = "";
+  String _email = "";
+  String _password = "";
+  String _error = "";
+
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: kMaroon,
+        title: const Text("Sign up",
+          style: TextStyle(
+              color: Colors.black
+          ),),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 30, 20, 20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: Logo(),
+              ),
+              Form(
+                key: _formKey,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 20.0),
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              hintText: "Enter your Email",
+                              prefixIcon: Icon(Icons.email_outlined)
+                          ),
+                          onChanged: (val) => setState(() {_email = val;}),
+                          validator: (String? val) {
+                            if(val == null || val.trim().length == 0) {
+                              return "Please enter a valid email";
+                            }
+                            else {
+                              return null;
+                            }
+                          },
+                        ),
+                      ),
+                      TextFormField(
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          hintText: "Enter your Password",
+                          prefixIcon: Icon(Icons.lock_outline_rounded),
+                        ),
+                        onChanged: (val) => setState(() {_password = val;}),
+                        validator: (val) => val!.length< 6 ? 'Password must be 6 characters or more' : null,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20.0),
+                        child: GestureDetector(
+                          onTap: () async {
+                              if(_formKey.currentState!.validate()) {
+                                DBProvider.db.createTableAtLogin();
+                                DBProvider.db.insertSigninUser(_email, _password);
+                                dynamic result = _auth.register(_userName, _email, _password);
+                              }
+                              else {
+                                setState(() => _error = "Enter a valid email or password");
+                                //print(_error.toString());
+                              }
+                            },
+                          child: Container(
+                            height: 50,
+                            width: MediaQuery.of(context).size.width * 0.70,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color: kMaroon
+                            ),
+                            child: Center(child: Text("Register", style: TextStyle(color: Colors.black),)),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20.0),
+                        child: GestureDetector(
+                          onTap: widget.toggleView,
+                          child: Container(
+                            height: 50,
+                            width: MediaQuery.of(context).size.width * 0.70,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: kYellow,
+                            ),
+                            child: Center(child: Text("Return to Sign in", style: TextStyle(color: Colors.black),)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
