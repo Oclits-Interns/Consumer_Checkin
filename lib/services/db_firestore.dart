@@ -1,18 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DatabaseService {
-  final CollectionReference _consumersCollection = FirebaseFirestore.instance.collection("Consumers");
-  CollectionReference userCollection = FirebaseFirestore.instance.collection("Consumers");
+  final CollectionReference _consumersCollection =
+      FirebaseFirestore.instance.collection("Consumers");
+  CollectionReference userCollection =
+      FirebaseFirestore.instance.collection("Consumers");
 
   Future addUser(String name, String email, String password, String uid) async {
     try {
-      return await userCollection.doc(uid).set({
-        "userName" : name,
-        "Email" : email,
-        "Password" : password
-      });
-    }
-    catch(e) {
+      return await userCollection
+          .doc(uid)
+          .set({"userName": name, "Email": email, "Password": password});
+    } catch (e) {
       print(e.toString());
     }
   }
@@ -38,6 +37,7 @@ class DatabaseService {
     required String area,
     required int houseNum,
     required String taluka,
+    required String url1,
   }) async {
     try {
       return await _consumersCollection.add({
@@ -61,6 +61,7 @@ class DatabaseService {
         "UC": uc,
         "Street": street,
         "Taluka": taluka,
+        "Url1": url1,
       });
     } catch (e) {
       print(e.toString());

@@ -350,7 +350,39 @@ class _retriveMarkersState extends State<retriveMarkers> {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    // backgroundColor: Colors.red,
+                                    scrollable: true,
+                                    title: Text('Consumer Check-In'),
+                                    content: Image.network(specify["Url1"]),
+                                    actions: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(12.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            GestureDetector(
+                                              child: Text(
+                                                "Image Retrived",
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.black),
+                                              ),
+                                              onTap: () {},
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  );
+                                });
+                          },
+                      
                           child: Text(
                             "Show IMAGE",
                             style: TextStyle(
