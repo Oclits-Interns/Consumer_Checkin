@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:consumer_checkin/constant/colors_constant.dart';
 import 'package:consumer_checkin/screens/retrive_locations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -40,7 +41,7 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
             builder: (BuildContext context) {
               return AlertDialog(
                 scrollable: true,
-                title: Text('Consumer Details'),
+                title: Text('Consumer Details', style: TextStyle(color: kRed)),
                 content: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Container(
@@ -52,20 +53,34 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                               specify["ConsumerID"].toString()),
                           SizedBox(height: 5),
                           Text("Name : " + specify["Name"]),
-                          Text("Id : " + specifyId),
+                          // SizedBox(height: 5),
+                          // Text("Id : " + specifyId),
                           SizedBox(height: 5),
                           Text("Email : " + specify["Email"]),
                           SizedBox(height: 5),
                           Text("Number : " + specify["Number"].toString()),
                           SizedBox(height: 5),
+                          Text("Nic Number : " +
+                              specify["NicNumber"].toString()),
+                          SizedBox(height: 5),
+                          Text("Plot Type : " + specify["Plottype"].toString()),
+                          SizedBox(height: 5),
+                          Text("Taluka : " + specify["Taluka"].toString()),
+                          SizedBox(height: 5),
+                          Text("UC : " + specify["UC"].toString()),
+                          SizedBox(height: 5),
+                          Text("Zone : " + specify["Zone"].toString()),
+                          SizedBox(height: 5),
+                          Text("Ward : " + specify["Ward"].toString()),
                           SizedBox(height: 5),
                           Text("Address : " + specify["Address"]),
-                          Text("Electric_Company : " +
+                          SizedBox(height: 5),
+                          Text("Electric Company : " +
                               specify["ElectricCompany"]),
                           SizedBox(height: 5),
-                          Text("Gas_Company : " + specify["GasCompany"]),
+                          Text("Gas Company : " + specify["GasCompany"]),
                           SizedBox(height: 5),
-                          Text("Landline_Company : " +
+                          Text("Landline Company : " +
                               specify["LandlineCompany"]),
                         ],
                       ),
@@ -84,7 +99,10 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                   return AlertDialog(
                                     // backgroundColor: Colors.red,
                                     scrollable: true,
-                                    title: Text('Consumer Check-In'),
+                                    title: Text(
+                                      'Consumer Check-In',
+                                      style: TextStyle(color: kRed),
+                                    ),
                                     content: Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Form(
@@ -202,7 +220,7 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                                 "SAVE",
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.bold,
-                                                    color: Colors.black),
+                                                    color: kRed),
                                               ),
                                               onTap: () {
                                                 showDialog(
@@ -341,30 +359,12 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                 ],
               );
             }),
-        infoWindow: InfoWindow(title: "oks", snippet: specify["Name"]));
+        infoWindow:
+            InfoWindow(title: specify["ConsumerID"], snippet: specify["Name"]));
     setState(() {
       markers[markerId] = marker;
     });
   }
-
-  // getmarkerdata() async {
-  //   FirebaseFirestore.instance
-  //       .collection('Consumers')
-  //       .where("ConsumerID", isEqualTo: widget.searchid)
-  //       .snapshots(); {
-  //     if (myMocDoc.docs.isNotEmpty) {
-  //       for (int a = 0; a < myMocDoc.docs.length; a++) {
-  //         initMarker(myMocDoc.docs[a].data(), myMocDoc.docs[a].id);
-  //       }
-  //     }
-  //   });
-  //   // var markers = FirebaseFirestore.instance
-  //   //     .collection("Consumers")
-  //   //     .where("ConsumerID", isEqualTo: widget.searchid)
-  //   //     .snapshots();
-  //   // print(widget.searchid);
-  //   // print(markers);
-  // }
 
   getmarkerdata() async {
     FirebaseFirestore.instance
@@ -389,17 +389,6 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
 
   @override
   Widget build(BuildContext context) {
-    Set<Marker> getMarkers() {
-      return <Marker>[
-        Marker(
-          markerId: MarkerId("Shop"),
-          position: LatLng(21.1458, 97.2882),
-          icon: BitmapDescriptor.defaultMarker,
-          infoWindow: InfoWindow(title: "home"),
-        )
-      ].toSet();
-    }
-
     return Scaffold(
         body: GoogleMap(
             mapType: MapType.normal,

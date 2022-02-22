@@ -10,6 +10,9 @@ import 'package:consumer_checkin/services/auth.dart';
 import 'package:consumer_checkin/services/db_firestore.dart';
 import 'package:consumer_checkin/services/google_sheets.dart';
 import 'package:consumer_checkin/services/searchBy.dart';
+import 'package:consumer_checkin/constant/colors_constant.dart';
+import 'package:gallery_saver/gallery_saver.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
@@ -17,7 +20,21 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:gallery_saver/gallery_saver.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
+
+import 'package:flutter/material.dart';
+import 'package:gallery_saver/gallery_saver.dart';
+import 'package:image_picker/image_picker.dart';
 
 class MapApp extends StatefulWidget {
   const MapApp({this.lan, this.lat});
@@ -96,6 +113,8 @@ class _MapAppState extends State<MapApp> {
   final _blockTextController = TextEditingController();
   final _areaTextController = TextEditingController();
 
+  String firstButtonText = 'Take photo';
+
   Future<void> scanBarcodeNormal() async {
     String barcodeScanRes;
     // Platform messages may fail, so we use a try/catch PlatformException.
@@ -133,11 +152,27 @@ class _MapAppState extends State<MapApp> {
 
   opencamera() async {
     final pickedFile = await picker.getImage(source: ImageSource.camera);
+
     setState(() {
       _image.add(File(pickedFile!.path));
     });
     if (pickedFile!.path == null) retrieveLostData();
   }
+
+  // opencamerasavetogareally() async {
+  //   picker.getImage(source: ImageSource.camera);
+
+  //   String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
+  //   final Directory extDir = await getApplicationDocumentsDirectory();
+  //   final String dirPath = '${extDir.path}/Pictures/flutter_test';
+  //   await Directory(dirPath).create(recursive: true);
+
+  //   final String filePath = '$dirPath/${timestamp()}.jpg';
+  //   GallerySaver.saveImage(filePath);
+  //   print("3333333333333333333333333333333333333333333333333" + filePath);
+
+  //   // if (pickedFile!.path == null) retrieveLostData();
+  // }
 
   Future<void> retrieveLostData() async {
     final LostData response = await picker.getLostData();
@@ -172,6 +207,39 @@ class _MapAppState extends State<MapApp> {
     }
     print(":::::::::::::::::::::::::::::::" + imageList[0].toString());
   }
+
+  void _takePhoto() async {
+    final recordedImage = await picker.getImage(source: ImageSource.camera);
+    {
+      if (recordedImage != null && recordedImage.path != null) {
+        setState(() {
+          firstButtonText = 'saving in progress...';
+        });
+        GallerySaver.saveImage(recordedImage.path, albumName: "Intrapreneur")
+            .then((path) {
+          setState(() {
+            firstButtonText = 'image saved!';
+          });
+        });
+      }
+    }
+  }
+
+  // Future uploadFiletogareally() async {
+  //   int i = 1;
+
+  //   for (var img in _image) {
+  //     setState(() {
+  //       val = i / _image.length;
+  //     });
+  //     String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
+  //     final Directory extDir = await getApplicationDocumentsDirectory();
+  //     final String dirPath = '${extDir.path}/Pictures/flutter_test';
+  //     await Directory(dirPath).create(recursive: true);
+  //     final String filePath = '$dirPath/${timestamp()}.jpg';
+  //   }
+  //   print(":::::::::::::::::::::::::::::::" + imageList[0].toString());
+  // }
 
   var nummberFormatter = MaskTextInputFormatter(
       mask: '####-#######', filter: {"#": RegExp(r'[0-9]')});
@@ -253,7 +321,10 @@ class _MapAppState extends State<MapApp> {
           return AlertDialog(
             insetPadding: EdgeInsets.zero,
             scrollable: true,
-            title: const Text('Consumer Check-In'),
+            title: const Text(
+              'Consumer Check-In',
+              style: TextStyle(color: Colors.red),
+            ),
             content: StatefulBuilder(
                 builder: (BuildContext context, StateSetter setState) {
               return Stack(
@@ -261,7 +332,7 @@ class _MapAppState extends State<MapApp> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(8, 120, 20, 0),
                     child: Image(
-                      image: const AssetImage("assets/Wasa-Logo.png"),
+                      image: AssetImage("assets/Wasa-Logo.png"),
                       color: Colors.white.withOpacity(0.08),
                       colorBlendMode: BlendMode.modulate,
                     ),
@@ -647,7 +718,11 @@ class _MapAppState extends State<MapApp> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        opencamera();
+                        if (isConnected == true) {
+                          opencamera();
+                        } else {
+                          _takePhoto();
+                        }
                         // Navigator.push(
                         //     context,
                         //     MaterialPageRoute(
@@ -743,51 +818,64 @@ class _MapAppState extends State<MapApp> {
 
                           }
                           // Along storing the data to sqlite, we also insert to Firebase, the data will be stored in firebase cache, and when network status changes, the offline data is synced with firebase
-                          await uploadFile();
 
-                          _db.addConsumerEntry(
-                            plotType: plotType,
-                            consumerID: consumerID,
-                            name: name,
-                            number: number,
-                            email: email,
-                            taluka: taluka,
-                            uc: uc,
-                            zone: zone,
-                            ward: ward,
-                            block: block,
-                            street: street,
-                            area: area,
-                            houseNum: houseNum,
-                            nicNum: nicNumber,
-                            address: address,
-                            newAddress: newAddress,
-                            gasCompany: gasCompany,
-                            electricCompany: electricCompany,
-                            landlineCompany: landlineCompany,
-                            location: GeoPoint(widget.lat, widget.lan),
-                            url: imageList[0].toString(),
-                          );
-                          showDialog(
-                              barrierDismissible: false,
-                              context: context,
-                              builder: (context) {
-                                Future.delayed(
-                                    const Duration(milliseconds: 1500), () {
-                                  Navigator.of(context).pop(true);
-                                });
-                                return const AlertDialog(
-                                  title: Text('Data Inserted'),
-                                );
-                              });
-                          if (!isLocked) {
-                            clearForm();
-                            //imageList.clear();
-                          } else {
-                            clearFormLocked();
-                            _formKey.currentState!.reset();
-                            //imageList.clear();
+                          //    uploadFile();
+
+                          Future<String> getFilePath() async {
+                            Directory appDocumentsDirectory =
+                                await getApplicationDocumentsDirectory(); // 1
+                            String appDocumentsPath =
+                                appDocumentsDirectory.path; // 2
+                            String filePath =
+                                '$appDocumentsPath/demoTextFile.txt'; // 3
+
+                            return filePath;
                           }
+                        }
+
+                        _db.addConsumerEntry(
+                          plotType: plotType,
+                          consumerID: consumerID,
+                          name: name,
+                          number: number,
+                          email: email,
+                          taluka: taluka,
+                          uc: uc,
+                          zone: zone,
+                          ward: ward,
+                          block: block,
+                          street: street,
+                          area: area,
+                          houseNum: houseNum,
+                          nicNum: nicNumber,
+                          address: address,
+                          newAddress: newAddress,
+                          gasCompany: gasCompany,
+                          electricCompany: electricCompany,
+                          landlineCompany: landlineCompany,
+                          location: GeoPoint(widget.lat, widget.lan),
+                          url: imageList[0].toString(),
+                        );
+
+                        showDialog(
+                            barrierDismissible: false,
+                            context: context,
+                            builder: (context) {
+                              Future.delayed(const Duration(milliseconds: 1500),
+                                  () {
+                                Navigator.of(context).pop(true);
+                              });
+                              return const AlertDialog(
+                                title: Text('Data Inserted'),
+                              );
+                            });
+                        if (!isLocked) {
+                          clearForm();
+                          //imageList.clear();
+                        } else {
+                          clearFormLocked();
+                          _formKey.currentState!.reset();
+                          //imageList.clear();
                         }
                       },
                       child: Text(

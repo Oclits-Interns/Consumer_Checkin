@@ -34,7 +34,10 @@ class _retriveMarkersState extends State<retriveMarkers> {
             builder: (BuildContext context) {
               return AlertDialog(
                 scrollable: true,
-                title: Text('Consumer Details'),
+                title: Text(
+                  'Consumer Details',
+                  style: TextStyle(color: Colors.red),
+                ),
                 content: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Container(
@@ -46,20 +49,34 @@ class _retriveMarkersState extends State<retriveMarkers> {
                               specify["ConsumerID"].toString()),
                           SizedBox(height: 5),
                           Text("Name : " + specify["Name"]),
-                          Text("Id : " + specifyId),
+                          // SizedBox(height: 5),
+                          // Text("Id : " + specifyId),
                           SizedBox(height: 5),
                           Text("Email : " + specify["Email"]),
                           SizedBox(height: 5),
                           Text("Number : " + specify["Number"].toString()),
                           SizedBox(height: 5),
+                          Text("Nic Number : " +
+                              specify["NicNumber"].toString()),
+                          SizedBox(height: 5),
+                          Text("Plot Type : " + specify["Plottype"].toString()),
+                          SizedBox(height: 5),
+                          Text("Taluka : " + specify["Taluka"].toString()),
+                          SizedBox(height: 5),
+                          Text("UC : " + specify["UC"].toString()),
+                          SizedBox(height: 5),
+                          Text("Zone : " + specify["Zone"].toString()),
+                          SizedBox(height: 5),
+                          Text("Ward : " + specify["Ward"].toString()),
                           SizedBox(height: 5),
                           Text("Address : " + specify["Address"]),
-                          Text("Electric_Company : " +
+                          SizedBox(height: 5),
+                          Text("Electric Company : " +
                               specify["ElectricCompany"]),
                           SizedBox(height: 5),
-                          Text("Gas_Company : " + specify["GasCompany"]),
+                          Text("Gas Company : " + specify["GasCompany"]),
                           SizedBox(height: 5),
-                          Text("Landline_Company : " +
+                          Text("Landline Company : " +
                               specify["LandlineCompany"]),
                         ],
                       ),

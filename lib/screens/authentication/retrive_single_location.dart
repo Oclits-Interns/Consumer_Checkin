@@ -59,8 +59,8 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                               specify["ConsumerID"].toString()),
                           SizedBox(height: 5),
                           Text("Name : " + specify["Name"]),
-                          SizedBox(height: 5),
-                          Text("Id : " + specifyId),
+                          // SizedBox(height: 5),
+                          // Text("Id : " + specifyId),
                           SizedBox(height: 5),
                           Text("Email : " + specify["Email"]),
                           SizedBox(height: 5),
@@ -72,6 +72,12 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                           Text("Plot Type : " + specify["Plottype"].toString()),
                           SizedBox(height: 5),
                           Text("Taluka : " + specify["Taluka"].toString()),
+                          SizedBox(height: 5),
+                          Text("UC : " + specify["UC"].toString()),
+                          SizedBox(height: 5),
+                          Text("Zone : " + specify["Zone"].toString()),
+                          SizedBox(height: 5),
+                          Text("Ward : " + specify["Ward"].toString()),
                           SizedBox(height: 5),
                           Text("Address : " + specify["Address"]),
                           SizedBox(height: 5),
@@ -396,8 +402,6 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                 ],
               );
             }),
-   
-   
         infoWindow: InfoWindow(title: "oks", snippet: specify["Name"]));
     setState(() {
       markers[markerId] = marker;
@@ -416,7 +420,7 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
   //   });
   // }
 
-   getmarkerdata() async {
+  getmarkerdata() async {
     FirebaseFirestore.instance
         .collection('Consumers')
         .doc(widget.id)
