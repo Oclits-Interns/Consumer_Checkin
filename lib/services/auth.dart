@@ -23,10 +23,29 @@ class AuthService {
       UserCredential authResult = await _auth.signInWithEmailAndPassword(email: email, password: password);
       User? user = authResult.user;
       return _userFromFirebaseUser(user!);
-    }
-    catch(e) {
-      print(e.toString());
-      return null;
+    } on FirebaseAuthException catch (e) {
+      var message = '';
+      switch (e.code) {
+        case 'invalid-email':
+          message = "You have entered an invalid email";
+          break;
+        case "user-disabled":
+          message = "It appears your account has been disabled";
+          break;
+        case "user-not-found":
+          message = "You don't have an account yet, sign-up first";
+          break;
+        case "wrong-password":
+          message = "You have entered incorrect password";
+          break;
+      }
+      return message;
+    } catch (e) {
+      print('''
+    caught exception\n
+    $e
+  ''');
+      rethrow;
     }
   }
 
@@ -48,8 +67,29 @@ class AuthService {
       await DatabaseService().addUser(userName, email, password, user!.uid);
       return _userFromFirebaseUser(user);
     }
-    catch(e) {
-      return null;
+    on FirebaseAuthException catch (e) {
+      var message = '';
+      switch (e.code) {
+        case 'email-already-in-use':
+          message = "This email is already registered with another account";
+          break;
+        case "invalid-email":
+          message = "You have entered an invalid email";
+          break;
+        case "operation-not-allowed":
+          message = "There seems to be a problem signing up, please try again at a different time";
+          break;
+        case "weak-password":
+          message = "This password is too weak";
+          break;
+      }
+      return message;
+    } catch (e) {
+      print('''
+    caught exception\n
+    $e
+  ''');
+      rethrow;
     }
   }
 

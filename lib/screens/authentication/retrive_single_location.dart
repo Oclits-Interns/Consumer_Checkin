@@ -396,13 +396,27 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                 ],
               );
             }),
+   
+   
         infoWindow: InfoWindow(title: "oks", snippet: specify["Name"]));
     setState(() {
       markers[markerId] = marker;
     });
   }
 
-  getmarkerdata() async {
+  // getmarkerdata() async {
+  //   FirebaseFirestore.instance
+  //       .collection('Consumers')
+  //       .doc(widget.id)
+  //       .get()
+  //       .then((myMocDoc) {
+  //     if (myMocDoc.data()!.isNotEmpty) {
+  //       initMarker(myMocDoc.data(), widget.id);
+  //     }
+  //   });
+  // }
+
+   getmarkerdata() async {
     FirebaseFirestore.instance
         .collection('Consumers')
         .doc(widget.id)

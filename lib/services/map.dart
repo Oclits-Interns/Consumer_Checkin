@@ -1,36 +1,23 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:consumer_checkin/constant/colors_constant.dart';
 import 'package:consumer_checkin/local_DB/local_db.dart';
 import 'package:consumer_checkin/models/consumer.dart';
 import 'package:consumer_checkin/screens/retrive_locations.dart';
+import 'package:consumer_checkin/services/auth.dart';
 import 'package:consumer_checkin/services/db_firestore.dart';
 import 'package:consumer_checkin/services/google_sheets.dart';
+import 'package:consumer_checkin/services/searchBy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:path/path.dart' as Path;
-import 'dart:async';
-import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:consumer_checkin/constant/colors_constant.dart';
-import 'package:consumer_checkin/screens/retrive_locations.dart';
-import 'package:consumer_checkin/services/db_firestore.dart';
-import 'package:consumer_checkin/services/image_upload.dart';
-import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:path/path.dart' as Path;
+import 'package:path/path.dart' as path;
 
 class MapApp extends StatefulWidget {
   const MapApp({this.lan, this.lat});
@@ -43,12 +30,12 @@ class MapApp extends StatefulWidget {
 
 class _MapAppState extends State<MapApp> {
   String consumerID = "";
-  String plottype = "";
+  String plotType = "";
   String name = "";
   String number = "";
   String email = "";
-  int zone = 0;
-  int ward = 0;
+  String zone = "";
+  String ward = "";
   String uc = "";
   int houseNum = 0;
   String area = "";
@@ -59,8 +46,9 @@ class _MapAppState extends State<MapApp> {
   String gasCompany = "";
   String electricCompany = "";
   String landlineCompany = "";
-  String nicnumber = "";
+  String nicNumber = "";
   String taluka = "";
+  String searchid = "";
   bool isConnected = false;
   bool isLocked = false;
   late Uri url1;
@@ -81,6 +69,8 @@ class _MapAppState extends State<MapApp> {
     "Latifabad Taluka",
     "Hyderabad City Taluka"
   ];
+  final List<String> _zoneList = ["5", "6"];
+  final List<String> _wardList = ["1", "2", "3", "4", "5", "6", "7"];
   final List<String> _ucNumList = [
     "UC # 1",
     "UC # 2",
@@ -90,7 +80,7 @@ class _MapAppState extends State<MapApp> {
     "UC # 6",
   ];
   final DatabaseService _db = DatabaseService();
-  final _addressTextController = TextEditingController();
+  final AuthService _auth = AuthService();
   final _emailTextController = TextEditingController();
   final _consumerIdTextController = TextEditingController();
   final _consumerNameTextController = TextEditingController();
@@ -164,7 +154,7 @@ class _MapAppState extends State<MapApp> {
   }
 
   Future uploadFile() async {
-    int i = 0;
+    int i = 1;
 
     for (var img in _image) {
       setState(() {
@@ -172,7 +162,7 @@ class _MapAppState extends State<MapApp> {
       });
       ref = firebase_storage.FirebaseStorage.instance
           .ref()
-          .child('images/${Path.basename(img.path)}');
+          .child('images/${path.basename(img.path)}');
       await ref.putFile(img).whenComplete(() async {
         await ref.getDownloadURL().then((value) {
           imageList.add(Uri.parse(value));
@@ -180,7 +170,7 @@ class _MapAppState extends State<MapApp> {
         });
       });
     }
-    print(":::::::::::::::::::::::::::::::" + imageList.toString());
+    print(":::::::::::::::::::::::::::::::" + imageList[0].toString());
   }
 
   var nummberFormatter = MaskTextInputFormatter(
@@ -190,21 +180,37 @@ class _MapAppState extends State<MapApp> {
       mask: '#####-#######-#', filter: {"#": RegExp(r'[0-9]')});
 
   var blockFormatter = MaskTextInputFormatter(
-      mask: '*-##', filter: {"#": RegExp(r'[0-9]'), "*": RegExp(r'[A-Z]')});
+      mask: '*-##',
+      filter: {"#": RegExp(r'[0-9]'), "*": RegExp(r'[a-z, A-Z]')});
 
-  // void clearForm() {
-  //   _consumerIDTextController.clear();
-  //   _consumerNameTextController.clear();
-  //   _addressTextController.clear();
-  //   _mobileNumberTextController.clear();
-  //   _emailTextController.clear();
-  //   _enterNewAddressTextController.clear();
-  //   _landLineIDTextController.clear();
-  //   _gasCompanyIDTextController.clear();
-  //   _electricCompanyIDTextController.clear();
-  //   _ucNumTextEditingController.clear();
-  //   _wardNumTextEditingController.clear();
-  // }
+  void clearForm() {
+    setState(() {
+      _consumerIdTextController.clear();
+      _consumerNameTextController.clear();
+      _mobileNumberTextController.clear();
+      _emailTextController.clear();
+      _nicNumberTextController.clear();
+      _zoneTextController.clear();
+      _wardTextController.clear();
+      _areaTextController.clear();
+      _houseNumTextController.clear();
+      _streetTextController.clear();
+      _blockTextController.clear();
+    });
+  }
+
+  void clearFormLocked() {
+    setState(() {
+      _consumerIdTextController.clear();
+      _consumerNameTextController.clear();
+      _mobileNumberTextController.clear();
+      _emailTextController.clear();
+      _nicNumberTextController.clear();
+      _houseNumTextController.clear();
+      _streetTextController.clear();
+      _blockTextController.clear();
+    });
+  }
 
   void checkConn() async {
     var connectivityResult = await (Connectivity().checkConnectivity());
@@ -221,6 +227,25 @@ class _MapAppState extends State<MapApp> {
     checkConn();
   }
 
+  @override
+  void dispose() {
+    _consumerIdTextController.dispose();
+    _consumerNameTextController.dispose();
+    _mobileNumberTextController.dispose();
+    _nicNumberTextController.dispose();
+    _emailTextController.dispose();
+    _zoneTextController.dispose();
+    _wardTextController.dispose();
+    _areaTextController.dispose();
+    _streetTextController.dispose();
+    _houseNumTextController.dispose();
+    _blockTextController.dispose();
+    _gasCompanyIdTextController.dispose();
+    _electricCompanyIdTextController.dispose();
+    _landlineIdTextController.dispose();
+    super.dispose();
+  }
+
   void _showAlertDialog() {
     showDialog(
         context: context,
@@ -231,395 +256,387 @@ class _MapAppState extends State<MapApp> {
             title: const Text('Consumer Check-In'),
             content: StatefulBuilder(
                 builder: (BuildContext context, StateSetter setState) {
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: <Widget>[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  scanBarcodeNormal();
-                                });
-                              },
-                              child: const Text(
-                                "Scan QR/Barcode",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xffb11118)),
-                              )),
-                        ],
-                      ),
-                      TextFormField(
-                        controller: _consumerIdTextController,
-                        decoration: const InputDecoration(
-                          labelText: 'Consumer Id',
-                          suffixText: '*',
-                          suffixStyle: TextStyle(
-                            color: Colors.red,
-                          ),
-                        ),
-                        onChanged: (val) => setState(() {
-                          consumerID = val;
-                        }),
-                        validator: (String? val) {
-                          if (val == null || val.trim().length == 0) {
-                            return "Consumer ID is mandatory";
-                          } else {
-                            return null;
-                          }
-                        },
-                      ),
-                      DropdownButtonFormField(
-                          decoration: const InputDecoration(
-                            labelText: "Plot Type",
-                          ),
-                          items: plotTypeDropDown.map((plotType) {
-                            return DropdownMenuItem(
-                              child: Text(plotType),
-                              value: plotType,
-                            );
-                          }).toList(),
-                          validator: (String? val) {
-                            if (val == null || val.trim().isEmpty) {
-                              return "Please select a plot type first";
-                            } else {
-                              return null;
-                            }
-                          },
-                          onChanged: (val) {
-                            setState(() => plottype = val.toString());
-                          }),
-                      TextFormField(
-                        controller: _consumerNameTextController,
-                        decoration: const InputDecoration(
-                          labelText: 'Consumer Name',
-                        ),
-                        onChanged: (val) => setState(() {
-                          name = val.toString();
-                        }),
-                        validator: (String? val) {
-                          if (val == null || val.trim().isEmpty) {
-                            return "Please select a plot type first";
-                          } else {
-                            return null;
-                          }
-                        },
-                      ),
-                      TextFormField(
-                        controller: _mobileNumberTextController,
-                        inputFormatters: [nummberFormatter],
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: 'Mobile Number',
-                          suffixText: '*',
-                          suffixStyle: TextStyle(
-                            color: Colors.red,
-                          ),
-                        ),
-                        onChanged: (val) => setState(() {
-                          number = val;
-                        }),
-                        validator: (String? val) {
-                          if (val == null || val.trim().length == 0) {
-                            return "Consumer Number is mandatory";
-                          } else if (val.length < 12) {
-                            return "Consumer Number is Invalid";
-                          } else {
-                            return null;
-                          }
-                        },
-                      ),
-                      TextFormField(
-                        controller: _nicNumberTextController,
-                        inputFormatters: [nicmnumberFormatter],
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: 'NIC Number',
-                          suffixText: '*',
-                          suffixStyle: TextStyle(
-                            color: Colors.red,
-                          ),
-                        ),
-                        onChanged: (val) => setState(() {
-                          nicnumber = val;
-                        }),
-                        validator: (String? val) {
-                          if (val == null || val.trim().length == 0) {
-                            return "Consumer Nic_Number is mandatory";
-                          } else if (val.length < 12) {
-                            return "Consumer Nic_Number is Invalid";
-                          } else {
-                            return null;
-                          }
-                        },
-                      ),
-                      TextFormField(
-                        controller: _emailTextController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(
-                          labelText: 'Email',
-                        ),
-                        onChanged: (val) => setState(() {
-                          email = val;
-                        }),
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: DropdownButtonFormField(
-                                decoration: const InputDecoration(
-                                  labelText: "Taluka",
-                                ),
-                                items: _talukaList.map((taluka) {
-                                  return DropdownMenuItem(
-                                    child: new Text(taluka),
-                                    value: taluka,
-                                  );
-                                }).toList(),
-                                validator: (String? val) {
-                                  if (val == null || val.trim().isEmpty) {
-                                    return "Please select a Taluka";
-                                  } else {
-                                    return null;
-                                  }
-                                },
-                                onChanged: (val) {
-                                  setState(() => taluka = val.toString());
-                                }),
-                          ),
-                          const Divider(),
-                          Column(
+              return Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 120, 20, 0),
+                    child: Image(
+                      image: const AssetImage("assets/Wasa-Logo.png"),
+                      color: Colors.white.withOpacity(0.08),
+                      colorBlendMode: BlendMode.modulate,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: <Widget>[
+                          Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              Switch(
-                                activeTrackColor: kYellow,
-                                activeColor: kMaroon,
-                                value: isLocked,
-                                onChanged: (val) {
-                                  setState(() => isLocked = val);
-                                },
-                              ),
-                              !isLocked
-                                  ? const Text(
-                                      "Lock",
-                                      style: TextStyle(fontSize: 14),
-                                    )
-                                  : const Text(
-                                      "Locked",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14),
-                                    ),
+                              GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      scanBarcodeNormal();
+                                    });
+                                  },
+                                  child: const Text(
+                                    "Scan QR/Barcode",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xffb11118)),
+                                  )),
                             ],
-                          )
-                        ],
-                      ),
-                      DropdownButtonFormField(
-                          decoration: const InputDecoration(
-                            labelText: "UC",
                           ),
-                          items: _ucNumList.map((ucNum) {
-                            return DropdownMenuItem(
-                              child: new Text(ucNum),
-                              value: ucNum,
-                            );
-                          }).toList(),
-                          validator: (String? val) {
-                            if (val == null || val.trim().isEmpty) {
-                              return "Please select a UC";
-                            } else {
-                              return null;
-                            }
-                          },
-                          onChanged: (val) {
-                            setState(() => uc = val.toString());
-                          }),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: _zoneTextController,
-                              keyboardType: TextInputType.number,
-                              decoration: const InputDecoration(
-                                labelText: 'Zone',
-                                suffixText: '*',
-                                suffixStyle: TextStyle(
-                                  color: Colors.red,
-                                ),
-                              ),
-                              onChanged: (val) => setState(() {
-                                zone = int.parse(val);
-                              }),
-                              validator: (String? val) {
-                                if (val == null || val.trim().isEmpty) {
-                                  return "Please select a plot type first";
-                                } else {
-                                  return null;
-                                }
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 20),
-                          Expanded(
-                            child: TextFormField(
-                              controller: _wardTextController,
-                              keyboardType: TextInputType.number,
-                              decoration: const InputDecoration(
-                                labelText: 'Ward',
-                                suffixText: '*',
-                                suffixStyle: TextStyle(
-                                  color: Colors.red,
-                                ),
-                              ),
-                              onChanged: (val) => setState(() {
-                                ward = int.parse(val);
-                              }),
-                              validator: (String? val) {
-                                if (val == null || val.trim().isEmpty) {
-                                  return "Please select a plot type first";
-                                } else {
-                                  return null;
-                                }
-                              },
-                            ),
-                          )
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: _areaTextController,
-                              keyboardType: TextInputType.number,
-                              decoration: const InputDecoration(
-                                labelText: 'Area',
-                                suffixText: '*',
-                                suffixStyle: TextStyle(
-                                  color: Colors.red,
-                                ),
-                              ),
-                              onChanged: (val) => setState(() {
-                                area = val;
-                              }),
-                              validator: (String? val) {
-                                if (val == null || val.trim().isEmpty) {
-                                  return "Please select a plot type first";
-                                } else {
-                                  return null;
-                                }
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 20),
-                          Expanded(
-                            child: TextFormField(
-                              controller: _houseNumTextController,
-                              keyboardType: TextInputType.number,
-                              decoration: const InputDecoration(
-                                labelText: 'H #',
-                                suffixText: '*',
-                                suffixStyle: TextStyle(
-                                  color: Colors.red,
-                                ),
-                              ),
-                              onChanged: (val) => setState(() {
-                                houseNum = int.parse(val);
-                              }),
-                              validator: (String? val) {
-                                if (val == null || val.trim().isEmpty) {
-                                  return "Please enter a house or plot number";
-                                } else {
-                                  return null;
-                                }
-                              },
-                            ),
-                          )
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: _streetTextController,
-                              keyboardType: TextInputType.number,
-                              decoration: const InputDecoration(
-                                labelText: 'Street',
-                                suffixText: '*',
-                                suffixStyle: TextStyle(
-                                  color: Colors.red,
-                                ),
-                              ),
-                              onChanged: (val) => setState(() {
-                                street = val;
-                              }),
-                              validator: (String? val) {
-                                if (val == null || val.trim().isEmpty) {
-                                  return "Please enter street number";
-                                } else {
-                                  return null;
-                                }
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                              child: TextFormField(
-                            inputFormatters: [blockFormatter],
-                            controller: _blockTextController,
-                            keyboardType: TextInputType.streetAddress,
+                          TextFormField(
+                            controller: _consumerIdTextController,
                             decoration: const InputDecoration(
-                              labelText: 'Block',
+                              labelText: 'Consumer Id',
                               suffixText: '*',
                               suffixStyle: TextStyle(
                                 color: Colors.red,
                               ),
                             ),
                             onChanged: (val) => setState(() {
-                              block = val;
+                              consumerID = val;
                             }),
                             validator: (String? val) {
-                              if (val == null || val.trim().isEmpty) {
-                                return "Please enter block number";
+                              if (val == null || val.trim().length == 0) {
+                                return "Consumer ID is mandatory";
                               } else {
                                 return null;
                               }
                             },
-                          )),
+                          ),
+                          DropdownButtonFormField(
+                              decoration: const InputDecoration(
+                                labelText: "Plot Type",
+                              ),
+                              items: plotTypeDropDown.map((plotType) {
+                                return DropdownMenuItem(
+                                  child: Text(plotType),
+                                  value: plotType,
+                                );
+                              }).toList(),
+                              validator: (String? val) {
+                                if (val == null || val.trim().isEmpty) {
+                                  return "Please select a plot type first";
+                                } else {
+                                  return null;
+                                }
+                              },
+                              onChanged: (val) {
+                                setState(() => plotType = val.toString());
+                              }),
+                          TextFormField(
+                            controller: _consumerNameTextController,
+                            decoration: const InputDecoration(
+                              labelText: 'Consumer Name',
+                            ),
+                            onChanged: (val) => setState(() {
+                              name = val.toString();
+                            }),
+                            validator: (String? val) {
+                              if (val == null || val.trim().isEmpty) {
+                                return "Please select a plot type first";
+                              } else {
+                                return null;
+                              }
+                            },
+                          ),
+                          TextFormField(
+                            controller: _mobileNumberTextController,
+                            inputFormatters: [nummberFormatter],
+                            keyboardType: TextInputType.number,
+                            decoration: const InputDecoration(
+                              labelText: 'Mobile Number',
+                              suffixText: '*',
+                              suffixStyle: TextStyle(
+                                color: Colors.red,
+                              ),
+                            ),
+                            onChanged: (val) => setState(() {
+                              number = val;
+                            }),
+                            validator: (String? val) {
+                              if (val == null || val.trim().length == 0) {
+                                return "Consumer Number is mandatory";
+                              } else if (val.length < 12) {
+                                return "Consumer Number is Invalid";
+                              } else {
+                                return null;
+                              }
+                            },
+                          ),
+                          TextFormField(
+                            controller: _nicNumberTextController,
+                            inputFormatters: [nicmnumberFormatter],
+                            keyboardType: TextInputType.number,
+                            decoration: const InputDecoration(
+                              labelText: 'NIC Number',
+                              suffixText: '*',
+                              suffixStyle: TextStyle(
+                                color: Colors.red,
+                              ),
+                            ),
+                            onChanged: (val) => setState(() {
+                              nicNumber = val;
+                            }),
+                            validator: (String? val) {
+                              if (val == null || val.trim().length == 0) {
+                                return "Consumer Nic_Number is mandatory";
+                              } else if (val.length < 12) {
+                                return "Consumer Nic_Number is Invalid";
+                              } else {
+                                return null;
+                              }
+                            },
+                          ),
+                          TextFormField(
+                            controller: _emailTextController,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: const InputDecoration(
+                              labelText: 'Email',
+                            ),
+                            onChanged: (val) => setState(() {
+                              email = val;
+                            }),
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: DropdownButtonFormField(
+                                    decoration: const InputDecoration(
+                                      labelText: "Taluka",
+                                    ),
+                                    items: _talukaList.map((taluka) {
+                                      return DropdownMenuItem(
+                                        child: new Text(taluka),
+                                        value: taluka,
+                                      );
+                                    }).toList(),
+                                    validator: (String? val) {
+                                      if (val == null || val.trim().isEmpty) {
+                                        return "Please select a Taluka";
+                                      } else {
+                                        return null;
+                                      }
+                                    },
+                                    onChanged: (val) {
+                                      setState(() => taluka = val.toString());
+                                    }),
+                              ),
+                              const Divider(),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Switch(
+                                    activeTrackColor: kYellow,
+                                    activeColor: kMaroon,
+                                    value: isLocked,
+                                    onChanged: (val) {
+                                      setState(() => isLocked = val);
+                                    },
+                                  ),
+                                  !isLocked
+                                      ? const Text(
+                                          "Lock",
+                                          style: TextStyle(fontSize: 14),
+                                        )
+                                      : const Text(
+                                          "Locked",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14),
+                                        ),
+                                ],
+                              )
+                            ],
+                          ),
+                          DropdownButtonFormField(
+                              decoration: const InputDecoration(
+                                labelText: "UC",
+                              ),
+                              items: _ucNumList.map((ucNum) {
+                                return DropdownMenuItem(
+                                  child: new Text(ucNum),
+                                  value: ucNum,
+                                );
+                              }).toList(),
+                              validator: (String? val) {
+                                if (val == null || val.trim().isEmpty) {
+                                  return "Please select a UC";
+                                } else {
+                                  return null;
+                                }
+                              },
+                              onChanged: (val) {
+                                setState(() => uc = val.toString());
+                              }),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              Expanded(
+                                child: DropdownButtonFormField(
+                                    decoration: const InputDecoration(
+                                      labelText: "Zone",
+                                    ),
+                                    items: _zoneList.map((zone) {
+                                      return DropdownMenuItem(
+                                          child: new Text(zone), value: zone);
+                                    }).toList(),
+                                    validator: (String? val) {
+                                      if (val == null || val.trim().isEmpty) {
+                                        return "Please select a Zone";
+                                      } else {
+                                        return null;
+                                      }
+                                    },
+                                    onChanged: (val) {
+                                      setState(() => zone = val.toString());
+                                    }),
+                              ),
+                              const SizedBox(width: 20),
+                              Expanded(
+                                child: DropdownButtonFormField(
+                                    decoration: const InputDecoration(
+                                      labelText: "Ward",
+                                    ),
+                                    items: _wardList.map((ward) {
+                                      return DropdownMenuItem(
+                                        child: new Text(ward),
+                                        value: ward,
+                                      );
+                                    }).toList(),
+                                    validator: (String? val) {
+                                      if (val == null || val.trim().isEmpty) {
+                                        return "Please select a Ward";
+                                      } else {
+                                        return null;
+                                      }
+                                    },
+                                    onChanged: (val) {
+                                      setState(() => ward = val.toString());
+                                    }),
+                              )
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  controller: _areaTextController,
+                                  keyboardType: TextInputType.number,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Area',
+                                    suffixText: '*',
+                                    suffixStyle: TextStyle(
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                  onChanged: (val) => setState(() {
+                                    area = val;
+                                  }),
+                                  validator: (String? val) {
+                                    if (val == null || val.trim().isEmpty) {
+                                      return "Please select a plot type first";
+                                    } else {
+                                      return null;
+                                    }
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 20),
+                              Expanded(
+                                child: TextFormField(
+                                  controller: _houseNumTextController,
+                                  keyboardType: TextInputType.number,
+                                  decoration: const InputDecoration(
+                                    labelText: 'H #',
+                                    suffixText: '*',
+                                    suffixStyle: TextStyle(
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                  onChanged: (val) => setState(() {
+                                    houseNum = int.parse(val);
+                                  }),
+                                  validator: (String? val) {
+                                    if (val == null || val.trim().isEmpty) {
+                                      return "Please enter a house or plot number";
+                                    } else {
+                                      return null;
+                                    }
+                                  },
+                                ),
+                              )
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  controller: _streetTextController,
+                                  keyboardType: TextInputType.number,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Street',
+                                    suffixText: '*',
+                                    suffixStyle: TextStyle(
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                  onChanged: (val) => setState(() {
+                                    street = val;
+                                  }),
+                                  validator: (String? val) {
+                                    if (val == null || val.trim().isEmpty) {
+                                      return "Please enter street number";
+                                    } else {
+                                      return null;
+                                    }
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                  child: TextFormField(
+                                inputFormatters: [blockFormatter],
+                                controller: _blockTextController,
+                                keyboardType: TextInputType.streetAddress,
+                                decoration: const InputDecoration(
+                                  labelText: 'Block',
+                                  suffixText: '*',
+                                  suffixStyle: TextStyle(
+                                    color: Colors.red,
+                                  ),
+                                ),
+                                onChanged: (val) => setState(() {
+                                  block = val;
+                                }),
+                                validator: (String? val) {
+                                  if (val == null || val.trim().isEmpty) {
+                                    return "Please enter block number";
+                                  } else {
+                                    return null;
+                                  }
+                                },
+                              )),
+                            ],
+                          ),
                         ],
                       ),
-                      TextFormField(
-                          controller: _addressTextController,
-                          keyboardType: TextInputType.streetAddress,
-                          decoration: const InputDecoration(
-                            labelText: 'Address',
-                          ),
-                          onChanged: (val) => setState(() {
-                                address = (val +
-                                    uc.toString() +
-                                    block +
-                                    taluka +
-                                    ward.toString() +
-                                    street +
-                                    houseNum.toString() +
-                                    zone.toString());
-                              })),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               );
             }),
             actions: [
@@ -645,16 +662,23 @@ class _MapAppState extends State<MapApp> {
                     GestureDetector(
                       onTap: () async {
                         if (_formKey.currentState!.validate()) {
-                          await uploadFile();
+                          address = "";
+                          address += "House # " +
+                              houseNum.toString() +
+                              " Street " +
+                              street.toString() +
+                              " block " +
+                              block.toString();
+
                           if (!isConnected) {
                             // If network detected is found to be false, the the consumer records are stored in SQLite db using the method below
                             DBProvider.db.insertConsumerEntryOffline(
                                 consumerID,
-                                plottype,
+                                plotType,
                                 name,
                                 number,
                                 email,
-                                nicnumber,
+                                nicNumber,
                                 taluka,
                                 uc,
                                 zone,
@@ -683,11 +707,11 @@ class _MapAppState extends State<MapApp> {
                           }
                           if (isConnected) {
                             final consumer = {
-                              ConsumerFields.plotType: plottype,
+                              ConsumerFields.plotType: plotType,
                               ConsumerFields.id: consumerID,
                               ConsumerFields.name: name,
                               ConsumerFields.number: number,
-                              ConsumerFields.cnicNum: nicnumber,
+                              ConsumerFields.cnicNum: nicNumber,
                               ConsumerFields.email: email,
                               ConsumerFields.taluka: taluka,
                               ConsumerFields.ucNum: uc,
@@ -704,43 +728,66 @@ class _MapAppState extends State<MapApp> {
                               ConsumerFields.landlineCompanyId: landlineCompany
                             };
                             await ConsumerSheetsAPI.insert([consumer]);
-                            showDialog(
-                                barrierDismissible: false,
-                                context: context,
-                                builder: (context) {
-                                  Future.delayed(
-                                      const Duration(milliseconds: 1500), () {
-                                    Navigator.of(context).pop(true);
-                                  });
-                                  return const AlertDialog(
-                                    title: Text('Data Inserted'),
-                                  );
-                                });
+                            // showDialog(
+                            //     barrierDismissible: false,
+                            //     context: context,
+                            //     builder: (context) {
+                            //       Future.delayed(
+                            //           const Duration(milliseconds: 1500), () {
+                            //         Navigator.of(context).pop(true);
+                            //       });
+                            //       return const AlertDialog(
+                            //         title: Text('Data Inserted'),
+                            //       );
+                            //     });
+
                           }
                           // Along storing the data to sqlite, we also insert to Firebase, the data will be stored in firebase cache, and when network status changes, the offline data is synced with firebase
+                          await uploadFile();
+
                           _db.addConsumerEntry(
-                              plotType: plottype,
-                              consumerID: consumerID,
-                              name: name,
-                              number: number,
-                              email: email,
-                              taluka: taluka,
-                              uc: uc,
-                              zone: zone,
-                              ward: ward,
-                              block: block,
-                              street: street,
-                              area: area,
-                              houseNum: houseNum,
-                              nicNum: nicnumber,
-                              address: address,
-                              newAddress: newAddress,
-                              gasCompany: gasCompany,
-                              electricCompany: electricCompany,
-                              landlineCompany: landlineCompany,
-                              location: GeoPoint(widget.lat, widget.lan),
-                              url1: imageList[0].toString());
-                          //clearForm();
+                            plotType: plotType,
+                            consumerID: consumerID,
+                            name: name,
+                            number: number,
+                            email: email,
+                            taluka: taluka,
+                            uc: uc,
+                            zone: zone,
+                            ward: ward,
+                            block: block,
+                            street: street,
+                            area: area,
+                            houseNum: houseNum,
+                            nicNum: nicNumber,
+                            address: address,
+                            newAddress: newAddress,
+                            gasCompany: gasCompany,
+                            electricCompany: electricCompany,
+                            landlineCompany: landlineCompany,
+                            location: GeoPoint(widget.lat, widget.lan),
+                            url: imageList[0].toString(),
+                          );
+                          showDialog(
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (context) {
+                                Future.delayed(
+                                    const Duration(milliseconds: 1500), () {
+                                  Navigator.of(context).pop(true);
+                                });
+                                return const AlertDialog(
+                                  title: Text('Data Inserted'),
+                                );
+                              });
+                          if (!isLocked) {
+                            clearForm();
+                            //imageList.clear();
+                          } else {
+                            clearFormLocked();
+                            _formKey.currentState!.reset();
+                            //imageList.clear();
+                          }
                         }
                       },
                       child: Text(
@@ -889,6 +936,7 @@ class _MapAppState extends State<MapApp> {
         child: Scaffold(
           drawer: Drawer(
             child: ListView(
+              shrinkWrap: true,
               // Important: Remove any padding from the ListView.
               padding: EdgeInsets.zero,
               children: [
@@ -906,6 +954,157 @@ class _MapAppState extends State<MapApp> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => retriveMarkers()));
+                  },
+                ),
+                ListTile(
+                  title: const Text('Serach'),
+                  leading: const Icon(Icons.search),
+                  onTap: () {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                              scrollable: true,
+                              title: Text('Consumer Details'),
+                              content: Column(
+                                children: [
+                                  Text("SEARCH BY ID"),
+                                  Column(
+                                    children: [
+                                      TextFormField(
+                                          decoration: InputDecoration(
+                                            labelText: 'SEARCH BY ID',
+                                          ),
+                                          onChanged: (val) => setState(() {
+                                                searchid = val;
+                                              })),
+                                      Padding(
+                                          padding: const EdgeInsets.all(12.0),
+                                          child: GestureDetector(
+                                            child: Text("search"),
+                                            onTap: () {
+                                              Navigator.push(context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) {
+                                                return retriveeMarkersBySearch(
+                                                  name: "ConsumerID",
+                                                  searchid: searchid,
+                                                );
+                                              }));
+                                            },
+                                          )),
+                                    ],
+                                  ),
+                                  DropdownButtonFormField(
+                                      decoration: const InputDecoration(
+                                        labelText: "Plot Type",
+                                      ),
+                                      items: plotTypeDropDown.map((plotType) {
+                                        return DropdownMenuItem(
+                                          child: Text(plotType),
+                                          value: plotType,
+                                        );
+                                      }).toList(),
+                                      onChanged: (val) {
+                                        Navigator.push(context,
+                                            MaterialPageRoute(
+                                                builder: (context) {
+                                          return retriveeMarkersBySearch(
+                                            name: "Plot_type",
+                                            searchid: val.toString(),
+                                          );
+                                        }));
+                                      }),
+                                  DropdownButtonFormField(
+                                      decoration: const InputDecoration(
+                                        labelText: "UC",
+                                      ),
+                                      items: _ucNumList.map((ucNum) {
+                                        return DropdownMenuItem(
+                                          child: new Text(ucNum),
+                                          value: ucNum,
+                                        );
+                                      }).toList(),
+                                      onChanged: (val) {
+                                        Navigator.push(context,
+                                            MaterialPageRoute(
+                                                builder: (context) {
+                                          return retriveeMarkersBySearch(
+                                            name: "UC",
+                                            searchid: val.toString(),
+                                          );
+                                        }));
+                                      }),
+                                  DropdownButtonFormField(
+                                      decoration: const InputDecoration(
+                                        labelText: "Taluka",
+                                      ),
+                                      items: _talukaList.map((taluka) {
+                                        return DropdownMenuItem(
+                                          child: new Text(taluka),
+                                          value: taluka,
+                                        );
+                                      }).toList(),
+                                      onChanged: (val) {
+                                        Navigator.push(context,
+                                            MaterialPageRoute(
+                                                builder: (context) {
+                                          return retriveeMarkersBySearch(
+                                            name: "Taluka",
+                                            searchid: val.toString(),
+                                          );
+                                        }));
+                                      }),
+                                  DropdownButtonFormField(
+                                      decoration: const InputDecoration(
+                                        labelText: "Zone",
+                                      ),
+                                      items: _zoneList.map((zone) {
+                                        return DropdownMenuItem(
+                                          child: new Text(zone.toString()),
+                                          value: zone.toString(),
+                                        );
+                                      }).toList(),
+                                      onChanged: (val) {
+                                        print(
+                                            "::::::::::::::::::::::::::::::::::::::::::::::" +
+                                                val.toString());
+                                        Navigator.push(context,
+                                            MaterialPageRoute(
+                                                builder: (context) {
+                                          return retriveeMarkersBySearch(
+                                            name: "Zone",
+                                            searchid: val.toString(),
+                                          );
+                                        }));
+                                      }),
+                                  DropdownButtonFormField(
+                                      decoration: const InputDecoration(
+                                        labelText: "Ward",
+                                      ),
+                                      items: _wardList.map((ward) {
+                                        return DropdownMenuItem(
+                                          child: new Text(ward.toString()),
+                                          value: ward.toString(),
+                                        );
+                                      }).toList(),
+                                      onChanged: (val) {
+                                        print(
+                                            "::::::::::::::::::::::::::::::::::::::::::::::" +
+                                                val.toString());
+                                        Navigator.push(context,
+                                            MaterialPageRoute(
+                                                builder: (context) {
+                                          return retriveeMarkersBySearch(
+                                            name: "Ward",
+                                            searchid: val.toString(),
+                                          );
+                                        }));
+                                      }),
+                                ],
+                              ),
+                              actions: []);
+                        });
                   },
                 ),
                 ListTile(
@@ -991,6 +1190,13 @@ class _MapAppState extends State<MapApp> {
                             );
                           });
                     }
+                  },
+                ),
+                ListTile(
+                  title: const Text('Sign out'),
+                  leading: const Icon(Icons.power_settings_new_sharp),
+                  onTap: () {
+                    _auth.signOut();
                   },
                 ),
               ],

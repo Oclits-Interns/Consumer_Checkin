@@ -4,7 +4,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 
 class DBProvider {
-
   // make this a singleton class
   DBProvider._();
   static final DBProvider db = DBProvider._();
@@ -25,8 +24,8 @@ class DBProvider {
   initDB() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, "ConsumerDB.db");
-    return await openDatabase(path, version: 1, onOpen: (db) {
-    }, onCreate: (Database db, int version) async {
+    return await openDatabase(path, version: 1, onOpen: (db) {},
+        onCreate: (Database db, int version) async {
       await db.execute('''
       CREATE TABLE IF NOT EXISTS Consumers(
           Consumer_Id TEXT PRIMARY KEY  ,
@@ -37,8 +36,8 @@ class DBProvider {
           Email TEXT  ,
           Taluka TEXT ,
           UC_Num TEXT ,
-          Zone_Num INT ,
-          Ward_Num  INT  ,
+          Zone_Num TEXT ,
+          Ward_Num  TEXT  ,
           Area TEXT ,
           Street TEXT ,
           Block TEXT  ,
@@ -57,17 +56,34 @@ class DBProvider {
   // All of the rows are returned as a list of maps, where each map is
   // a key-value list of columns.
   Future<List<Map<String, dynamic>>> queryAllRows() async {
-
-    if(_database == null) {
+    if (_database == null) {
       _database = await initDB();
       return await _database!.rawQuery('SELECT * FROM $consumersTable');
-    }
-    else {
+    } else {
       return await _database!.rawQuery('SELECT * FROM $consumersTable');
     }
   }
 
-  Future insertConsumerEntryOffline(String consumerId, String plotType, String name, String number, String email, String cnic, String taluka, String ucNum, int zone, int wardNumber, String area, String street, String block, int houseNum, String address, String newAddress, String gasCompany, String electricCompany, String landlineCompany) async {
+  Future insertConsumerEntryOffline(
+      String consumerId,
+      String plotType,
+      String name,
+      String number,
+      String email,
+      String cnic,
+      String taluka,
+      String ucNum,
+      String zone,
+      String wardNumber,
+      String area,
+      String street,
+      String block,
+      int houseNum,
+      String address,
+      String newAddress,
+      String gasCompany,
+      String electricCompany,
+      String landlineCompany) async {
     await _database!.execute('''
     INSERT INTO Consumers(Consumer_Id, Plot_Type, Consumer_Name, Number, Email, CNIC, Taluka, UC_Num, Zone_Num, Ward_Num, Area, Street, Block, House_Number, Address, New_Address, Gas_Company_Id, Electricity_Company_Id, Landline_Company_Id)
     VALUES ('$consumerId', '$plotType', '$name', '$number', '$email', '$cnic', '$taluka', '$ucNum', '$zone', '$wardNumber', '$area', '$street', '$block', '$houseNum', '$address', '$newAddress', '$gasCompany', '$electricCompany', '$landlineCompany') 
@@ -75,7 +91,7 @@ class DBProvider {
   }
 
   void deleteFromConsumersTable() async {
-    if(_database != null) {
+    if (_database != null) {
       _database?.execute('DELETE FROM $consumersTable');
     }
   }
@@ -98,8 +114,6 @@ class DBProvider {
   }
 
   Future createTableAtLogin() async {
-
-
     _database = await db.validateDBAtLogin();
     await _database?.execute('''
           CREATE TABLE IF NOT EXISTS $userCredentialsTable(
@@ -112,15 +126,11 @@ class DBProvider {
   //Validation without Internet connection
   Future<int> validateWithoutInternet(String _email, String _password) async {
     _database = await db.validateDBAtLogin();
-    dynamic userValidated = Sqflite.firstIntValue(
-        await _database!.rawQuery('''
+    dynamic userValidated = Sqflite.firstIntValue(await _database!.rawQuery('''
       SELECT COUNT(*) FROM $userCredentialsTable WHERE $email=? AND $password=?
-    ''',
-        ['$_email', '$_password'])
-    );
+    ''', ['$_email', '$_password']));
     return userValidated;
   }
-
 
   //to clear a table content
   Future deleteSigninUser() async {

@@ -3,6 +3,8 @@ import 'package:consumer_checkin/services/auth.dart';
 import 'package:consumer_checkin/widgets/logo.dart';
 import 'package:flutter/material.dart';
 
+String error = "";
+
 class SignIn extends StatefulWidget {
   final void Function() toggleView;
   const SignIn({required this.toggleView, Key? key}) : super(key: key);
@@ -85,7 +87,20 @@ class _SignInState extends State<SignIn> {
                           child: GestureDetector(
                             onTap: () async {
                               if(_formKey.currentState!.validate()) {
-                                await _auth.signInWithEmailAndPassword(_email, _password);
+                                error = await _auth.signInWithEmailAndPassword(_email, _password);
+                                switch(error) {
+                                  case "You have entered an invalid email":
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
+                                  break;
+                                  case "You don't have an account yet, sign-up first":
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
+                                    break;
+                                  case "You have entered incorrect password":
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
+                                    break;
+                                  default: print(error);
+                                    break;
+                                }
                               }
                             },
                             child: Container(

@@ -4,6 +4,8 @@ import 'package:consumer_checkin/widgets/logo.dart';
 import 'package:flutter/material.dart';
 import 'package:consumer_checkin/local_DB/local_db.dart';
 
+String _error = "";
+
 class SignUp extends StatefulWidget {
   final void Function() toggleView;
   const SignUp({required this.toggleView, Key? key}) : super(key: key);
@@ -19,7 +21,6 @@ class _SignUpState extends State<SignUp> {
   String _userName = "";
   String _email = "";
   String _password = "";
-  String _error = "";
 
 
   @override
@@ -94,11 +95,23 @@ class _SignUpState extends State<SignUp> {
                               if(_formKey.currentState!.validate()) {
                                 DBProvider.db.createTableAtLogin();
                                 DBProvider.db.insertSigninUser(_email, _password);
-                                dynamic result = _auth.register(_userName, _email, _password);
+                                _error = await _auth.register(_userName, _email, _password);
                               }
-                              else {
-                                setState(() => _error = "Enter a valid email or password");
-                                //print(_error.toString());
+                              switch(_error) {
+                                case "This email is already registered with another account":
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_error.toString())));
+                                  break;
+                                case "You have entered an invalid email":
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_error.toString())));
+                                  break;
+                                case "There seems to be a problem signing up, please try again at a different time":
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_error.toString())));
+                                  break;
+                                case "This password is too weak":
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_error.toString())));
+                                  break;
+                                default: print(_error);
+                                break;
                               }
                             },
                           child: Container(

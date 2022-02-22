@@ -4,7 +4,7 @@ class DatabaseService {
   final CollectionReference _consumersCollection =
       FirebaseFirestore.instance.collection("Consumers");
   CollectionReference userCollection =
-      FirebaseFirestore.instance.collection("Consumers");
+      FirebaseFirestore.instance.collection("users");
 
   Future addUser(String name, String email, String password, String uid) async {
     try {
@@ -18,8 +18,8 @@ class DatabaseService {
 
   Future addConsumerEntry({
     required String consumerID,
-    required int zone,
-    required int ward,
+    required String zone,
+    required String ward,
     required String plotType,
     required String name,
     required String number,
@@ -37,7 +37,7 @@ class DatabaseService {
     required String area,
     required int houseNum,
     required String taluka,
-    required String url1,
+    required String url,
   }) async {
     try {
       return await _consumersCollection.add({
@@ -61,7 +61,7 @@ class DatabaseService {
         "UC": uc,
         "Street": street,
         "Taluka": taluka,
-        "Url1": url1,
+        "Url1" : url,
       });
     } catch (e) {
       print(e.toString());

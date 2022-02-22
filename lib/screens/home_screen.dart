@@ -1,12 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:consumer_checkin/local_DB/local_db.dart';
+import 'package:consumer_checkin/models/consumer.dart';
 import 'package:consumer_checkin/screens/authentication/retrive_single_location.dart';
 import 'package:consumer_checkin/screens/retrive_locations.dart';
 import 'package:consumer_checkin/services/auth.dart';
+import 'package:consumer_checkin/services/google_sheets.dart';
 import 'package:flutter/material.dart';
 import 'package:consumer_checkin/constant/colors_constant.dart';
 import 'package:consumer_checkin/services/loading_services.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:location/location.dart' as Location;
 import 'package:permission_handler/permission_handler.dart';
 
 class Home extends StatefulWidget {
@@ -17,33 +20,166 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
+  bool isConnected = false;
   final AuthService _auth = AuthService();
+
+  void checkConn() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      setState(() => isConnected = false);
+    } else {
+      setState(() => isConnected = true);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    checkConn();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Drawer(
+        child: ListView(
+          shrinkWrap: true,
+          // Important: Remove any padding from the ListView.
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Color(0xffb11118),
+              ),
+              child: Text('Drawer Header'),
+            ),
+            ListTile(
+              title: const Text('Load Data'),
+              leading: const Icon(Icons.download),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => retriveMarkers()));
+              },
+            ),
+            ListTile(
+              enabled: isConnected ? true : false,
+              title: const Text('Sync Data'),
+              leading: const Icon(Icons.sync),
+              onTap: () async {
+                Map<String, dynamic> consumer;
+                try{
+                  List<Map<String, dynamic>> consumerEntries = await DBProvider.db.queryAllRows();
+                  if(consumerEntries.isEmpty) {
+                    showDialog(
+                        barrierDismissible: false,
+                        context: context,
+                        builder: (context) {
+                          Future.delayed(const Duration(milliseconds: 1500), () {
+                            Navigator.of(context).pop(true);
+                          });
+                          return const AlertDialog(
+                            title: Text("There is no data to sync"),
+                          );
+                        });
+                  }
+                  else {
+                    for (var element in consumerEntries) {
+                      consumer = {
+                        ConsumerFields.id : element["Consumer_Id"],
+                        ConsumerFields.plotType : element["Plot_Type"],
+                        ConsumerFields.name : element["Consumer_Name"],
+                        ConsumerFields.number : element["Number"],
+                        ConsumerFields.cnicNum : element["CNIC"],
+                        ConsumerFields.email : element["Email"],
+                        ConsumerFields.taluka : element["Taluka"],
+                        ConsumerFields.ucNum : element["UC_Num"],
+                        ConsumerFields.zoneNum : element["Zone_Num"],
+                        ConsumerFields.wardNum : element["Ward_Num"],
+                        ConsumerFields.area : element["Area"],
+                        ConsumerFields.street : element["Street"],
+                        ConsumerFields.block : element["Block"],
+                        ConsumerFields.houseNum : element["House_Number"],
+                        ConsumerFields.address : element["Address"],
+                        ConsumerFields.newAddress : element["New_Address"],
+                        ConsumerFields.gasCompanyId : element["Gas_Company_Id"],
+                        ConsumerFields.electricCompanyId : element["Electricity_Company_Id"],
+                        ConsumerFields.landlineCompanyId : element["Landline_Company_Id"],
+                      };
+                      await ConsumerSheetsAPI.insert([consumer]);
+                    }
+                  }
+                  showDialog(
+                      barrierDismissible: false,
+                      context: context,
+                      builder: (context) {
+                        Future.delayed(const Duration(milliseconds: 1500), () {
+                          Navigator.of(context).pop(true);
+                        });
+                        return const AlertDialog(
+                          title: Text('Data uploaded to Google Sheets'),
+                        );
+                      });
+                  DBProvider.db.deleteFromConsumersTable();
+                }
+                catch(e) {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          content: Text("Something went wrong... " + e.toString()),
+                          actions: [
+                            GestureDetector(
+                              child: const Text("Okay"),
+                              onTap: () {
+                                Navigator.of(context, rootNavigator: true).pop();
+                              },
+                            )
+                          ],
+                        );
+                      });
+                }
+              },
+            ),
+            ListTile(
+              title: const Text('Sign out'),
+              leading: const Icon(Icons.power_settings_new_sharp),
+              onTap: () {
+                _auth.signOut();
+              },
+            ),
+          ],
+        ),
+      ),
       appBar: AppBar(
         backgroundColor: kMaroon,
-        leading: const Icon(
-          Icons.search,
-          color: Colors.black,
-        ),
-        actions: [
-          GestureDetector(
-              onTap: _auth.signOut,
-              child: const Icon(Icons.logout, color: Colors.black))
-        ],
       ),
       body: SingleChildScrollView(
         physics: const ScrollPhysics(),
         child: Column(
           children: [
+            const Padding(
+              padding: EdgeInsets.all(12.0),
+              child: TextField(
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20))
+                  )
+                ),
+              ),
+            ),
             GestureDetector(
               onTap: () async {
-                final status = await Permission.locationWhenInUse.request();
+                final status =
+                await Permission.locationWhenInUse.request();
                 if (status == PermissionStatus.granted) {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => LoadingScreen()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => LoadingScreen()));
                 } else if (status == PermissionStatus.denied) {
                   CupertinoAlertDialog(
                     title: const Text('Camera Permission'),
@@ -67,29 +203,26 @@ class _HomeState extends State<Home> {
               child: const ListTile(
                 contentPadding: EdgeInsets.all(8.0),
                 title: Text("Open Map"),
-                leading: Icon(Icons.location_on, color: Colors.red, size: 48),
+                leading:
+                Icon(Icons.location_on, color: Colors.red, size: 48),
                 trailing: Icon(Icons.arrow_forward_ios_rounded,
                     color: Colors.black, size: 28),
               ),
             ),
             StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection("Consumers")
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const ListTile(
-                      title: Text("There seems to be no data yet"),
-                    );
-                  } else {
-                    return ListView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: snapshot.data?.docs.length,
-                        itemBuilder: (context, index) {
-                          DocumentSnapshot _items = snapshot.data!.docs[index];
-                          return GestureDetector(
-                            onTap: () {
+              stream: FirebaseFirestore.instance.collection("Consumers").snapshots(),
+              builder: (context, snapshot) {
+                if(snapshot.connectionState == ConnectionState.active){
+                    if (snapshot.hasData) {
+                      return ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: snapshot.data?.docs.length,
+                          itemBuilder: (context, index) {
+                            DocumentSnapshot _items =
+                            snapshot.data!.docs[index];
+                            return GestureDetector(
+                                onTap: () {
                               print(
                                   "........................................????????????" +
                                       _items.id);
@@ -101,23 +234,33 @@ class _HomeState extends State<Home> {
                                     _items["location"].longitude);
                               }));
                             },
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.all(8.0),
-                              title: Text(_items["ConsumerID"].toString()),
-                              leading: const Icon(
-                                Icons.location_on,
-                                color: Colors.red,
-                                size: 48,
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.all(8.0),
+                                title: Text(_items["ConsumerID"]),
+                                leading: const Icon(
+                                  Icons.location_on,
+                                  color: Colors.red,
+                                  size: 48,
+                                ),
+                                trailing: const Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    color: Colors.black,
+                                    size: 28),
                               ),
-                              trailing: const Icon(
-                                  Icons.arrow_forward_ios_rounded,
-                                  color: Colors.black,
-                                  size: 28),
-                            ),
-                          );
-                        });
+                            );
+                          });
+
+                    } else {
+                      return const ListTile(
+                        title: Text("There seems to be no data yet"),
+                      );
+                    }
                   }
-                }),
+                else {
+                  return const CircularProgressIndicator();
+                }
+                }
+            ),
           ],
         ),
       ),

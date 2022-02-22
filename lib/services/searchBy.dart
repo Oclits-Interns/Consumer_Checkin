@@ -1,13 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:consumer_checkin/screens/retrive_locations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class retriveMarkers extends StatefulWidget {
+class retriveeMarkersBySearch extends StatefulWidget {
+  retriveeMarkersBySearch({required this.searchid, required this.name});
+  String searchid;
+  String name;
+
   @override
-  _retriveMarkersState createState() => _retriveMarkersState();
+  _retriveeMarkersBySearchState createState() =>
+      _retriveeMarkersBySearchState();
 }
 
-class _retriveMarkersState extends State<retriveMarkers> {
+class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
   int consumerID = 0;
   String name = "";
   String number = "";
@@ -341,8 +347,31 @@ class _retriveMarkersState extends State<retriveMarkers> {
     });
   }
 
+  // getmarkerdata() async {
+  //   FirebaseFirestore.instance
+  //       .collection('Consumers')
+  //       .where("ConsumerID", isEqualTo: widget.searchid)
+  //       .snapshots(); {
+  //     if (myMocDoc.docs.isNotEmpty) {
+  //       for (int a = 0; a < myMocDoc.docs.length; a++) {
+  //         initMarker(myMocDoc.docs[a].data(), myMocDoc.docs[a].id);
+  //       }
+  //     }
+  //   });
+  //   // var markers = FirebaseFirestore.instance
+  //   //     .collection("Consumers")
+  //   //     .where("ConsumerID", isEqualTo: widget.searchid)
+  //   //     .snapshots();
+  //   // print(widget.searchid);
+  //   // print(markers);
+  // }
+
   getmarkerdata() async {
-    FirebaseFirestore.instance.collection('Consumers').get().then((myMocDoc) {
+    FirebaseFirestore.instance
+        .collection('Consumers')
+        .where("${widget.name}", isEqualTo: widget.searchid)
+        .get()
+        .then((myMocDoc) {
       if (myMocDoc.docs.isNotEmpty) {
         for (int a = 0; a < myMocDoc.docs.length; a++) {
           initMarker(myMocDoc.docs[a].data(), myMocDoc.docs[a].id);
