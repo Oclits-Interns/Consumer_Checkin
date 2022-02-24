@@ -10,9 +10,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   var connectivityResult = await (Connectivity().checkConnectivity());
-  if (connectivityResult == ConnectivityResult.none) {
+  if (connectivityResult == ConnectivityResult.none){
     runApp(const MyApp());
-  } else {
+  }
+  else {
     await ConsumerSheetsAPI.init();
     runApp(const MyApp());
   }
@@ -24,12 +25,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamProvider.value(
-        initialData: null,
-        value: AuthService().user,
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(primarySwatch: Colors.red),
-          home: const Splash(),
-        ));
+      initialData: null,
+      value: AuthService().user,
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.red
+        ),
+        home: const Splash(),
+      )
+    );
   }
 }

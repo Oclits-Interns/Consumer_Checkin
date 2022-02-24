@@ -5,13 +5,11 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:consumer_checkin/constant/colors_constant.dart';
 import 'package:consumer_checkin/local_DB/local_db.dart';
 import 'package:consumer_checkin/models/consumer.dart';
-import 'package:consumer_checkin/screens/retrive_locations.dart';
+import 'package:consumer_checkin/screens/retrieve_locations.dart';
 import 'package:consumer_checkin/services/auth.dart';
 import 'package:consumer_checkin/services/db_firestore.dart';
 import 'package:consumer_checkin/services/google_sheets.dart';
 import 'package:consumer_checkin/services/searchBy.dart';
-import 'package:consumer_checkin/constant/colors_constant.dart';
-
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
@@ -21,21 +19,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'dart:io';
-import 'dart:typed_data';
-import 'dart:ui' as ui;
-
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
-import 'package:gallery_saver/gallery_saver.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
-
-import 'package:flutter/material.dart';
-import 'package:gallery_saver/gallery_saver.dart';
-import 'package:image_picker/image_picker.dart';
 
 class MapApp extends StatefulWidget {
   const MapApp({this.lan, this.lat});
@@ -57,7 +41,7 @@ class _MapAppState extends State<MapApp> {
   String uc = "";
   int houseNum = 0;
   String area = "";
-  String street = "";
+  String unitNum = "";
   String block = "";
   String address = "";
   String newAddress = "";
@@ -87,6 +71,20 @@ class _MapAppState extends State<MapApp> {
     "Latifabad Taluka",
     "Hyderabad City Taluka"
   ];
+  final List<String> _unitNumList = [
+    "Unit # 1",
+    "Unit # 2",
+    "Unit # 3",
+    "Unit # 4",
+    "Unit # 5",
+    "Unit # 6",
+    "Unit # 7",
+    "Unit # 8",
+    "Unit # 9",
+    "Unit # 10",
+    "Unit # 11",
+    "Unit # 12",
+  ];
   final List<String> _zoneList = ["5", "6"];
   final List<String> _wardList = ["1", "2", "3", "4", "5", "6", "7"];
   final List<String> _ucNumList = [
@@ -113,9 +111,6 @@ class _MapAppState extends State<MapApp> {
   final _streetTextController = TextEditingController();
   final _blockTextController = TextEditingController();
   final _areaTextController = TextEditingController();
-  final TextEditingController shift = TextEditingController();
-
-  String firstButtonText = 'Take photo';
 
   Future<void> scanBarcodeNormal() async {
     String barcodeScanRes;
@@ -139,13 +134,11 @@ class _MapAppState extends State<MapApp> {
           barcodeScanRes.substring(startIndexConsumerId, endIndexConsumerId);
       _consumerIdTextController.text = resultConsumerId.toString();
       consumerID = resultConsumerId;
-
       int startIndexZone = 0;
       int endIndexZone = 2;
       String resultZone =
           barcodeScanRes.substring(startIndexZone, endIndexZone);
       _zoneTextController.text = resultZone;
-
       int startIndexWard = 2;
       int endIndexWard = 4;
       String resultWard =
@@ -154,9 +147,8 @@ class _MapAppState extends State<MapApp> {
     });
   }
 
-  var pickedfile;
   opencamera() async {
-    pickedfile = await picker.getImage(
+    dynamic pickedfile = await picker.getImage(
         source: ImageSource.camera,
         maxHeight: 480,
         maxWidth: 640,
@@ -203,20 +195,29 @@ class _MapAppState extends State<MapApp> {
   }
 
   void _takePhoto(String name) async {
-    final recordedImage = pickedfile;
-    {
-      if (recordedImage != null && recordedImage.path != null) {
-        setState(() {
-          firstButtonText = 'saving in progress...';
-        });
-        String dir = (await getApplicationDocumentsDirectory()).path;
-        String newPath = path.join(dir, '$name.jpg');
-        File fa = await File(recordedImage!.path).copy(newPath);
-        GallerySaver.saveImage(fa.path, albumName: "Intrapreneur").then((path) {
+    int i = 1;
+
+    for (var img in _image) {
+      setState(() {
+        val = i / _image.length;
+      });
+      final recordedImage = img;
+
+      {
+        if (recordedImage != null && recordedImage.path != null) {
           setState(() {
-            firstButtonText = 'image saved!';
+            //  firstButtonText = 'saving in progress...';
           });
-        });
+          String dir = (await getApplicationDocumentsDirectory()).path;
+          String newPath = path.join(dir, '$name.jpg');
+          File fa = await File(recordedImage!.path).copy(newPath);
+          GallerySaver.saveImage(fa.path, albumName: "Intrapreneur")
+              .then((path) {
+            setState(() {
+              //      firstButtonText = 'image saved!';
+            });
+          });
+        }
       }
     }
   }
@@ -228,7 +229,8 @@ class _MapAppState extends State<MapApp> {
       mask: '#####-#######-#', filter: {"#": RegExp(r'[0-9]')});
 
   var blockFormatter = MaskTextInputFormatter(
-      mask: '*-##', filter: {"#": RegExp(r'[0-9]'), "*": RegExp(r'[A-Z]')});
+      mask: '*-##',
+      filter: {"#": RegExp(r'[0-9]'), "*": RegExp(r'[a-z, A-Z]')});
 
   void clearForm() {
     setState(() {
@@ -290,7 +292,6 @@ class _MapAppState extends State<MapApp> {
     _gasCompanyIdTextController.dispose();
     _electricCompanyIdTextController.dispose();
     _landlineIdTextController.dispose();
-
     super.dispose();
   }
 
@@ -301,10 +302,7 @@ class _MapAppState extends State<MapApp> {
           return AlertDialog(
             insetPadding: EdgeInsets.zero,
             scrollable: true,
-            title: const Text(
-              'Consumer Check-In',
-              style: TextStyle(color: Colors.red),
-            ),
+            title: const Text('Consumer Check-In'),
             content: StatefulBuilder(
                 builder: (BuildContext context, StateSetter setState) {
               return Stack(
@@ -312,7 +310,7 @@ class _MapAppState extends State<MapApp> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(8, 120, 20, 0),
                     child: Image(
-                      image: AssetImage("assets/Wasa-Logo.png"),
+                      image: const AssetImage("assets/Wasa-Logo.png"),
                       color: Colors.white.withOpacity(0.08),
                       colorBlendMode: BlendMode.modulate,
                     ),
@@ -332,12 +330,10 @@ class _MapAppState extends State<MapApp> {
                                       scanBarcodeNormal();
                                     });
                                   },
-                                  child: const Text(
-                                    "Scan QR/Barcode",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xffb11118)),
-                                  )),
+                                  child: Text("Scan QR/Barcode",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: kMaroon))),
                             ],
                           ),
                           TextFormField(
@@ -463,7 +459,7 @@ class _MapAppState extends State<MapApp> {
                                     ),
                                     items: _talukaList.map((taluka) {
                                       return DropdownMenuItem(
-                                        child: new Text(taluka),
+                                        child: Text(taluka),
                                         value: taluka,
                                       );
                                     }).toList(),
@@ -583,7 +579,6 @@ class _MapAppState extends State<MapApp> {
                               Expanded(
                                 child: TextFormField(
                                   controller: _areaTextController,
-                                  keyboardType: TextInputType.number,
                                   decoration: const InputDecoration(
                                     labelText: 'Area',
                                     suffixText: '*',
@@ -596,7 +591,7 @@ class _MapAppState extends State<MapApp> {
                                   }),
                                   validator: (String? val) {
                                     if (val == null || val.trim().isEmpty) {
-                                      return "Please select a plot type first";
+                                      return "Please enter an area";
                                     } else {
                                       return null;
                                     }
@@ -635,30 +630,6 @@ class _MapAppState extends State<MapApp> {
                             mainAxisSize: MainAxisSize.max,
                             children: [
                               Expanded(
-                                child: TextFormField(
-                                  controller: _streetTextController,
-                                  keyboardType: TextInputType.number,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Street',
-                                    suffixText: '*',
-                                    suffixStyle: TextStyle(
-                                      color: Colors.red,
-                                    ),
-                                  ),
-                                  onChanged: (val) => setState(() {
-                                    street = val;
-                                  }),
-                                  validator: (String? val) {
-                                    if (val == null || val.trim().isEmpty) {
-                                      return "Please enter street number";
-                                    } else {
-                                      return null;
-                                    }
-                                  },
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
                                   child: TextFormField(
                                 inputFormatters: [blockFormatter],
                                 controller: _blockTextController,
@@ -683,6 +654,22 @@ class _MapAppState extends State<MapApp> {
                                   }
                                 },
                               )),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: DropdownButtonFormField(
+                                    decoration: const InputDecoration(
+                                      labelText: "Unit #",
+                                    ),
+                                    items: _unitNumList.map((unitNum) {
+                                      return DropdownMenuItem(
+                                        child: Text(unitNum),
+                                        value: unitNum,
+                                      );
+                                    }).toList(),
+                                    onChanged: (val) {
+                                      setState(() => unitNum = val.toString());
+                                    }),
+                              ),
                             ],
                           ),
                         ],
@@ -702,10 +689,10 @@ class _MapAppState extends State<MapApp> {
                       onTap: () {
                         opencamera();
                       },
-                      child: const Text(
+                      child: Text(
                         "TAKE IMAGE",
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.red),
+                            fontWeight: FontWeight.bold, color: kMaroon),
                       ),
                     ),
                     GestureDetector(
@@ -715,33 +702,35 @@ class _MapAppState extends State<MapApp> {
                           address += "House # " +
                               houseNum.toString() +
                               " Street " +
-                              street.toString() +
+                              unitNum.toString() +
                               " block " +
-                              block.toString();
+                              block.toString() +
+                              " " +
+                              area.toString();
 
                           if (!isConnected) {
                             _takePhoto(consumerID);
                             // If network detected is found to be false, the the consumer records are stored in SQLite db using the method below
                             DBProvider.db.insertConsumerEntryOffline(
-                                consumerID,
-                                plotType,
-                                name,
-                                number,
-                                email,
-                                nicNumber,
-                                taluka,
-                                uc,
-                                zone,
-                                ward,
-                                area,
-                                street,
-                                block,
-                                houseNum,
-                                address,
-                                newAddress,
-                                gasCompany,
-                                electricCompany,
-                                landlineCompany);
+                                consumerId: consumerID,
+                                plotType: plotType,
+                                name: name,
+                                number: number,
+                                email: email,
+                                cnic: nicNumber,
+                                taluka: taluka,
+                                ucNum: uc,
+                                zone: zone,
+                                wardNumber: ward,
+                                area: area,
+                                houseNum: houseNum,
+                                block: block,
+                                unitNum: unitNum,
+                                address: address,
+                                newAddress: newAddress,
+                                gasCompany: gasCompany,
+                                electricCompany: electricCompany,
+                                landlineCompany: landlineCompany);
                             showDialog(
                                 barrierDismissible: false,
                                 context: context,
@@ -756,7 +745,6 @@ class _MapAppState extends State<MapApp> {
                                 });
                           }
                           if (isConnected) {
-                            await uploadFile();
                             final consumer = {
                               ConsumerFields.plotType: plotType,
                               ConsumerFields.id: consumerID,
@@ -769,7 +757,7 @@ class _MapAppState extends State<MapApp> {
                               ConsumerFields.zoneNum: zone,
                               ConsumerFields.wardNum: ward,
                               ConsumerFields.area: area,
-                              ConsumerFields.street: street,
+                              ConsumerFields.unitNum: unitNum,
                               ConsumerFields.block: block,
                               ConsumerFields.houseNum: houseNum,
                               ConsumerFields.address: address,
@@ -778,20 +766,15 @@ class _MapAppState extends State<MapApp> {
                               ConsumerFields.electricCompanyId: electricCompany,
                               ConsumerFields.landlineCompanyId: landlineCompany
                             };
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                });
+                            await uploadFile();
+                            Navigator.pop(context);
                             await ConsumerSheetsAPI.insert([consumer]);
-                            // showDialog(
-                            //     barrierDismissible: false,
-                            //     context: context,
-                            //     builder: (context) {
-                            //       Future.delayed(
-                            //           const Duration(milliseconds: 1500), () {
-                            //         Navigator.of(context).pop(true);
-                            //       });
-                            //       return const AlertDialog(
-                            //         title: Text('Data Inserted'),
-                            //       );
-                            //     });
-
                           }
                           // Along storing the data to sqlite, we also insert to Firebase, the data will be stored in firebase cache, and when network status changes, the offline data is synced with firebase
                           _db.addConsumerEntry(
@@ -805,7 +788,7 @@ class _MapAppState extends State<MapApp> {
                             zone: zone,
                             ward: ward,
                             block: block,
-                            street: street,
+                            unitNum: unitNum,
                             area: area,
                             houseNum: houseNum,
                             nicNum: nicNumber,
@@ -815,7 +798,7 @@ class _MapAppState extends State<MapApp> {
                             electricCompany: electricCompany,
                             landlineCompany: landlineCompany,
                             location: GeoPoint(widget.lat, widget.lan),
-                            url: imageList.length != 0
+                            url: imageList.isNotEmpty
                                 ? imageList[0].toString()
                                 : "",
                           );
@@ -839,22 +822,23 @@ class _MapAppState extends State<MapApp> {
                             _formKey.currentState!.reset();
                             //imageList.clear();
                           }
+                          _markers.clear();
                         }
                       },
                       child: Text(
                         "SAVE",
-                        style:
-                            TextStyle(fontWeight: FontWeight.bold, color: kRed),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: kMaroon),
                       ),
                     ),
                     GestureDetector(
                       onTap: () {
                         _showAlertMoreDetails();
                       },
-                      child: const Text(
+                      child: Text(
                         "MORE",
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.red),
+                            fontWeight: FontWeight.bold, color: kMaroon),
                       ),
                     )
                   ],
@@ -916,16 +900,16 @@ class _MapAppState extends State<MapApp> {
                       onTap: () {
                         Navigator.of(context, rootNavigator: true).pop();
                       },
-                      child: const Text(
+                      child: Text(
                         "BACK",
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.red),
+                            fontWeight: FontWeight.bold, color: kMaroon),
                       ),
                     ),
-                    const Text(
+                    Text(
                       "SAVE",
                       style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.red),
+                          fontWeight: FontWeight.bold, color: kMaroon),
                     ),
                   ],
                 ),
@@ -957,7 +941,7 @@ class _MapAppState extends State<MapApp> {
     });
   }
 
-  void _onAddMarkerButtonPressed() {
+/*  void _onAddMarkerButtonPressed() {
     setState(() {
       _markers.add(Marker(
         // This marker id can be anything that uniquely identifies each marker.
@@ -971,7 +955,7 @@ class _MapAppState extends State<MapApp> {
         icon: BitmapDescriptor.defaultMarker,
       ));
     });
-  }
+  }*/
 
   void _onCameraMove(CameraPosition position) {}
 
@@ -979,7 +963,7 @@ class _MapAppState extends State<MapApp> {
     _controller.complete(controller);
   }
 
-  _handleTap(LatLng point) {
+  _addMarkerOnTap(LatLng point) {
     setState(() {
       if (_markers.isEmpty) {
         _markers.add(Marker(
@@ -1006,11 +990,44 @@ class _MapAppState extends State<MapApp> {
               // Important: Remove any padding from the ListView.
               padding: EdgeInsets.zero,
               children: [
-                const DrawerHeader(
-                  decoration: BoxDecoration(
+                DrawerHeader(
+                  decoration: const BoxDecoration(
                     color: Color(0xffb11118),
                   ),
-                  child: Text('Drawer Header'),
+                  child: Row(
+                    children: [
+                      Expanded(
+                          child: Container(
+                        margin: const EdgeInsets.only(right: 20),
+                        decoration: const BoxDecoration(
+                            image: DecorationImage(
+                                image: AssetImage("assets/logo.png"),
+                                fit: BoxFit.scaleDown)),
+                        height: MediaQuery.of(context).size.height * 0.15,
+                        width: MediaQuery.of(context).size.width * 0.20,
+                      )),
+                      // const SizedBox(width: 20,),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Text("CONSUMER",
+                              style: TextStyle(
+                                  letterSpacing: 3,
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                  fontFamily: "Montserrat")),
+                          Text("CHECKIN",
+                              style: TextStyle(
+                                  letterSpacing: 8,
+                                  color: Colors.amber,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  fontFamily: "Montserrat")),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
                 ListTile(
                   title: const Text('Load Data'),
@@ -1022,8 +1039,9 @@ class _MapAppState extends State<MapApp> {
                             builder: (context) => retriveMarkers()));
                   },
                 ),
+                // Search tile in navigation drawer
                 ListTile(
-                  title: const Text('Serach'),
+                  title: const Text('Search'),
                   leading: const Icon(Icons.search),
                   onTap: () {
                     showDialog(
@@ -1031,145 +1049,171 @@ class _MapAppState extends State<MapApp> {
                         builder: (BuildContext context) {
                           return AlertDialog(
                               scrollable: true,
-                              title: Text('Consumer Details'),
+                              title: const Text('Consumer Details'),
                               content: Column(
                                 children: [
-                                  Text("SEARCH BY ID"),
-                                  Column(
-                                    children: [
-                                      TextFormField(
-                                          decoration: InputDecoration(
-                                            labelText: 'SEARCH BY ID',
-                                          ),
-                                          onChanged: (val) => setState(() {
-                                                searchid = val;
-                                              })),
-                                      Padding(
-                                          padding: const EdgeInsets.all(12.0),
-                                          child: GestureDetector(
-                                            child: Text("search"),
-                                            onTap: () {
-                                              Navigator.push(context,
-                                                  MaterialPageRoute(
-                                                      builder: (context) {
-                                                return retriveeMarkersBySearch(
-                                                  name: "ConsumerID",
-                                                  searchid: searchid,
-                                                );
-                                              }));
-                                            },
-                                          )),
-                                    ],
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12.0),
+                                    child: TextFormField(
+                                        decoration: InputDecoration(
+                                            labelText: 'Search by Consumer ID',
+                                            // border: const OutlineInputBorder(),
+                                            suffixIcon: GestureDetector(
+                                              onTap: () {
+                                                Navigator.push(context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) {
+                                                  return retriveeMarkersBySearch(
+                                                    name: "ConsumerID",
+                                                    searchid: searchid,
+                                                  );
+                                                }));
+                                              },
+                                              child: const Icon(Icons.search),
+                                            )),
+                                        onChanged: (val) => setState(() {
+                                              searchid = val;
+                                            })),
                                   ),
-                                  DropdownButtonFormField(
-                                      decoration: const InputDecoration(
-                                        labelText: "Plot Type",
-                                      ),
-                                      items: plotTypeDropDown.map((plotType) {
-                                        return DropdownMenuItem(
-                                          child: Text(plotType),
-                                          value: plotType,
-                                        );
-                                      }).toList(),
-                                      onChanged: (val) {
-                                        Navigator.push(context,
-                                            MaterialPageRoute(
-                                                builder: (context) {
-                                          return retriveeMarkersBySearch(
-                                            name: "Plot_type",
-                                            searchid: val.toString(),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12.0),
+                                    child: DropdownButtonFormField(
+                                        decoration: const InputDecoration(
+                                            labelText: "Plot Type",
+                                            border: OutlineInputBorder()),
+                                        items: plotTypeDropDown.map((plotType) {
+                                          return DropdownMenuItem(
+                                            child: Text(plotType),
+                                            value: plotType,
                                           );
-                                        }));
-                                      }),
-                                  DropdownButtonFormField(
-                                      decoration: const InputDecoration(
-                                        labelText: "UC",
-                                      ),
-                                      items: _ucNumList.map((ucNum) {
-                                        return DropdownMenuItem(
-                                          child: new Text(ucNum),
-                                          value: ucNum,
-                                        );
-                                      }).toList(),
-                                      onChanged: (val) {
-                                        Navigator.push(context,
-                                            MaterialPageRoute(
-                                                builder: (context) {
-                                          return retriveeMarkersBySearch(
-                                            name: "UC",
-                                            searchid: val.toString(),
+                                        }).toList(),
+                                        onChanged: (val) {
+                                          Navigator.push(context,
+                                              MaterialPageRoute(
+                                                  builder: (context) {
+                                            return retriveeMarkersBySearch(
+                                              name: "Plot_type",
+                                              searchid: val.toString(),
+                                            );
+                                          }));
+                                        }),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12.0),
+                                    child: DropdownButtonFormField(
+                                        decoration: const InputDecoration(
+                                            labelText: "UC",
+                                            border: OutlineInputBorder()),
+                                        items: _ucNumList.map((ucNum) {
+                                          return DropdownMenuItem(
+                                            child: Text(ucNum),
+                                            value: ucNum,
                                           );
-                                        }));
-                                      }),
-                                  DropdownButtonFormField(
-                                      decoration: const InputDecoration(
-                                        labelText: "Taluka",
-                                      ),
-                                      items: _talukaList.map((taluka) {
-                                        return DropdownMenuItem(
-                                          child: new Text(taluka),
-                                          value: taluka,
-                                        );
-                                      }).toList(),
-                                      onChanged: (val) {
-                                        Navigator.push(context,
-                                            MaterialPageRoute(
-                                                builder: (context) {
-                                          return retriveeMarkersBySearch(
-                                            name: "Taluka",
-                                            searchid: val.toString(),
+                                        }).toList(),
+                                        onChanged: (val) {
+                                          Navigator.push(context,
+                                              MaterialPageRoute(
+                                                  builder: (context) {
+                                            return retriveeMarkersBySearch(
+                                              name: "UC",
+                                              searchid: val.toString(),
+                                            );
+                                          }));
+                                        }),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12.0),
+                                    child: DropdownButtonFormField(
+                                        decoration: const InputDecoration(
+                                            labelText: "Taluka",
+                                            border: OutlineInputBorder()),
+                                        items: _talukaList.map((taluka) {
+                                          return DropdownMenuItem(
+                                            child: Text(taluka),
+                                            value: taluka,
                                           );
-                                        }));
-                                      }),
-                                  DropdownButtonFormField(
-                                      decoration: const InputDecoration(
-                                        labelText: "Zone",
-                                      ),
-                                      items: _zoneList.map((zone) {
-                                        return DropdownMenuItem(
-                                          child: new Text(zone.toString()),
-                                          value: zone.toString(),
-                                        );
-                                      }).toList(),
-                                      onChanged: (val) {
-                                        print(
-                                            "::::::::::::::::::::::::::::::::::::::::::::::" +
-                                                val.toString());
-                                        Navigator.push(context,
-                                            MaterialPageRoute(
-                                                builder: (context) {
-                                          return retriveeMarkersBySearch(
-                                            name: "Zone",
-                                            searchid: val.toString(),
+                                        }).toList(),
+                                        onChanged: (val) {
+                                          Navigator.push(context,
+                                              MaterialPageRoute(
+                                                  builder: (context) {
+                                            return retriveeMarkersBySearch(
+                                              name: "Taluka",
+                                              searchid: val.toString(),
+                                            );
+                                          }));
+                                        }),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12.0),
+                                    child: DropdownButtonFormField(
+                                        decoration: const InputDecoration(
+                                            labelText: "Zone",
+                                            border: OutlineInputBorder()),
+                                        items: _zoneList.map((zone) {
+                                          return DropdownMenuItem(
+                                            child: Text(zone.toString()),
+                                            value: zone.toString(),
                                           );
-                                        }));
-                                      }),
-                                  DropdownButtonFormField(
-                                      decoration: const InputDecoration(
-                                        labelText: "Ward",
-                                      ),
-                                      items: _wardList.map((ward) {
-                                        return DropdownMenuItem(
-                                          child: new Text(ward.toString()),
-                                          value: ward.toString(),
-                                        );
-                                      }).toList(),
-                                      onChanged: (val) {
-                                        print(
-                                            "::::::::::::::::::::::::::::::::::::::::::::::" +
-                                                val.toString());
-                                        Navigator.push(context,
-                                            MaterialPageRoute(
-                                                builder: (context) {
-                                          return retriveeMarkersBySearch(
-                                            name: "Ward",
-                                            searchid: val.toString(),
+                                        }).toList(),
+                                        onChanged: (val) {
+                                          Navigator.push(context,
+                                              MaterialPageRoute(
+                                                  builder: (context) {
+                                            return retriveeMarkersBySearch(
+                                              name: "Zone",
+                                              searchid: val.toString(),
+                                            );
+                                          }));
+                                        }),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12.0),
+                                    child: DropdownButtonFormField(
+                                        decoration: const InputDecoration(
+                                            labelText: "Ward",
+                                            border: OutlineInputBorder()),
+                                        items: _wardList.map((ward) {
+                                          return DropdownMenuItem(
+                                            child: Text(ward.toString()),
+                                            value: ward.toString(),
                                           );
-                                        }));
-                                      }),
+                                        }).toList(),
+                                        onChanged: (val) {
+                                          Navigator.push(context,
+                                              MaterialPageRoute(
+                                                  builder: (context) {
+                                            return retriveeMarkersBySearch(
+                                              name: "Ward",
+                                              searchid: val.toString(),
+                                            );
+                                          }));
+                                        }),
+                                  ),
                                 ],
                               ),
-                              actions: []);
+                              actions: [
+                                GestureDetector(
+                                    child: Padding(
+                                      padding:
+                                          const EdgeInsets.only(right: 8.0),
+                                      child: Text(
+                                        "Close",
+                                        style: TextStyle(
+                                            color: kMaroon,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                    })
+                              ]);
                         });
                   },
                 ),
@@ -1209,7 +1253,7 @@ class _MapAppState extends State<MapApp> {
                             ConsumerFields.zoneNum: element["Zone_Num"],
                             ConsumerFields.wardNum: element["Ward_Num"],
                             ConsumerFields.area: element["Area"],
-                            ConsumerFields.street: element["Street"],
+                            ConsumerFields.unitNum: element["Street"],
                             ConsumerFields.block: element["Block"],
                             ConsumerFields.houseNum: element["House_Number"],
                             ConsumerFields.address: element["Address"],
@@ -1272,7 +1316,7 @@ class _MapAppState extends State<MapApp> {
             children: <Widget>[
               GoogleMap(
                 onMapCreated: _onMapCreated,
-                onTap: _handleTap,
+                onTap: _addMarkerOnTap,
                 myLocationEnabled: true,
                 myLocationButtonEnabled: true,
                 compassEnabled: true,
@@ -1298,17 +1342,17 @@ class _MapAppState extends State<MapApp> {
                         child: const Icon(Icons.map, size: 36.0),
                       ),
                       const SizedBox(height: 16.0),
-                      // FloatingActionButton(
-                      //   heroTag: "btn2",
-                      //   onPressed: _onAddMarkerButtonPressed,
-                      //   materialTapTargetSize: MaterialTapTargetSize.padded,
-                      //   backgroundColor: const Color(0xffb11118),
-                      //   child: const Icon(
-                      //     Icons.add_location,
-                      //     size: 36.0,
-                      //   ),
-                      // ),
-
+                      /*    FloatingActionButton(
+                        heroTag: "btn2",
+                        onPressed: _onAddMarkerButtonPressed,
+                        materialTapTargetSize: MaterialTapTargetSize.padded,
+                        backgroundColor: const Color(0xffb11118),
+                        child: const Icon(
+                          Icons.add_location,
+                          size: 36.0,
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),*/
                       FloatingActionButton(
                         heroTag: "btn3",
                         onPressed: _goToTheLake,

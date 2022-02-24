@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:consumer_checkin/models/consumer.dart';
 import 'package:gsheets/gsheets.dart';
 
@@ -45,15 +43,8 @@ class ConsumerSheetsAPI {
   }
 
   static Future insert(List<Map<String, dynamic>> rowList) async {
-    log("::::::::::::::::::::::::: check 4");
-
     if(_consumerSheet != null) {
-    log("::::::::::::::::::::::::: check 2 $rowList");
-    //wait let me show you
-    var result = await _consumerSheet!.values.map.appendRows(rowList);
-    log("::::::::::::::::::::::::: check 3 $result");
-
+    await _consumerSheet!.values.map.appendRows(rowList);
   }
 }
-
 }

@@ -1,19 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
-class retriveSingleMarker extends StatefulWidget {
-  const retriveSingleMarker([this.id, this.lat, this.lon]);
-
-  final id;
-  final lat;
-  final lon;
+class retriveMarkers extends StatefulWidget {
   @override
-  _retriveSingleMarkerState createState() => _retriveSingleMarkerState();
+  _retriveMarkersState createState() => _retriveMarkersState();
 }
 
-class _retriveSingleMarkerState extends State<retriveSingleMarker> {
+class _retriveMarkersState extends State<retriveMarkers> {
   int consumerID = 0;
   String name = "";
   String number = "";
@@ -23,13 +17,6 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
   String gasCompany = "";
   String electricCompany = "";
   String landlineCompany = "";
-  String nicnumber = "";
-
-  var nummberFormatter = new MaskTextInputFormatter(
-      mask: '####-#######', filter: {"#": RegExp(r'[0-9]')});
-
-  var nicmnumberFormatter = new MaskTextInputFormatter(
-      mask: '#####-#######-#', filter: {"#": RegExp(r'[0-9]')});
 
   late GoogleMapController controller;
 
@@ -59,34 +46,20 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                               specify["ConsumerID"].toString()),
                           SizedBox(height: 5),
                           Text("Name : " + specify["Name"]),
-                          // SizedBox(height: 5),
-                          // Text("Id : " + specifyId),
+                          Text("Id : " + specifyId),
                           SizedBox(height: 5),
                           Text("Email : " + specify["Email"]),
                           SizedBox(height: 5),
                           Text("Number : " + specify["Number"].toString()),
                           SizedBox(height: 5),
-                          Text("Nic Number : " +
-                              specify["NicNumber"].toString()),
-                          SizedBox(height: 5),
-                          Text("Plot Type : " + specify["Plottype"].toString()),
-                          SizedBox(height: 5),
-                          Text("Taluka : " + specify["Taluka"].toString()),
-                          SizedBox(height: 5),
-                          Text("UC : " + specify["UC"].toString()),
-                          SizedBox(height: 5),
-                          Text("Zone : " + specify["Zone"].toString()),
-                          SizedBox(height: 5),
-                          Text("Ward : " + specify["Ward"].toString()),
                           SizedBox(height: 5),
                           Text("Address : " + specify["Address"]),
-                          SizedBox(height: 5),
-                          Text("Electric Company : " +
+                          Text("Electric_Company : " +
                               specify["ElectricCompany"]),
                           SizedBox(height: 5),
-                          Text("Gas Company : " + specify["GasCompany"]),
+                          Text("Gas_Company : " + specify["GasCompany"]),
                           SizedBox(height: 5),
-                          Text("Landline Company : " +
+                          Text("Landline_Company : " +
                               specify["LandlineCompany"]),
                         ],
                       ),
@@ -134,55 +107,17 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                                                       name = val;
                                                     })),
                                             TextFormField(
-                                              controller: TextEditingController(
-                                                  text: specify["Number"]),
-                                              inputFormatters: [
-                                                nummberFormatter
-                                              ],
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              decoration: const InputDecoration(
-                                                labelText: 'Mobile Number',
-                                              ),
-                                              onChanged: (val) => setState(() {
-                                                number = val;
-                                              }),
-                                              validator: (String? val) {
-                                                if (val == null ||
-                                                    val.trim().length == 0) {
-                                                  return "Consumer Number is mandatory";
-                                                } else if (val.length < 12) {
-                                                  return "Consumer Number is Invalid";
-                                                } else {
-                                                  return null;
-                                                }
-                                              },
-                                            ),
-                                            TextFormField(
-                                              controller: TextEditingController(
-                                                  text: specify["NicNumber"]),
-                                              inputFormatters: [
-                                                nicmnumberFormatter
-                                              ],
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              decoration: const InputDecoration(
-                                                labelText: 'NIC Number',
-                                              ),
-                                              onChanged: (val) => setState(() {
-                                                nicnumber = val;
-                                              }),
-                                              validator: (String? val) {
-                                                if (val == null ||
-                                                    val.trim().length == 0) {
-                                                  return "Consumer Nic_Number is mandatory";
-                                                } else if (val.length < 12) {
-                                                  return "Consumer Nic_Number is Invalid";
-                                                } else {
-                                                  return null;
-                                                }
-                                              },
-                                            ),
+                                                controller:
+                                                    TextEditingController(
+                                                        text:
+                                                            specify["Number"]),
+                                                decoration: InputDecoration(
+                                                  labelText: 'Enter Number',
+                                                ),
+                                                onChanged: (val) =>
+                                                    setState(() {
+                                                      number = val;
+                                                    })),
                                             TextFormField(
                                                 controller:
                                                     TextEditingController(
@@ -270,7 +205,7 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                                                         (BuildContext context) {
                                                       return AlertDialog(
                                                         content: const Text(
-                                                            "Data Updated"),
+                                                            "Edit Deleted!"),
                                                         actions: [
                                                           GestureDetector(
                                                               onTap: () {
@@ -286,8 +221,6 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                                                                   "Name": name,
                                                                   "Number":
                                                                       number,
-                                                                  "NicNumber":
-                                                                      nicnumber,
                                                                   "Email":
                                                                       email,
                                                                   "Address":
@@ -304,7 +237,7 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                                                                     MaterialPageRoute(
                                                                         builder:
                                                                             (context) =>
-                                                                                retriveSingleMarker()));
+                                                                                retriveMarkers()));
                                                               },
                                                               child: Text("OK"))
                                                         ],
@@ -344,7 +277,7 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                                                 context,
                                                 MaterialPageRoute(
                                                     builder: (context) =>
-                                                        retriveSingleMarker()));
+                                                        retriveMarkers()));
                                           },
                                           child: Text("OK"))
                                     ],
@@ -358,38 +291,7 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () {
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    // backgroundColor: Colors.red,
-                                    scrollable: true,
-                                    title: Text('Consumer Check-In'),
-                                    content: Image.network(specify["Url1"]),
-                                    actions: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(12.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            GestureDetector(
-                                              child: Text(
-                                                "Image Retrived",
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.black),
-                                              ),
-                                              onTap: () {},
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  );
-                                });
-                          },
+                          onTap: () {},
                           child: Text(
                             "Show IMAGE",
                             style: TextStyle(
@@ -408,26 +310,12 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
     });
   }
 
-  // getmarkerdata() async {
-  //   FirebaseFirestore.instance
-  //       .collection('Consumers')
-  //       .doc(widget.id)
-  //       .get()
-  //       .then((myMocDoc) {
-  //     if (myMocDoc.data()!.isNotEmpty) {
-  //       initMarker(myMocDoc.data(), widget.id);
-  //     }
-  //   });
-  // }
-
   getmarkerdata() async {
-    FirebaseFirestore.instance
-        .collection('Consumers')
-        .doc(widget.id)
-        .get()
-        .then((myMocDoc) {
-      if (myMocDoc.data()!.isNotEmpty) {
-        initMarker(myMocDoc.data(), widget.id);
+    FirebaseFirestore.instance.collection('Consumers').get().then((myMocDoc) {
+      if (myMocDoc.docs.isNotEmpty) {
+        for (int a = 0; a < myMocDoc.docs.length; a++) {
+          initMarker(myMocDoc.docs[a].data(), myMocDoc.docs[a].id);
+        }
       }
     });
   }
@@ -457,7 +345,7 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
             mapType: MapType.normal,
             markers: Set<Marker>.of(markers.values),
             initialCameraPosition: CameraPosition(
-              target: LatLng(widget.lat, widget.lon),
+              target: LatLng(25.3960, 68.3578),
               zoom: 15.0,
             ),
             onMapCreated: (GoogleMapController controller) {

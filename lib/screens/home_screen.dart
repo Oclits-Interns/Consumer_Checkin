@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:consumer_checkin/local_DB/local_db.dart';
 import 'package:consumer_checkin/models/consumer.dart';
-import 'package:consumer_checkin/screens/authentication/retrive_single_location.dart';
-import 'package:consumer_checkin/screens/retrive_locations.dart';
+import 'package:consumer_checkin/screens/retrieve_single_location.dart';
+import 'package:consumer_checkin/screens/retrieve_locations.dart';
 import 'package:consumer_checkin/services/auth.dart';
 import 'package:consumer_checkin/services/google_sheets.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +23,8 @@ class _HomeState extends State<Home> {
 
   bool isConnected = false;
   final AuthService _auth = AuthService();
+  String? key;
+  final TextEditingController _searchTextController = TextEditingController();
 
   void checkConn() async {
     var connectivityResult = await (Connectivity().checkConnectivity());
@@ -48,11 +50,48 @@ class _HomeState extends State<Home> {
           // Important: Remove any padding from the ListView.
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
+            DrawerHeader(
+              decoration: const BoxDecoration(
                 color: Color(0xffb11118),
               ),
-              child: Text('Drawer Header'),
+              child: Row(
+                children: [
+                  Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.only(right: 20),
+                        decoration: const BoxDecoration(
+                            image: DecorationImage(
+                                image: AssetImage("assets/logo.png"),
+                                fit: BoxFit.scaleDown
+                            )
+                        ),
+                        height: MediaQuery.of(context).size.height * 0.15, width: MediaQuery.of(context).size.width * 0.20,)),
+                  // const SizedBox(width: 20,),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Text(
+                          "CONSUMER",
+                          style: TextStyle(
+                              letterSpacing: 3,
+                              color: Colors.black54,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              fontFamily: "Montserrat"
+                          )),
+                      Text(
+                          "CHECKIN",
+                          style: TextStyle(
+                              letterSpacing: 8,
+                              color: Colors.amber,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              fontFamily: "Montserrat"
+                          )),
+                    ],
+                  ),
+                ],
+              ),
             ),
             ListTile(
               title: const Text('Load Data'),
@@ -99,7 +138,7 @@ class _HomeState extends State<Home> {
                         ConsumerFields.zoneNum : element["Zone_Num"],
                         ConsumerFields.wardNum : element["Ward_Num"],
                         ConsumerFields.area : element["Area"],
-                        ConsumerFields.street : element["Street"],
+                        ConsumerFields.unitNum : element["Unit_Num"],
                         ConsumerFields.block : element["Block"],
                         ConsumerFields.houseNum : element["House_Number"],
                         ConsumerFields.address : element["Address"],
@@ -160,14 +199,25 @@ class _HomeState extends State<Home> {
         physics: const ScrollPhysics(),
         child: Column(
           children: [
-            const Padding(
-              padding: EdgeInsets.all(12.0),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
               child: TextField(
+                controller: _searchTextController,
+                onChanged: (val) {
+                  setState(() => key = val.toUpperCase());
+                },
                 decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(20))
-                  )
+                  hintText: "Search Consumer ID..",
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: GestureDetector(
+                        onTap: () {
+                          _searchTextController.clear();
+                          setState(() => key = "");
+                        },
+                        child: const Icon(Icons.clear)),
+                    border: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(20))
+                    )
                 ),
               ),
             ),
@@ -210,9 +260,18 @@ class _HomeState extends State<Home> {
               ),
             ),
             StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection("Consumers").snapshots(),
-              builder: (context, snapshot) {
-                if(snapshot.connectionState == ConnectionState.active){
+                stream: (key != null)
+                    ? FirebaseFirestore.instance
+                    .collection('Consumers')
+                    .where(
+                    'ConsumerID',
+                    isGreaterThanOrEqualTo: key,
+                    isLessThan: key! + 'z'
+                )
+                    .snapshots()
+                    : FirebaseFirestore.instance.collection("Consumers").snapshots(),
+                builder: (context, snapshot) {
+                  if(snapshot.connectionState == ConnectionState.active){
                     if (snapshot.hasData) {
                       return ListView.builder(
                           physics: const NeverScrollableScrollPhysics(),
@@ -222,18 +281,15 @@ class _HomeState extends State<Home> {
                             DocumentSnapshot _items =
                             snapshot.data!.docs[index];
                             return GestureDetector(
-                                onTap: () {
-                              print(
-                                  "........................................????????????" +
-                                      _items.id);
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) {
-                                return retriveSingleMarker(
-                                    _items.id,
-                                    _items["location"].latitude,
-                                    _items["location"].longitude);
-                              }));
-                            },
+                              onTap: () {
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
+                                      return retriveSingleMarker(
+                                          _items.id,
+                                          _items["location"].latitude,
+                                          _items["location"].longitude);
+                                    }));
+                              },
                               child: ListTile(
                                 contentPadding: const EdgeInsets.all(8.0),
                                 title: Text(_items["ConsumerID"]),
@@ -256,9 +312,9 @@ class _HomeState extends State<Home> {
                       );
                     }
                   }
-                else {
-                  return const CircularProgressIndicator();
-                }
+                  else {
+                    return const CircularProgressIndicator();
+                  }
                 }
             ),
           ],

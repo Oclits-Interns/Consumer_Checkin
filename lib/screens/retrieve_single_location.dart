@@ -1,13 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:consumer_checkin/constant/colors_constant.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
-class retriveMarkers extends StatefulWidget {
+class retriveSingleMarker extends StatefulWidget {
+  const retriveSingleMarker([this.id, this.lat, this.lon]);
+
+  final id;
+  final lat;
+  final lon;
   @override
-  _retriveMarkersState createState() => _retriveMarkersState();
+  _retriveSingleMarkerState createState() => _retriveSingleMarkerState();
 }
 
-class _retriveMarkersState extends State<retriveMarkers> {
+class _retriveSingleMarkerState extends State<retriveSingleMarker> {
   int consumerID = 0;
   String name = "";
   String number = "";
@@ -17,6 +24,13 @@ class _retriveMarkersState extends State<retriveMarkers> {
   String gasCompany = "";
   String electricCompany = "";
   String landlineCompany = "";
+  String nicnumber = "";
+
+  var nummberFormatter = new MaskTextInputFormatter(
+      mask: '####-#######', filter: {"#": RegExp(r'[0-9]')});
+
+  var nicmnumberFormatter = new MaskTextInputFormatter(
+      mask: '#####-#######-#', filter: {"#": RegExp(r'[0-9]')});
 
   late GoogleMapController controller;
 
@@ -28,16 +42,13 @@ class _retriveMarkersState extends State<retriveMarkers> {
     final Marker marker = Marker(
         markerId: markerId,
         position:
-            LatLng(specify["location"].latitude, specify["location"].longitude),
+        LatLng(specify["location"].latitude, specify["location"].longitude),
         onTap: () => showDialog(
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
                 scrollable: true,
-                title: Text(
-                  'Consumer Details',
-                  style: TextStyle(color: Colors.red),
-                ),
+                title: Text('Consumer Details'),
                 content: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Container(
@@ -49,8 +60,8 @@ class _retriveMarkersState extends State<retriveMarkers> {
                               specify["ConsumerID"].toString()),
                           SizedBox(height: 5),
                           Text("Name : " + specify["Name"]),
-                          // SizedBox(height: 5),
-                          // Text("Id : " + specifyId),
+                          SizedBox(height: 5),
+                          Text("Id : " + specifyId),
                           SizedBox(height: 5),
                           Text("Email : " + specify["Email"]),
                           SizedBox(height: 5),
@@ -62,12 +73,6 @@ class _retriveMarkersState extends State<retriveMarkers> {
                           Text("Plot Type : " + specify["Plottype"].toString()),
                           SizedBox(height: 5),
                           Text("Taluka : " + specify["Taluka"].toString()),
-                          SizedBox(height: 5),
-                          Text("UC : " + specify["UC"].toString()),
-                          SizedBox(height: 5),
-                          Text("Zone : " + specify["Zone"].toString()),
-                          SizedBox(height: 5),
-                          Text("Ward : " + specify["Ward"].toString()),
                           SizedBox(height: 5),
                           Text("Address : " + specify["Address"]),
                           SizedBox(height: 5),
@@ -114,8 +119,8 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                             ),
                                             TextFormField(
                                                 controller:
-                                                    TextEditingController(
-                                                        text: specify["Name"]),
+                                                TextEditingController(
+                                                    text: specify["Name"]),
                                                 decoration: InputDecoration(
                                                   labelText: 'Enter Name',
                                                 ),
@@ -124,21 +129,59 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                                       name = val;
                                                     })),
                                             TextFormField(
-                                                controller:
-                                                    TextEditingController(
-                                                        text:
-                                                            specify["Number"]),
-                                                decoration: InputDecoration(
-                                                  labelText: 'Enter Number',
-                                                ),
-                                                onChanged: (val) =>
-                                                    setState(() {
-                                                      number = val;
-                                                    })),
+                                              controller: TextEditingController(
+                                                  text: specify["Number"]),
+                                              inputFormatters: [
+                                                nummberFormatter
+                                              ],
+                                              keyboardType:
+                                              TextInputType.number,
+                                              decoration: const InputDecoration(
+                                                labelText: 'Mobile Number',
+                                              ),
+                                              onChanged: (val) => setState(() {
+                                                number = val;
+                                              }),
+                                              validator: (String? val) {
+                                                if (val == null ||
+                                                    val.trim().length == 0) {
+                                                  return "Consumer Number is mandatory";
+                                                } else if (val.length < 12) {
+                                                  return "Consumer Number is Invalid";
+                                                } else {
+                                                  return null;
+                                                }
+                                              },
+                                            ),
+                                            TextFormField(
+                                              controller: TextEditingController(
+                                                  text: specify["NicNumber"]),
+                                              inputFormatters: [
+                                                nicmnumberFormatter
+                                              ],
+                                              keyboardType:
+                                              TextInputType.number,
+                                              decoration: const InputDecoration(
+                                                labelText: 'NIC Number',
+                                              ),
+                                              onChanged: (val) => setState(() {
+                                                nicnumber = val;
+                                              }),
+                                              validator: (String? val) {
+                                                if (val == null ||
+                                                    val.trim().length == 0) {
+                                                  return "Consumer Nic_Number is mandatory";
+                                                } else if (val.length < 12) {
+                                                  return "Consumer Nic_Number is Invalid";
+                                                } else {
+                                                  return null;
+                                                }
+                                              },
+                                            ),
                                             TextFormField(
                                                 controller:
-                                                    TextEditingController(
-                                                        text: specify["Email"]),
+                                                TextEditingController(
+                                                    text: specify["Email"]),
                                                 decoration: InputDecoration(
                                                   labelText: 'Enter Email',
                                                 ),
@@ -148,9 +191,9 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                                     })),
                                             TextFormField(
                                                 controller:
-                                                    TextEditingController(
-                                                        text:
-                                                            specify["Address"]),
+                                                TextEditingController(
+                                                    text:
+                                                    specify["Address"]),
                                                 decoration: InputDecoration(
                                                   labelText: 'Enter Address',
                                                 ),
@@ -160,12 +203,12 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                                     })),
                                             TextFormField(
                                                 controller:
-                                                    TextEditingController(
-                                                        text: specify[
-                                                            "ElectricCompany"]),
-                                                decoration: InputDecoration(
+                                                TextEditingController(
+                                                    text: specify[
+                                                    "ElectricCompany"]),
+                                                decoration: const InputDecoration(
                                                   labelText:
-                                                      'Enter Electric Company',
+                                                  'Enter Electric Company',
                                                 ),
                                                 onChanged: (val) =>
                                                     setState(() {
@@ -173,12 +216,12 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                                     })),
                                             TextFormField(
                                                 controller:
-                                                    TextEditingController(
-                                                        text: specify[
-                                                            "GasCompany"]),
-                                                decoration: InputDecoration(
+                                                TextEditingController(
+                                                    text: specify[
+                                                    "GasCompany"]),
+                                                decoration: const InputDecoration(
                                                   labelText:
-                                                      'Enter Gas Company',
+                                                  'Enter Gas Company',
                                                 ),
                                                 onChanged: (val) =>
                                                     setState(() {
@@ -186,12 +229,12 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                                     })),
                                             TextFormField(
                                                 controller:
-                                                    TextEditingController(
-                                                        text: specify[
-                                                            "LandlineCompany"]),
-                                                decoration: InputDecoration(
+                                                TextEditingController(
+                                                    text: specify[
+                                                    "LandlineCompany"]),
+                                                decoration: const InputDecoration(
                                                   labelText:
-                                                      'Enter Landline Company',
+                                                  'Enter Landline Company',
                                                 ),
                                                 onChanged: (val) =>
                                                     setState(() {
@@ -206,14 +249,21 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                         padding: const EdgeInsets.all(12.0),
                                         child: Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                          MainAxisAlignment.spaceBetween,
                                           children: [
                                             GestureDetector(
+                                              onTap: () {
+                                                Navigator.pop(context);
+                                              },
+                                                child: Text(
+                                                  "Close",
+                                                style: TextStyle(fontWeight: FontWeight.bold, color: kMaroon),)),
+                                            GestureDetector(
                                               child: Text(
-                                                "SAVE",
+                                                "Save",
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.bold,
-                                                    color: Colors.black),
+                                                    color: kMaroon),
                                               ),
                                               onTap: () {
                                                 showDialog(
@@ -222,41 +272,43 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                                         (BuildContext context) {
                                                       return AlertDialog(
                                                         content: const Text(
-                                                            "Edit Deleted!"),
+                                                            "Data Updated"),
                                                         actions: [
                                                           GestureDetector(
                                                               onTap: () {
                                                                 FirebaseFirestore
                                                                     .instance
                                                                     .collection(
-                                                                        'Consumers')
+                                                                    'Consumers')
                                                                     .doc(
-                                                                        specifyId)
+                                                                    specifyId)
                                                                     .update({
                                                                   "ConsumerID":
-                                                                      consumerID,
+                                                                  consumerID,
                                                                   "Name": name,
                                                                   "Number":
-                                                                      number,
+                                                                  number,
+                                                                  "NicNumber":
+                                                                  nicnumber,
                                                                   "Email":
-                                                                      email,
+                                                                  email,
                                                                   "Address":
-                                                                      address,
+                                                                  address,
                                                                   "GasCompany":
-                                                                      gasCompany,
+                                                                  gasCompany,
                                                                   "ElectricCompany":
-                                                                      electricCompany,
+                                                                  electricCompany,
                                                                   "LandlineCompany":
-                                                                      landlineCompany,
+                                                                  landlineCompany,
                                                                 });
                                                                 Navigator.pushReplacement(
                                                                     context,
                                                                     MaterialPageRoute(
                                                                         builder:
                                                                             (context) =>
-                                                                                retriveMarkers()));
+                                                                            retriveSingleMarker()));
                                                               },
-                                                              child: Text("OK"))
+                                                              child: const Text("OK"))
                                                         ],
                                                       );
                                                     });
@@ -272,7 +324,7 @@ class _retriveMarkersState extends State<retriveMarkers> {
                           child: Text(
                             "Edit Data",
                             style: TextStyle(
-                                fontWeight: FontWeight.bold, color: Colors.red),
+                                fontWeight: FontWeight.bold, color: kMaroon),
                           ),
                         ),
                         GestureDetector(
@@ -294,7 +346,7 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                                 context,
                                                 MaterialPageRoute(
                                                     builder: (context) =>
-                                                        retriveMarkers()));
+                                                        retriveSingleMarker()));
                                           },
                                           child: Text("OK"))
                                     ],
@@ -302,9 +354,9 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                 });
                           },
                           child: Text(
-                            "Delet Data",
+                            "Delete Data",
                             style: TextStyle(
-                                fontWeight: FontWeight.bold, color: Colors.red),
+                                fontWeight: FontWeight.bold, color: kMaroon),
                           ),
                         ),
                         GestureDetector(
@@ -315,23 +367,25 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                   return AlertDialog(
                                     // backgroundColor: Colors.red,
                                     scrollable: true,
-                                    title: Text('Consumer Check-In'),
-                                    content: Image.network(specify["Url1"]),
+                                    title: const Text('Consumer Check-In'),
+                                    content: Image.network(specify["Url"] ?? "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/832px-No-Image-Placeholder.svg.png"),
                                     actions: [
                                       Padding(
                                         padding: const EdgeInsets.all(12.0),
                                         child: Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                          MainAxisAlignment.spaceBetween,
                                           children: [
                                             GestureDetector(
                                               child: Text(
-                                                "Image Retrived",
+                                                "Close",
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.bold,
-                                                    color: Colors.black),
+                                                    color: kMaroon),
                                               ),
-                                              onTap: () {},
+                                              onTap: () {
+                                                Navigator.pop(context);
+                                              },
                                             ),
                                           ],
                                         ),
@@ -343,7 +397,7 @@ class _retriveMarkersState extends State<retriveMarkers> {
                           child: Text(
                             "Show IMAGE",
                             style: TextStyle(
-                                fontWeight: FontWeight.bold, color: Colors.red),
+                                fontWeight: FontWeight.bold, color: kMaroon),
                           ),
                         ),
                       ],
@@ -352,18 +406,21 @@ class _retriveMarkersState extends State<retriveMarkers> {
                 ],
               );
             }),
-        infoWindow: InfoWindow(title: "oks", snippet: specify["Name"]));
+
+
+        infoWindow: InfoWindow(title: specify["ConsumerID"], snippet: specify["Name"]));
     setState(() {
       markers[markerId] = marker;
     });
   }
-
-  getmarkerdata() async {
-    FirebaseFirestore.instance.collection('Consumers').get().then((myMocDoc) {
-      if (myMocDoc.docs.isNotEmpty) {
-        for (int a = 0; a < myMocDoc.docs.length; a++) {
-          initMarker(myMocDoc.docs[a].data(), myMocDoc.docs[a].id);
-        }
+  getMarkerData() async {
+    FirebaseFirestore.instance
+        .collection('Consumers')
+        .doc(widget.id)
+        .get()
+        .then((myMocDoc) {
+      if (myMocDoc.data()!.isNotEmpty) {
+        initMarker(myMocDoc.data(), widget.id);
       }
     });
   }
@@ -371,29 +428,18 @@ class _retriveMarkersState extends State<retriveMarkers> {
   @override
   void initState() {
     // TODO: implement initState
-    getmarkerdata();
+    getMarkerData();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    Set<Marker> getMarkers() {
-      return <Marker>[
-        Marker(
-          markerId: MarkerId("Shop"),
-          position: LatLng(21.1458, 97.2882),
-          icon: BitmapDescriptor.defaultMarker,
-          infoWindow: InfoWindow(title: "home"),
-        )
-      ].toSet();
-    }
-
     return Scaffold(
         body: GoogleMap(
             mapType: MapType.normal,
             markers: Set<Marker>.of(markers.values),
             initialCameraPosition: CameraPosition(
-              target: LatLng(25.3960, 68.3578),
+              target: LatLng(widget.lat, widget.lon),
               zoom: 15.0,
             ),
             onMapCreated: (GoogleMapController controller) {

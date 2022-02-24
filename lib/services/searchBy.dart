@@ -1,9 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:consumer_checkin/constant/colors_constant.dart';
-import 'package:consumer_checkin/screens/retrive_locations.dart';
+import 'package:consumer_checkin/screens/retrieve_locations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
 
 class retriveeMarkersBySearch extends StatefulWidget {
   retriveeMarkersBySearch({required this.searchid, required this.name});
@@ -29,23 +27,20 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
   late GoogleMapController controller;
 
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
-  double lon = 0.0;
-  double lat = 0.0;
 
   void initMarker(specify, specifyId) async {
     var markerIdVal = specifyId;
     final MarkerId markerId = MarkerId(markerIdVal);
-
     final Marker marker = Marker(
         markerId: markerId,
         position:
-            LatLng(specify["location"].latitude, specify["location"].longitude),
+        LatLng(specify["location"].latitude, specify["location"].longitude),
         onTap: () => showDialog(
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
                 scrollable: true,
-                title: Text('Consumer Details', style: TextStyle(color: kRed)),
+                title: Text('Consumer Details'),
                 content: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Container(
@@ -57,34 +52,20 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                               specify["ConsumerID"].toString()),
                           SizedBox(height: 5),
                           Text("Name : " + specify["Name"]),
-                          // SizedBox(height: 5),
-                          // Text("Id : " + specifyId),
+                          Text("Id : " + specifyId),
                           SizedBox(height: 5),
                           Text("Email : " + specify["Email"]),
                           SizedBox(height: 5),
                           Text("Number : " + specify["Number"].toString()),
                           SizedBox(height: 5),
-                          Text("Nic Number : " +
-                              specify["NicNumber"].toString()),
-                          SizedBox(height: 5),
-                          Text("Plot Type : " + specify["Plottype"].toString()),
-                          SizedBox(height: 5),
-                          Text("Taluka : " + specify["Taluka"].toString()),
-                          SizedBox(height: 5),
-                          Text("UC : " + specify["UC"].toString()),
-                          SizedBox(height: 5),
-                          Text("Zone : " + specify["Zone"].toString()),
-                          SizedBox(height: 5),
-                          Text("Ward : " + specify["Ward"].toString()),
                           SizedBox(height: 5),
                           Text("Address : " + specify["Address"]),
-                          SizedBox(height: 5),
-                          Text("Electric Company : " +
+                          Text("Electric_Company : " +
                               specify["ElectricCompany"]),
                           SizedBox(height: 5),
-                          Text("Gas Company : " + specify["GasCompany"]),
+                          Text("Gas_Company : " + specify["GasCompany"]),
                           SizedBox(height: 5),
-                          Text("Landline Company : " +
+                          Text("Landline_Company : " +
                               specify["LandlineCompany"]),
                         ],
                       ),
@@ -103,10 +84,7 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                   return AlertDialog(
                                     // backgroundColor: Colors.red,
                                     scrollable: true,
-                                    title: Text(
-                                      'Consumer Check-In',
-                                      style: TextStyle(color: kRed),
-                                    ),
+                                    title: Text('Consumer Check-In'),
                                     content: Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Form(
@@ -125,8 +103,8 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                             ),
                                             TextFormField(
                                                 controller:
-                                                    TextEditingController(
-                                                        text: specify["Name"]),
+                                                TextEditingController(
+                                                    text: specify["Name"]),
                                                 decoration: InputDecoration(
                                                   labelText: 'Enter Name',
                                                 ),
@@ -136,9 +114,9 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                                     })),
                                             TextFormField(
                                                 controller:
-                                                    TextEditingController(
-                                                        text:
-                                                            specify["Number"]),
+                                                TextEditingController(
+                                                    text:
+                                                    specify["Number"]),
                                                 decoration: InputDecoration(
                                                   labelText: 'Enter Number',
                                                 ),
@@ -148,8 +126,8 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                                     })),
                                             TextFormField(
                                                 controller:
-                                                    TextEditingController(
-                                                        text: specify["Email"]),
+                                                TextEditingController(
+                                                    text: specify["Email"]),
                                                 decoration: InputDecoration(
                                                   labelText: 'Enter Email',
                                                 ),
@@ -159,9 +137,9 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                                     })),
                                             TextFormField(
                                                 controller:
-                                                    TextEditingController(
-                                                        text:
-                                                            specify["Address"]),
+                                                TextEditingController(
+                                                    text:
+                                                    specify["Address"]),
                                                 decoration: InputDecoration(
                                                   labelText: 'Enter Address',
                                                 ),
@@ -171,12 +149,12 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                                     })),
                                             TextFormField(
                                                 controller:
-                                                    TextEditingController(
-                                                        text: specify[
-                                                            "ElectricCompany"]),
+                                                TextEditingController(
+                                                    text: specify[
+                                                    "ElectricCompany"]),
                                                 decoration: InputDecoration(
                                                   labelText:
-                                                      'Enter Electric Company',
+                                                  'Enter Electric Company',
                                                 ),
                                                 onChanged: (val) =>
                                                     setState(() {
@@ -184,12 +162,12 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                                     })),
                                             TextFormField(
                                                 controller:
-                                                    TextEditingController(
-                                                        text: specify[
-                                                            "GasCompany"]),
+                                                TextEditingController(
+                                                    text: specify[
+                                                    "GasCompany"]),
                                                 decoration: InputDecoration(
                                                   labelText:
-                                                      'Enter Gas Company',
+                                                  'Enter Gas Company',
                                                 ),
                                                 onChanged: (val) =>
                                                     setState(() {
@@ -197,12 +175,12 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                                     })),
                                             TextFormField(
                                                 controller:
-                                                    TextEditingController(
-                                                        text: specify[
-                                                            "LandlineCompany"]),
+                                                TextEditingController(
+                                                    text: specify[
+                                                    "LandlineCompany"]),
                                                 decoration: InputDecoration(
                                                   labelText:
-                                                      'Enter Landline Company',
+                                                  'Enter Landline Company',
                                                 ),
                                                 onChanged: (val) =>
                                                     setState(() {
@@ -217,14 +195,14 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                         padding: const EdgeInsets.all(12.0),
                                         child: Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                          MainAxisAlignment.spaceBetween,
                                           children: [
                                             GestureDetector(
                                               child: Text(
                                                 "SAVE",
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.bold,
-                                                    color: kRed),
+                                                    color: Colors.black),
                                               ),
                                               onTap: () {
                                                 showDialog(
@@ -240,32 +218,32 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                                                 FirebaseFirestore
                                                                     .instance
                                                                     .collection(
-                                                                        'Consumers')
+                                                                    'Consumers')
                                                                     .doc(
-                                                                        specifyId)
+                                                                    specifyId)
                                                                     .update({
                                                                   "ConsumerID":
-                                                                      consumerID,
+                                                                  consumerID,
                                                                   "Name": name,
                                                                   "Number":
-                                                                      number,
+                                                                  number,
                                                                   "Email":
-                                                                      email,
+                                                                  email,
                                                                   "Address":
-                                                                      address,
+                                                                  address,
                                                                   "GasCompany":
-                                                                      gasCompany,
+                                                                  gasCompany,
                                                                   "ElectricCompany":
-                                                                      electricCompany,
+                                                                  electricCompany,
                                                                   "LandlineCompany":
-                                                                      landlineCompany,
+                                                                  landlineCompany,
                                                                 });
                                                                 Navigator.pushReplacement(
                                                                     context,
                                                                     MaterialPageRoute(
                                                                         builder:
                                                                             (context) =>
-                                                                                retriveMarkers()));
+                                                                            retriveMarkers()));
                                                               },
                                                               child: Text("OK"))
                                                         ],
@@ -333,7 +311,7 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                         padding: const EdgeInsets.all(12.0),
                                         child: Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                          MainAxisAlignment.spaceBetween,
                                           children: [
                                             GestureDetector(
                                               child: Text(
@@ -363,15 +341,30 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                 ],
               );
             }),
-        infoWindow:
-            InfoWindow(title: specify["ConsumerID"], snippet: specify["Name"]));
+        infoWindow: InfoWindow(title: "oks", snippet: specify["Name"]));
     setState(() {
       markers[markerId] = marker;
-
-      // print("::::::::::::::::::::::::::::" + lat.toString());
-      // print("::::::::::::::::::::::::::::" + lon.toString());
     });
   }
+
+  // getmarkerdata() async {
+  //   FirebaseFirestore.instance
+  //       .collection('Consumers')
+  //       .where("ConsumerID", isEqualTo: widget.searchid)
+  //       .snapshots(); {
+  //     if (myMocDoc.docs.isNotEmpty) {
+  //       for (int a = 0; a < myMocDoc.docs.length; a++) {
+  //         initMarker(myMocDoc.docs[a].data(), myMocDoc.docs[a].id);
+  //       }
+  //     }
+  //   });
+  //   // var markers = FirebaseFirestore.instance
+  //   //     .collection("Consumers")
+  //   //     .where("ConsumerID", isEqualTo: widget.searchid)
+  //   //     .snapshots();
+  //   // print(widget.searchid);
+  //   // print(markers);
+  // }
 
   getmarkerdata() async {
     FirebaseFirestore.instance
@@ -391,19 +384,29 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
   void initState() {
     // TODO: implement initState
     getmarkerdata();
-
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    Set<Marker> getMarkers() {
+      return <Marker>[
+        Marker(
+          markerId: MarkerId("Shop"),
+          position: LatLng(21.1458, 97.2882),
+          icon: BitmapDescriptor.defaultMarker,
+          infoWindow: InfoWindow(title: "home"),
+        )
+      ].toSet();
+    }
+
     return Scaffold(
         body: GoogleMap(
             mapType: MapType.normal,
             markers: Set<Marker>.of(markers.values),
             initialCameraPosition: CameraPosition(
-              target: LatLng(25.39242, 68.37366),
-              zoom: 10.0,
+              target: LatLng(25.3960, 68.3578),
+              zoom: 15.0,
             ),
             onMapCreated: (GoogleMapController controller) {
               controller = controller;

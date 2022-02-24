@@ -77,7 +77,7 @@ class _SignInState extends State<SignIn> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               hintText: "Enter your Password",
-                            prefixIcon: Icon(Icons.lock_outline_rounded),
+                            prefixIcon: const Icon(Icons.lock_outline_rounded),
                           ),
                           onChanged: (val) => setState(() {_password = val;}),
                           validator: (val) => val!.length< 6 ? 'Password must be 6 characters or more' : null,

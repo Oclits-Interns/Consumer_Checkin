@@ -10,7 +10,7 @@ class ConsumerFields {
   static const zoneNum = "Zone_Num";
   static const wardNum = "Ward_Num";
   static const area = "Area";
-  static const street = "Street";
+  static const unitNum = "Unit_Number";
   static const block = "Block";
   static const houseNum = "House_Number";
   static const address = "Address";
@@ -31,7 +31,7 @@ class ConsumerFields {
     zoneNum,
     wardNum,
     area,
-    street,
+    unitNum,
     block,
     houseNum,
     address,
