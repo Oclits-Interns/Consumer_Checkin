@@ -31,11 +31,14 @@ class _LoadingScreenState extends State<LoadingScreen> {
         return MapApp(lan: longitud, lat: latitud);
       }));
     } catch (e) {
-      showDialog(context: context, builder: (BuildContext context) {
-        return const AlertDialog(
-          content: Text("There seems to be a problem, restart the app and try again"),
-        );
-      });
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return const AlertDialog(
+              content: Text(
+                  "There seems to be a problem, restart the app and try again"),
+            );
+          });
     }
   }
 
@@ -51,8 +54,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
               indicatorType: Indicator.lineScalePulseOutRapid,
               colors: [Colors.red],
               strokeWidth: 1,
-              pathBackgroundColor: Colors.black
-          ),
+              pathBackgroundColor: Colors.black),
         ),
       ),
     );

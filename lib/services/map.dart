@@ -11,6 +11,7 @@ import 'package:consumer_checkin/services/db_firestore.dart';
 import 'package:consumer_checkin/services/google_sheets.dart';
 import 'package:consumer_checkin/services/searchBy.dart';
 import 'package:consumer_checkin/constant/colors_constant.dart';
+
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
@@ -112,6 +113,7 @@ class _MapAppState extends State<MapApp> {
   final _streetTextController = TextEditingController();
   final _blockTextController = TextEditingController();
   final _areaTextController = TextEditingController();
+  final TextEditingController shift = TextEditingController();
 
   String firstButtonText = 'Take photo';
 
@@ -137,11 +139,13 @@ class _MapAppState extends State<MapApp> {
           barcodeScanRes.substring(startIndexConsumerId, endIndexConsumerId);
       _consumerIdTextController.text = resultConsumerId.toString();
       consumerID = resultConsumerId;
+
       int startIndexZone = 0;
       int endIndexZone = 2;
       String resultZone =
           barcodeScanRes.substring(startIndexZone, endIndexZone);
       _zoneTextController.text = resultZone;
+
       int startIndexWard = 2;
       int endIndexWard = 4;
       String resultWard =
@@ -150,29 +154,19 @@ class _MapAppState extends State<MapApp> {
     });
   }
 
+  var pickedfile;
   opencamera() async {
-    final pickedFile = await picker.getImage(source: ImageSource.camera);
+    pickedfile = await picker.getImage(
+        source: ImageSource.camera,
+        maxHeight: 480,
+        maxWidth: 640,
+        imageQuality: 50);
 
     setState(() {
-      _image.add(File(pickedFile!.path));
+      _image.add(File(pickedfile!.path));
     });
-    if (pickedFile!.path == null) retrieveLostData();
+    if (pickedfile!.path == null) retrieveLostData();
   }
-
-  // opencamerasavetogareally() async {
-  //   picker.getImage(source: ImageSource.camera);
-
-  //   String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
-  //   final Directory extDir = await getApplicationDocumentsDirectory();
-  //   final String dirPath = '${extDir.path}/Pictures/flutter_test';
-  //   await Directory(dirPath).create(recursive: true);
-
-  //   final String filePath = '$dirPath/${timestamp()}.jpg';
-  //   GallerySaver.saveImage(filePath);
-  //   print("3333333333333333333333333333333333333333333333333" + filePath);
-
-  //   // if (pickedFile!.path == null) retrieveLostData();
-  // }
 
   Future<void> retrieveLostData() async {
     final LostData response = await picker.getLostData();
@@ -208,15 +202,17 @@ class _MapAppState extends State<MapApp> {
     print(":::::::::::::::::::::::::::::::" + imageList[0].toString());
   }
 
-  void _takePhoto() async {
-    final recordedImage = await picker.getImage(source: ImageSource.camera);
+  void _takePhoto(String name) async {
+    final recordedImage = pickedfile;
     {
       if (recordedImage != null && recordedImage.path != null) {
         setState(() {
           firstButtonText = 'saving in progress...';
         });
-        GallerySaver.saveImage(recordedImage.path, albumName: "Intrapreneur")
-            .then((path) {
+        String dir = (await getApplicationDocumentsDirectory()).path;
+        String newPath = path.join(dir, '$name.jpg');
+        File fa = await File(recordedImage!.path).copy(newPath);
+        GallerySaver.saveImage(fa.path, albumName: "Intrapreneur").then((path) {
           setState(() {
             firstButtonText = 'image saved!';
           });
@@ -225,22 +221,6 @@ class _MapAppState extends State<MapApp> {
     }
   }
 
-  // Future uploadFiletogareally() async {
-  //   int i = 1;
-
-  //   for (var img in _image) {
-  //     setState(() {
-  //       val = i / _image.length;
-  //     });
-  //     String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
-  //     final Directory extDir = await getApplicationDocumentsDirectory();
-  //     final String dirPath = '${extDir.path}/Pictures/flutter_test';
-  //     await Directory(dirPath).create(recursive: true);
-  //     final String filePath = '$dirPath/${timestamp()}.jpg';
-  //   }
-  //   print(":::::::::::::::::::::::::::::::" + imageList[0].toString());
-  // }
-
   var nummberFormatter = MaskTextInputFormatter(
       mask: '####-#######', filter: {"#": RegExp(r'[0-9]')});
 
@@ -248,8 +228,7 @@ class _MapAppState extends State<MapApp> {
       mask: '#####-#######-#', filter: {"#": RegExp(r'[0-9]')});
 
   var blockFormatter = MaskTextInputFormatter(
-      mask: '*-##',
-      filter: {"#": RegExp(r'[0-9]'), "*": RegExp(r'[a-z, A-Z]')});
+      mask: '*-##', filter: {"#": RegExp(r'[0-9]'), "*": RegExp(r'[A-Z]')});
 
   void clearForm() {
     setState(() {
@@ -311,6 +290,7 @@ class _MapAppState extends State<MapApp> {
     _gasCompanyIdTextController.dispose();
     _electricCompanyIdTextController.dispose();
     _landlineIdTextController.dispose();
+
     super.dispose();
   }
 
@@ -682,7 +662,9 @@ class _MapAppState extends State<MapApp> {
                                   child: TextFormField(
                                 inputFormatters: [blockFormatter],
                                 controller: _blockTextController,
-                                keyboardType: TextInputType.streetAddress,
+                                keyboardType: TextInputType.text,
+                                textCapitalization:
+                                    TextCapitalization.characters,
                                 decoration: const InputDecoration(
                                   labelText: 'Block',
                                   suffixText: '*',
@@ -718,15 +700,7 @@ class _MapAppState extends State<MapApp> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        if (isConnected == true) {
-                          opencamera();
-                        } else {
-                          _takePhoto();
-                        }
-                        // Navigator.push(
-                        //     context,
-                        //     MaterialPageRoute(
-                        //         builder: (context) => CameraWidget()));
+                        opencamera();
                       },
                       child: const Text(
                         "TAKE IMAGE",
@@ -746,6 +720,7 @@ class _MapAppState extends State<MapApp> {
                               block.toString();
 
                           if (!isConnected) {
+                            _takePhoto(consumerID);
                             // If network detected is found to be false, the the consumer records are stored in SQLite db using the method below
                             DBProvider.db.insertConsumerEntryOffline(
                                 consumerID,
@@ -781,6 +756,7 @@ class _MapAppState extends State<MapApp> {
                                 });
                           }
                           if (isConnected) {
+                            await uploadFile();
                             final consumer = {
                               ConsumerFields.plotType: plotType,
                               ConsumerFields.id: consumerID,
@@ -818,64 +794,51 @@ class _MapAppState extends State<MapApp> {
 
                           }
                           // Along storing the data to sqlite, we also insert to Firebase, the data will be stored in firebase cache, and when network status changes, the offline data is synced with firebase
-
-                          //    uploadFile();
-
-                          Future<String> getFilePath() async {
-                            Directory appDocumentsDirectory =
-                                await getApplicationDocumentsDirectory(); // 1
-                            String appDocumentsPath =
-                                appDocumentsDirectory.path; // 2
-                            String filePath =
-                                '$appDocumentsPath/demoTextFile.txt'; // 3
-
-                            return filePath;
-                          }
-                        }
-
-                        _db.addConsumerEntry(
-                          plotType: plotType,
-                          consumerID: consumerID,
-                          name: name,
-                          number: number,
-                          email: email,
-                          taluka: taluka,
-                          uc: uc,
-                          zone: zone,
-                          ward: ward,
-                          block: block,
-                          street: street,
-                          area: area,
-                          houseNum: houseNum,
-                          nicNum: nicNumber,
-                          address: address,
-                          newAddress: newAddress,
-                          gasCompany: gasCompany,
-                          electricCompany: electricCompany,
-                          landlineCompany: landlineCompany,
-                          location: GeoPoint(widget.lat, widget.lan),
-                          url: imageList[0].toString(),
-                        );
-
-                        showDialog(
-                            barrierDismissible: false,
-                            context: context,
-                            builder: (context) {
-                              Future.delayed(const Duration(milliseconds: 1500),
-                                  () {
-                                Navigator.of(context).pop(true);
+                          _db.addConsumerEntry(
+                            plotType: plotType,
+                            consumerID: consumerID,
+                            name: name,
+                            number: number,
+                            email: email,
+                            taluka: taluka,
+                            uc: uc,
+                            zone: zone,
+                            ward: ward,
+                            block: block,
+                            street: street,
+                            area: area,
+                            houseNum: houseNum,
+                            nicNum: nicNumber,
+                            address: address,
+                            newAddress: newAddress,
+                            gasCompany: gasCompany,
+                            electricCompany: electricCompany,
+                            landlineCompany: landlineCompany,
+                            location: GeoPoint(widget.lat, widget.lan),
+                            url: imageList.length != 0
+                                ? imageList[0].toString()
+                                : "",
+                          );
+                          showDialog(
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (context) {
+                                Future.delayed(
+                                    const Duration(milliseconds: 1500), () {
+                                  Navigator.of(context).pop(true);
+                                });
+                                return const AlertDialog(
+                                  title: Text('Data Inserted'),
+                                );
                               });
-                              return const AlertDialog(
-                                title: Text('Data Inserted'),
-                              );
-                            });
-                        if (!isLocked) {
-                          clearForm();
-                          //imageList.clear();
-                        } else {
-                          clearFormLocked();
-                          _formKey.currentState!.reset();
-                          //imageList.clear();
+                          if (!isLocked) {
+                            clearForm();
+                            //imageList.clear();
+                          } else {
+                            clearFormLocked();
+                            _formKey.currentState!.reset();
+                            //imageList.clear();
+                          }
                         }
                       },
                       child: Text(
@@ -1014,6 +977,21 @@ class _MapAppState extends State<MapApp> {
 
   void _onMapCreated(GoogleMapController controller) {
     _controller.complete(controller);
+  }
+
+  _handleTap(LatLng point) {
+    setState(() {
+      if (_markers.isEmpty) {
+        _markers.add(Marker(
+            markerId: MarkerId(point.toString()),
+            position: point,
+            icon:
+                BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+            onTap: () {
+              _showAlertDialog();
+            }));
+      }
+    });
   }
 
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
@@ -1294,6 +1272,7 @@ class _MapAppState extends State<MapApp> {
             children: <Widget>[
               GoogleMap(
                 onMapCreated: _onMapCreated,
+                onTap: _handleTap,
                 myLocationEnabled: true,
                 myLocationButtonEnabled: true,
                 compassEnabled: true,
@@ -1319,17 +1298,17 @@ class _MapAppState extends State<MapApp> {
                         child: const Icon(Icons.map, size: 36.0),
                       ),
                       const SizedBox(height: 16.0),
-                      FloatingActionButton(
-                        heroTag: "btn2",
-                        onPressed: _onAddMarkerButtonPressed,
-                        materialTapTargetSize: MaterialTapTargetSize.padded,
-                        backgroundColor: const Color(0xffb11118),
-                        child: const Icon(
-                          Icons.add_location,
-                          size: 36.0,
-                        ),
-                      ),
-                      const SizedBox(height: 16.0),
+                      // FloatingActionButton(
+                      //   heroTag: "btn2",
+                      //   onPressed: _onAddMarkerButtonPressed,
+                      //   materialTapTargetSize: MaterialTapTargetSize.padded,
+                      //   backgroundColor: const Color(0xffb11118),
+                      //   child: const Icon(
+                      //     Icons.add_location,
+                      //     size: 36.0,
+                      //   ),
+                      // ),
+
                       FloatingActionButton(
                         heroTag: "btn3",
                         onPressed: _goToTheLake,

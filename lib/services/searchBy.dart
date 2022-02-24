@@ -3,6 +3,7 @@ import 'package:consumer_checkin/constant/colors_constant.dart';
 import 'package:consumer_checkin/screens/retrive_locations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 
 class retriveeMarkersBySearch extends StatefulWidget {
   retriveeMarkersBySearch({required this.searchid, required this.name});
@@ -28,10 +29,13 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
   late GoogleMapController controller;
 
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
+  double lon = 0.0;
+  double lat = 0.0;
 
   void initMarker(specify, specifyId) async {
     var markerIdVal = specifyId;
     final MarkerId markerId = MarkerId(markerIdVal);
+
     final Marker marker = Marker(
         markerId: markerId,
         position:
@@ -363,6 +367,9 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
             InfoWindow(title: specify["ConsumerID"], snippet: specify["Name"]));
     setState(() {
       markers[markerId] = marker;
+
+      // print("::::::::::::::::::::::::::::" + lat.toString());
+      // print("::::::::::::::::::::::::::::" + lon.toString());
     });
   }
 
@@ -384,6 +391,7 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
   void initState() {
     // TODO: implement initState
     getmarkerdata();
+
     super.initState();
   }
 
@@ -394,8 +402,8 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
             mapType: MapType.normal,
             markers: Set<Marker>.of(markers.values),
             initialCameraPosition: CameraPosition(
-              target: LatLng(25.3960, 68.3578),
-              zoom: 15.0,
+              target: LatLng(25.39242, 68.37366),
+              zoom: 10.0,
             ),
             onMapCreated: (GoogleMapController controller) {
               controller = controller;
