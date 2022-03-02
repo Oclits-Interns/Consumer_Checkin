@@ -18,6 +18,7 @@ class ConsumerFields {
   static const gasCompanyId = "Gas_Company_Id";
   static const electricCompanyId = "Electricity_Company_Id";
   static const landlineCompanyId = "Landline_Company_Id";
+  static const dateTime = "Date_Time";
 
   static List<String> getFields() => [
     id,
@@ -38,7 +39,8 @@ class ConsumerFields {
     newAddress,
     gasCompanyId,
     electricCompanyId,
-    landlineCompanyId];
+    landlineCompanyId,
+    dateTime];
 }
 
 /*

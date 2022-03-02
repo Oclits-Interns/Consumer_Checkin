@@ -3,6 +3,7 @@ import 'package:consumer_checkin/constant/colors_constant.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class retriveSingleMarker extends StatefulWidget {
   const retriveSingleMarker([this.id, this.lat, this.lon]);
@@ -48,7 +49,7 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
             builder: (BuildContext context) {
               return AlertDialog(
                 scrollable: true,
-                title: Text('Consumer Details'),
+                title: const Text('Consumer Details'),
                 content: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Container(
@@ -58,29 +59,29 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                         children: [
                           Text("Consumer_ID : " +
                               specify["ConsumerID"].toString()),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           Text("Name : " + specify["Name"]),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           Text("Id : " + specifyId),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           Text("Email : " + specify["Email"]),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           Text("Number : " + specify["Number"].toString()),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           Text("Nic Number : " +
                               specify["NicNumber"].toString()),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           Text("Plot Type : " + specify["Plot_type"].toString()),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           Text("Taluka : " + specify["Taluka"].toString()),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           Text("Address : " + specify["Address"]),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           Text("Electric Company : " +
                               specify["ElectricCompany"]),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           Text("Gas Company : " + specify["GasCompany"]),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           Text("Landline Company : " +
                               specify["LandlineCompany"]),
                         ],
@@ -100,28 +101,17 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                                   return AlertDialog(
                                     // backgroundColor: Colors.red,
                                     scrollable: true,
-                                    title: Text('Consumer Check-In'),
+                                    title: const Text('Consumer Check-In'),
                                     content: Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Form(
                                         child: Column(
                                           children: <Widget>[
                                             TextFormField(
-                                              controller: TextEditingController(
-                                                  text: specify["ConsumerID"]
-                                                      .toString()),
-                                              onChanged: (val) => setState(() {
-                                                consumerID = int.parse(val);
-                                              }),
-                                              decoration: InputDecoration(
-                                                labelText: 'EnterConsumerID',
-                                              ),
-                                            ),
-                                            TextFormField(
                                                 controller:
                                                 TextEditingController(
                                                     text: specify["Name"]),
-                                                decoration: InputDecoration(
+                                                decoration: const InputDecoration(
                                                   labelText: 'Enter Name',
                                                 ),
                                                 onChanged: (val) =>
@@ -144,7 +134,7 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                                               }),
                                               validator: (String? val) {
                                                 if (val == null ||
-                                                    val.trim().length == 0) {
+                                                    val.trim().isEmpty) {
                                                   return "Consumer Number is mandatory";
                                                 } else if (val.length < 12) {
                                                   return "Consumer Number is Invalid";
@@ -169,7 +159,7 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                                               }),
                                               validator: (String? val) {
                                                 if (val == null ||
-                                                    val.trim().length == 0) {
+                                                    val.trim().isEmpty) {
                                                   return "Consumer Nic_Number is mandatory";
                                                 } else if (val.length < 12) {
                                                   return "Consumer Nic_Number is Invalid";
@@ -182,7 +172,7 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                                                 controller:
                                                 TextEditingController(
                                                     text: specify["Email"]),
-                                                decoration: InputDecoration(
+                                                decoration: const InputDecoration(
                                                   labelText: 'Enter Email',
                                                 ),
                                                 onChanged: (val) =>
@@ -194,7 +184,7 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                                                 TextEditingController(
                                                     text:
                                                     specify["Address"]),
-                                                decoration: InputDecoration(
+                                                decoration: const InputDecoration(
                                                   labelText: 'Enter Address',
                                                 ),
                                                 onChanged: (val) =>
@@ -283,8 +273,6 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                                                                     .doc(
                                                                     specifyId)
                                                                     .update({
-                                                                  "ConsumerID":
-                                                                  consumerID,
                                                                   "Name": name,
                                                                   "Number":
                                                                   number,
@@ -306,7 +294,7 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                                                                     MaterialPageRoute(
                                                                         builder:
                                                                             (context) =>
-                                                                            retriveSingleMarker()));
+                                                                            const retriveSingleMarker()));
                                                               },
                                                               child: const Text("OK"))
                                                         ],
@@ -326,6 +314,54 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, color: kMaroon),
                           ),
+                        ),
+                        GestureDetector(
+                          child: const Text("Show Qr"),
+                          onTap: () {
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    // backgroundColor: Colors.red,
+                                    scrollable: true,
+                                    title: const Text('Consumer Check-In'),
+                                    content: Expanded(
+                                      child: SizedBox(
+                                        width: 80,
+                                        height: 800,
+                                        child: QrImage(
+                                          data:
+                                          "Consumer_ID : ${specify["ConsumerID"].toString()}\n  Name : ${specify["Name"]}\n Email : ${specify["ConsumerID"].toString()}\n  Number : ${specify["Number"]}\n CNIC_Number : ${specify["NicNumber"].toString()}\n  Plot_Type : ${specify["Plot_type"]}\n Address : ${specify["Address"].toString()}\n  Taluka : ${specify["Taluka"]}\n ",
+                                          version: QrVersions.auto,
+                                          size: 60,
+                                        ),
+                                      ),
+                                    ),
+                                    actions: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(12.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            GestureDetector(
+                                              child: Text(
+                                                "Close",
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: kMaroon),
+                                              ),
+                                              onTap: () {
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  );
+                                });
+                          },
                         ),
                         GestureDetector(
                           onTap: () {
@@ -429,7 +465,6 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
 
   @override
   void initState() {
-    // TODO: implement initState
     getMarkerData();
     super.initState();
   }

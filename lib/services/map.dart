@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -10,6 +11,7 @@ import 'package:consumer_checkin/services/auth.dart';
 import 'package:consumer_checkin/services/db_firestore.dart';
 import 'package:consumer_checkin/services/google_sheets.dart';
 import 'package:consumer_checkin/services/searchBy.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +22,7 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:path/path.dart' as path;
+import 'package:provider/provider.dart';
 
 
 class MapApp extends StatefulWidget {
@@ -30,6 +33,10 @@ class MapApp extends StatefulWidget {
   @override
   _MapAppState createState() => _MapAppState();
 }
+
+var numberExists;
+var nicNumExists;
+var emailExists;
 
 class _MapAppState extends State<MapApp> {
   String consumerID = "";
@@ -51,19 +58,18 @@ class _MapAppState extends State<MapApp> {
   String landlineCompany = "";
   String nicNumber = "";
   String taluka = "";
-  String searchid = "";
+  String searchID = "";
+  String loggedInUserName = "";
+  String loggedInUserEmail = "";
   bool isConnected = false;
   bool isLocked = false;
   late Uri url1;
-
   bool uploading = false;
-
   double val = 0;
   final List<Uri> imageList = [];
   late firebase_storage.Reference ref;
   final List<File> _image = [];
   final picker = ImagePicker();
-
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   var plotTypeDropDown = ["Domestic", "Commercial"];
   final List<String> _talukaList = [
@@ -73,15 +79,9 @@ class _MapAppState extends State<MapApp> {
     "Hyderabad City Taluka"
   ];
   final List<String> _unitNumList = ["Unit # 1", "Unit # 2", "Unit # 3", "Unit # 4", "Unit # 5", "Unit # 6", "Unit # 7", "Unit # 8", "Unit # 9", "Unit # 10", "Unit # 11", "Unit # 12", ];
-  final List<String> _zoneList = ["5", "6"];
-  final List<String> _wardList = ["1", "2", "3", "4", "5", "6", "7"];
-  final List<String> _ucNumList = [
-    "UC # 1",
-    "UC # 2",
-    "UC # 3",
-    "UC # 4",
-    "UC # 5",
-    "UC # 6",
+  final List<String> _zoneList = ["01", "02", "03", "04", "05", "06", "07",];
+  final List<String> _wardList = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10",];
+  final List<String> _ucNumList = ["UC # 1", "UC # 2", "UC # 3", "UC # 4", "UC # 5", "UC # 6", "UC # 7", "UC # 8", "UC # 9", "UC # 10", "UC # 11", "UC # 12", "UC # 13", "UC # 14",
   ];
   final DatabaseService _db = DatabaseService();
   final AuthService _auth = AuthService();
@@ -136,7 +136,7 @@ class _MapAppState extends State<MapApp> {
   }
 
   openCamera() async {
-    dynamic pickedFile = await picker.getImage(
+    dynamic pickedFile = await picker.pickImage(
         source: ImageSource.camera,
         maxHeight: 480,
         maxWidth: 640,
@@ -179,7 +179,6 @@ class _MapAppState extends State<MapApp> {
         });
       });
     }
-    //print(":::::::::::::::::::::::::::::::" + imageList[0].toString());
   }
 
   void _takePhoto(String name) async {
@@ -198,7 +197,7 @@ class _MapAppState extends State<MapApp> {
           });
           String dir = (await getApplicationDocumentsDirectory()).path;
           String newPath = path.join(dir, '$name.jpg');
-          File fa = await File(recordedImage!.path).copy(newPath);
+          File fa = await File(recordedImage.path).copy(newPath);
           GallerySaver.saveImage(fa.path, albumName: "Intrapreneur")
               .then((path) {
             setState(() {
@@ -211,10 +210,10 @@ class _MapAppState extends State<MapApp> {
   }
 
 
-  var nummberFormatter = MaskTextInputFormatter(
+  var numberFormatter = MaskTextInputFormatter(
       mask: '####-#######', filter: {"#": RegExp(r'[0-9]')});
 
-  var nicmnumberFormatter = MaskTextInputFormatter(
+  var nicNumberFormatter = MaskTextInputFormatter(
       mask: '#####-#######-#', filter: {"#": RegExp(r'[0-9]')});
 
   var blockFormatter = MaskTextInputFormatter(
@@ -387,7 +386,7 @@ class _MapAppState extends State<MapApp> {
                               ),
                               TextFormField(
                                 controller: _mobileNumberTextController,
-                                inputFormatters: [nummberFormatter],
+                                inputFormatters: [numberFormatter],
                                 keyboardType: TextInputType.number,
                                 decoration: const InputDecoration(
                                   labelText: 'Mobile Number',
@@ -411,10 +410,10 @@ class _MapAppState extends State<MapApp> {
                               ),
                               TextFormField(
                                 controller: _nicNumberTextController,
-                                inputFormatters: [nicmnumberFormatter],
+                                inputFormatters: [nicNumberFormatter],
                                 keyboardType: TextInputType.number,
                                 decoration: const InputDecoration(
-                                  labelText: 'NIC Number',
+                                  labelText: 'CNIC Number',
                                   suffixText: '*',
                                   suffixStyle: TextStyle(
                                     color: Colors.red,
@@ -425,9 +424,9 @@ class _MapAppState extends State<MapApp> {
                                 }),
                                 validator: (String? val) {
                                   if (val == null || val.trim().length == 0) {
-                                    return "Consumer Nic_Number is mandatory";
+                                    return "Consumer CNIC Number is mandatory";
                                   } else if (val.length < 12) {
-                                    return "Consumer Nic_Number is Invalid";
+                                    return "Consumer CNIC_Number is Invalid";
                                   } else {
                                     return null;
                                   }
@@ -500,7 +499,7 @@ class _MapAppState extends State<MapApp> {
                                   ),
                                   items: _ucNumList.map((ucNum) {
                                     return DropdownMenuItem(
-                                      child: new Text(ucNum),
+                                      child: Text(ucNum),
                                       value: ucNum,
                                     );
                                   }).toList(),
@@ -691,39 +690,132 @@ class _MapAppState extends State<MapApp> {
                     GestureDetector(
                       onTap: () async {
                         if (_formKey.currentState!.validate()) {
-                          address = "";
-                          address += "House # " +
-                              houseNum.toString() +
-                              " " +
-                              unitNum.toString() +
-                              " block " +
-                              block.toString() +
-                              " " +
-                              area.toString();
 
-                          if (!isConnected) {
-                            _takePhoto(consumerID);
-                            // If network detected is found to be false, the the consumer records are stored in SQLite db using the method below
-                            DBProvider.db.insertConsumerEntryOffline(
-                              consumerId: consumerID,
+                          //Checking whether mobile number, Cnic, or email already exists in database, if it does, we just show an alert dialog
+                          numberExists = await _db.doesNumberAlreadyExist(number);
+                          nicNumExists = await _db.doesNicNumberAlreadyExist(nicNumber);
+                          emailExists = await _db.doesEmailAlreadyExist(email);
+                          if (numberExists || nicNumExists || emailExists) {
+                            showDialog(context: context, builder: (context) {
+                              return AlertDialog(
+                                content: const Text("This data already exists"),
+                                actions: [
+                                  GestureDetector(
+                                      child: Text("Close", style: TextStyle(color: kMaroon, fontWeight: FontWeight.bold)),
+                                    onTap: () {Navigator.pop(context);},
+                                  )
+                                ],
+                              );
+                            });
+                          }
+                          else {
+                            address = "";
+                            address += "House # " +
+                                houseNum.toString() +
+                                " " +
+                                unitNum.toString() +
+                                " block " +
+                                block.toString() +
+                                " " +
+                                area.toString();
+
+                            if (!isConnected) {
+                              _takePhoto(consumerID);
+                              // If network detected is found to be false, the the consumer records are stored in SQLite db using the method below
+                              DBProvider.db.insertConsumerEntryOffline(
+                                  consumerId: consumerID,
+                                  plotType: plotType,
+                                  name: name,
+                                  number: number,
+                                  email: email,
+                                  cnic: nicNumber,
+                                  taluka: taluka,
+                                  ucNum: uc,
+                                  zone: zone,
+                                  wardNumber: ward,
+                                  area: area,
+                                  houseNum: houseNum,
+                                  block: block,
+                                  unitNum: unitNum,
+                                  address: address,
+                                  newAddress: newAddress,
+                                  gasCompany: gasCompany,
+                                  electricCompany: electricCompany,
+                                  landlineCompany: landlineCompany
+                              );
+                              showDialog(
+                                  barrierDismissible: false,
+                                  context: context,
+                                  builder: (context) {
+                                    Future.delayed(
+                                        const Duration(milliseconds: 1500), () {
+                                      Navigator.of(context).pop(true);
+                                    });
+                                    return const AlertDialog(
+                                      title: Text('Data Inserted'),
+                                    );
+                                  });
+                            }
+                            if (isConnected) {
+                              final consumer = {
+                                ConsumerFields.plotType: plotType,
+                                ConsumerFields.id: consumerID,
+                                ConsumerFields.name: name,
+                                ConsumerFields.number: number,
+                                ConsumerFields.cnicNum: nicNumber,
+                                ConsumerFields.email: email,
+                                ConsumerFields.taluka: taluka,
+                                ConsumerFields.ucNum: uc,
+                                ConsumerFields.zoneNum: zone,
+                                ConsumerFields.wardNum: ward,
+                                ConsumerFields.area: area,
+                                ConsumerFields.unitNum: unitNum,
+                                ConsumerFields.block: block,
+                                ConsumerFields.houseNum: houseNum,
+                                ConsumerFields.address: address,
+                                ConsumerFields.newAddress: newAddress,
+                                ConsumerFields.gasCompanyId: gasCompany,
+                                ConsumerFields
+                                    .electricCompanyId: electricCompany,
+                                ConsumerFields
+                                    .landlineCompanyId: landlineCompany,
+                                ConsumerFields.dateTime: json.encode(DateTime.now().toIso8601String()) ,
+                              };
+                              showDialog(context: context,
+                                  builder: (BuildContext context) {
+                                    return const Center(
+                                        child: CircularProgressIndicator());
+                                  });
+                              await uploadFile();
+                              Navigator.pop(context);
+                              await ConsumerSheetsAPI.insert([consumer]);
+                            }
+                            // Along storing the data to sqlite, we also insert to Firebase, the data will be stored in firebase cache, and when network status changes, the offline data is synced with firebase
+                            _db.addConsumerEntry(
                               plotType: plotType,
+                              consumerID: consumerID,
                               name: name,
                               number: number,
                               email: email,
-                              cnic: nicNumber,
                               taluka: taluka,
-                              ucNum: uc,
+                              uc: uc,
                               zone: zone,
-                              wardNumber: ward,
-                              area: area,
-                              houseNum: houseNum,
+                              ward: ward,
                               block: block,
                               unitNum: unitNum,
+                              area: area,
+                              houseNum: houseNum,
+                              nicNum: nicNumber,
                               address: address,
-                              newAddress: newAddress,
                               gasCompany: gasCompany,
                               electricCompany: electricCompany,
-                              landlineCompany: landlineCompany
+                              landlineCompany: landlineCompany,
+                              location: GeoPoint(widget.lat, widget.lan),
+                              url: imageList.isNotEmpty ? imageList[0]
+                                  .toString() : "",
+                                loggedInEmail: loggedInUserEmail,
+                                loggedInUser: loggedInUserName,
+                              dateTime: json.encode(DateTime.now().toIso8601String())
                             );
                             showDialog(
                                 barrierDismissible: false,
@@ -737,81 +829,16 @@ class _MapAppState extends State<MapApp> {
                                     title: Text('Data Inserted'),
                                   );
                                 });
+                            if (!isLocked) {
+                              clearForm();
+                              //imageList.clear();
+                            } else {
+                              clearFormLocked();
+                              _formKey.currentState!.reset();
+                              //imageList.clear();
+                            }
+                            _markers.clear();
                           }
-                          if (isConnected) {
-                            final consumer = {
-                              ConsumerFields.plotType: plotType,
-                              ConsumerFields.id: consumerID,
-                              ConsumerFields.name: name,
-                              ConsumerFields.number: number,
-                              ConsumerFields.cnicNum: nicNumber,
-                              ConsumerFields.email: email,
-                              ConsumerFields.taluka: taluka,
-                              ConsumerFields.ucNum: uc,
-                              ConsumerFields.zoneNum: zone,
-                              ConsumerFields.wardNum: ward,
-                              ConsumerFields.area: area,
-                              ConsumerFields.unitNum: unitNum,
-                              ConsumerFields.block: block,
-                              ConsumerFields.houseNum: houseNum,
-                              ConsumerFields.address: address,
-                              ConsumerFields.newAddress: newAddress,
-                              ConsumerFields.gasCompanyId: gasCompany,
-                              ConsumerFields.electricCompanyId: electricCompany,
-                              ConsumerFields.landlineCompanyId: landlineCompany
-                            };
-                            showDialog(context: context, builder: (BuildContext context) {
-                              return const Center(child: CircularProgressIndicator());
-                            });
-                            await uploadFile();
-                            Navigator.pop(context);
-                            await ConsumerSheetsAPI.insert([consumer]);
-                          }
-                          // Along storing the data to sqlite, we also insert to Firebase, the data will be stored in firebase cache, and when network status changes, the offline data is synced with firebase
-                          _db.addConsumerEntry(
-                            plotType: plotType,
-                            consumerID: consumerID,
-                            name: name,
-                            number: number,
-                            email: email,
-                            taluka: taluka,
-                            uc: uc,
-                            zone: zone,
-                            ward: ward,
-                            block: block,
-                            unitNum: unitNum,
-                            area: area,
-                            houseNum: houseNum,
-                            nicNum: nicNumber,
-                            address: address,
-                            newAddress: newAddress,
-                            gasCompany: gasCompany,
-                            electricCompany: electricCompany,
-                            landlineCompany: landlineCompany,
-                            location: GeoPoint(widget.lat, widget.lan),
-                            url: imageList.isNotEmpty ? imageList[0].toString() : "",
-                          );
-                          showDialog(
-                              barrierDismissible: false,
-                              context: context,
-                              builder: (context) {
-                                Future.delayed(
-                                    const Duration(milliseconds: 1500), () {
-                                  Navigator.of(context).pop(true);
-                                });
-                                return const AlertDialog(
-                                  title: Text('Data Inserted'),
-                                );
-                              });
-                          if (!isLocked) {
-                            clearForm();
-                            //imageList.clear();
-                          } else {
-                            clearFormLocked();
-                            _formKey.currentState!.reset();
-                            //imageList.clear();
-                          }
-                          _markers.clear();
                         }
                       },
                       child: Text(
@@ -930,22 +957,6 @@ class _MapAppState extends State<MapApp> {
     });
   }
 
-/*  void _onAddMarkerButtonPressed() {
-    setState(() {
-      _markers.add(Marker(
-        // This marker id can be anything that uniquely identifies each marker.
-        markerId: MarkerId(LatLng(widget.lat, widget.lan).toString()),
-        position: LatLng(widget.lat, widget.lan),
-
-        onTap: () {
-          _showAlertDialog();
-        },
-
-        icon: BitmapDescriptor.defaultMarker,
-      ));
-    });
-  }*/
-
   void _onCameraMove(CameraPosition position) {}
 
   void _onMapCreated(GoogleMapController controller) {
@@ -970,6 +981,15 @@ class _MapAppState extends State<MapApp> {
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
   @override
   Widget build(BuildContext context) {
+
+    final user = Provider.of<User?>(context);
+    FirebaseFirestore.instance.collection("users").doc(user!.uid).get().then((value) {
+      setState(() {
+        loggedInUserName = value["userName"];
+        loggedInUserEmail = value["Email"];
+      });
+    });
+
     return MaterialApp(
       home: SafeArea(
         child: Scaffold(
@@ -979,47 +999,14 @@ class _MapAppState extends State<MapApp> {
               // Important: Remove any padding from the ListView.
               padding: EdgeInsets.zero,
               children: [
-                DrawerHeader(
+                UserAccountsDrawerHeader(
+                  accountName: Text(loggedInUserName),
+                  accountEmail: Text(loggedInUserEmail),
+                  currentAccountPicture: const CircleAvatar(
+                    backgroundImage: AssetImage("assets/Wasa-Logo1.png"),
+                  ),
                   decoration: const BoxDecoration(
                     color: Color(0xffb11118),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                          child: Container(
-                            margin: const EdgeInsets.only(right: 20),
-                            decoration: const BoxDecoration(
-                                image: DecorationImage(
-                                    image: AssetImage("assets/logo.png"),
-                                    fit: BoxFit.scaleDown
-                                )
-                            ),
-                            height: MediaQuery.of(context).size.height * 0.15, width: MediaQuery.of(context).size.width * 0.20,)),
-                      // const SizedBox(width: 20,),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Text(
-                              "CONSUMER",
-                              style: TextStyle(
-                                  letterSpacing: 3,
-                                  color: Colors.black54,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                  fontFamily: "Montserrat"
-                              )),
-                          Text(
-                              "CHECKIN",
-                              style: TextStyle(
-                                  letterSpacing: 8,
-                                  color: Colors.amber,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                  fontFamily: "Montserrat"
-                              )),
-                        ],
-                      ),
-                    ],
                   ),
                 ),
                 ListTile(
@@ -1047,29 +1034,89 @@ class _MapAppState extends State<MapApp> {
                                 children: [
                                   Padding(
                                     padding: const EdgeInsets.symmetric(vertical: 12.0),
-                                    child: TextFormField(
-                                        decoration: InputDecoration(
-                                          labelText: 'Search by Consumer ID',
-                                          // border: const OutlineInputBorder(),
-                                          suffixIcon: GestureDetector(
-                                            onTap: () {
-                                              Navigator.push(context,
-                                                  MaterialPageRoute(
-                                                      builder: (context) {
-                                                        return retriveeMarkersBySearch(
-                                                          name: "ConsumerID",
-                                                          searchid: searchid,
-                                                        );
-                                                      }));
-                                            },
-                                            child: const Icon(
-                                                Icons.search
-                                            ),
-                                          )
-                                        ),
-                                        onChanged: (val) => setState(() {
-                                          searchid = val;
-                                        })
+                                    child: Row(
+                                      children: [
+                                        TextFormField(
+                                            decoration: InputDecoration(
+                                                labelText:
+                                                'Search by Consumer ID',
+                                                // border: const OutlineInputBorder(),
+                                                suffixIcon: GestureDetector(
+                                                  onTap: () {
+                                                    if (searchID.isNotEmpty) {
+                                                      Navigator.push(context,
+                                                          MaterialPageRoute(
+                                                              builder:
+                                                                  (context) {
+                                                                return retriveeMarkersBySearch(
+                                                                  name: "ConsumerID",
+                                                                  searchid: searchID,
+                                                                );
+                                                              }));
+                                                    }
+                                                  },
+                                                  child:
+                                                  const Icon(Icons.search),
+                                                )),
+                                            onChanged: (val) => setState(() {
+                                              searchID = val;
+                                            })),
+                                        TextFormField(
+                                            keyboardType: TextInputType.number,
+                                            inputFormatters: [
+                                              nicNumberFormatter
+                                            ],
+                                            decoration: InputDecoration(
+                                                labelText: 'Search by CNIC',
+                                                // border: const OutlineInputBorder(),
+                                                suffixIcon: GestureDetector(
+                                                  onTap: () {
+                                                    if (nicNumber.isNotEmpty) {
+                                                      Navigator.push(context,
+                                                          MaterialPageRoute(
+                                                              builder:
+                                                                  (context) {
+                                                                return retriveeMarkersBySearch(
+                                                                  name: "NicNumber",
+                                                                  searchid: nicNumber,
+                                                                );
+                                                              }));
+                                                    }
+                                                  },
+                                                  child:
+                                                  const Icon(Icons.search),
+                                                )),
+                                            onChanged: (val) => setState(() {
+                                              nicNumber = val;
+                                            })),
+                                        TextFormField(
+                                            keyboardType: TextInputType.number,
+                                            inputFormatters: [numberFormatter],
+                                            decoration: InputDecoration(
+                                                labelText:
+                                                'Search by Mobile Number',
+                                                // border: const OutlineInputBorder(),
+                                                suffixIcon: GestureDetector(
+                                                  onTap: () {
+                                                    if (number.isNotEmpty) {
+                                                      Navigator.push(context,
+                                                          MaterialPageRoute(
+                                                              builder:
+                                                                  (context) {
+                                                                return retriveeMarkersBySearch(
+                                                                  name: "Number",
+                                                                  searchid: number,
+                                                                );
+                                                              }));
+                                                    }
+                                                  },
+                                                  child:
+                                                  const Icon(Icons.search),
+                                                )),
+                                            onChanged: (val) => setState(() {
+                                              number = val;
+                                            })),
+                                      ],
                                     ),
                                   ),
                                   Padding(
@@ -1339,17 +1386,6 @@ class _MapAppState extends State<MapApp> {
                         child: const Icon(Icons.map, size: 36.0),
                       ),
                       const SizedBox(height: 16.0),
-                  /*    FloatingActionButton(
-                        heroTag: "btn2",
-                        onPressed: _onAddMarkerButtonPressed,
-                        materialTapTargetSize: MaterialTapTargetSize.padded,
-                        backgroundColor: const Color(0xffb11118),
-                        child: const Icon(
-                          Icons.add_location,
-                          size: 36.0,
-                        ),
-                      ),
-                      const SizedBox(height: 16.0),*/
                       FloatingActionButton(
                         heroTag: "btn3",
                         onPressed: _goToTheLake,

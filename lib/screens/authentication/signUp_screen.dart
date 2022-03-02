@@ -38,6 +38,10 @@ class _SignUpState extends State<SignUp> {
               color: Colors.black
           ),),
         centerTitle: true,
+        leading: GestureDetector(
+            child: const Icon(Icons.arrow_back, color: Colors.black),
+          onTap: widget.toggleView,
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -45,8 +49,8 @@ class _SignUpState extends State<SignUp> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 20.0),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 20.0),
                 child: Logo(),
               ),
               Form(
@@ -62,8 +66,29 @@ class _SignUpState extends State<SignUp> {
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
+                              hintText: "Enter your user name",
+                              prefixIcon: const Icon(Icons.person_outline_outlined)
+                          ),
+                          onChanged: (val) => setState(() {_userName = val;}),
+                          validator: (String? val) {
+                            if(val == null || val.trim().length == 0) {
+                              return "Please enter a valid user name";
+                            }
+                            else {
+                              return null;
+                            }
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 20.0),
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                               hintText: "Enter your Email",
-                              prefixIcon: Icon(Icons.email_outlined)
+                              prefixIcon: const Icon(Icons.email_outlined)
                           ),
                           onChanged: (val) => setState(() {_email = val;}),
                           validator: (String? val) {
@@ -121,25 +146,25 @@ class _SignUpState extends State<SignUp> {
                                 borderRadius: BorderRadius.circular(8),
                                 color: kMaroon
                             ),
-                            child: Center(child: Text("Register", style: TextStyle(color: Colors.black),)),
+                            child: const Center(child: Text("Register", style: TextStyle(color: Colors.black),)),
                           ),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 20.0),
-                        child: GestureDetector(
-                          onTap: widget.toggleView,
-                          child: Container(
-                            height: 50,
-                            width: MediaQuery.of(context).size.width * 0.70,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: kYellow,
-                            ),
-                            child: Center(child: Text("Return to Sign in", style: TextStyle(color: Colors.black),)),
-                          ),
-                        ),
-                      ),
+                      // Padding(
+                      //   padding: const EdgeInsets.only(top: 20.0),
+                      //   child: GestureDetector(
+                      //     onTap: widget.toggleView,
+                      //     child: Container(
+                      //       height: 50,
+                      //       width: MediaQuery.of(context).size.width * 0.70,
+                      //       decoration: BoxDecoration(
+                      //         borderRadius: BorderRadius.circular(8),
+                      //         color: kYellow,
+                      //       ),
+                      //       child: Center(child: Text("Return to Sign in", style: TextStyle(color: Colors.black),)),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),

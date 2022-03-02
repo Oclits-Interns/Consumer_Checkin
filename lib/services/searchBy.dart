@@ -3,6 +3,7 @@ import 'package:consumer_checkin/constant/colors_constant.dart';
 import 'package:consumer_checkin/screens/retrieve_locations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class retriveeMarkersBySearch extends StatefulWidget {
   retriveeMarkersBySearch({required this.searchid, required this.name});
@@ -99,17 +100,6 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                       child: Form(
                                         child: Column(
                                           children: <Widget>[
-                                            TextFormField(
-                                              controller: TextEditingController(
-                                                  text: specify["ConsumerID"]
-                                                      .toString()),
-                                              onChanged: (val) => setState(() {
-                                                consumerID = val;
-                                              }),
-                                              decoration: const InputDecoration(
-                                                labelText: 'EnterConsumerID',
-                                              ),
-                                            ),
                                             TextFormField(
                                                 controller:
                                                 TextEditingController(
@@ -231,8 +221,6 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                                                     .doc(
                                                                     specifyId)
                                                                     .update({
-                                                                  "ConsumerID":
-                                                                  consumerID,
                                                                   "Name":
                                                                   name,
                                                                   "Number":
@@ -273,6 +261,54 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, color: kMaroon),
                           ),
+                        ),
+                        GestureDetector(
+                          child: Text("Show Qr"),
+                          onTap: () {
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    // backgroundColor: Colors.red,
+                                    scrollable: true,
+                                    title: const Text('Consumer Check-In'),
+                                    content: Expanded(
+                                      child: Container(
+                                        width: 80,
+                                        height: 800,
+                                        child: QrImage(
+                                          data:
+                                          "Consumer_ID : ${specify["ConsumerID"].toString()}\n  Name : ${specify["Name"]}\n Email : ${specify["ConsumerID"].toString()}\n  Number : ${specify["Number"]}\n CNIC_Number : ${specify["NicNumber"].toString()}\n  Plot_Type : ${specify["Plot_type"]}\n Address : ${specify["Address"].toString()}\n  Taluka : ${specify["Taluka"]}\n ",
+                                          version: QrVersions.auto,
+                                          size: 60,
+                                        ),
+                                      ),
+                                    ),
+                                    actions: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(12.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            GestureDetector(
+                                              child: Text(
+                                                "Close",
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: kMaroon),
+                                              ),
+                                              onTap: () {
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  );
+                                });
+                          },
                         ),
                         GestureDetector(
                           onTap: () {
@@ -356,25 +392,6 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
     });
   }
 
-  // getmarkerdata() async {
-  //   FirebaseFirestore.instance
-  //       .collection('Consumers')
-  //       .where("ConsumerID", isEqualTo: widget.searchid)
-  //       .snapshots(); {
-  //     if (myMocDoc.docs.isNotEmpty) {
-  //       for (int a = 0; a < myMocDoc.docs.length; a++) {
-  //         initMarker(myMocDoc.docs[a].data(), myMocDoc.docs[a].id);
-  //       }
-  //     }
-  //   });
-  //   // var markers = FirebaseFirestore.instance
-  //   //     .collection("Consumers")
-  //   //     .where("ConsumerID", isEqualTo: widget.searchid)
-  //   //     .snapshots();
-  //   // print(widget.searchid);
-  //   // print(markers);
-  // }
-
   getmarkerdata() async {
     FirebaseFirestore.instance
         .collection('Consumers')
@@ -386,28 +403,30 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
           initMarker(myMocDoc.docs[a].data(), myMocDoc.docs[a].id);
         }
       }
+      else {
+        showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (context) {
+              Future.delayed(const Duration(milliseconds: 1500), () {
+                Navigator.of(context).pop(true);
+              });
+              return const AlertDialog(
+                title: Text('No such data'),
+              );
+            });
+      }
     });
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     getmarkerdata();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    Set<Marker> getMarkers() {
-      return <Marker>[
-        const Marker(
-          markerId: MarkerId("Shop"),
-          position: LatLng(21.1458, 97.2882),
-          icon: BitmapDescriptor.defaultMarker,
-          infoWindow: InfoWindow(title: "home"),
-        )
-      ].toSet();
-    }
 
     return Scaffold(
         body: GoogleMap(

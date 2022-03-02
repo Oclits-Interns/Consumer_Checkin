@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:consumer_checkin/constant/colors_constant.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
 class retriveMarkers extends StatefulWidget {
   @override
@@ -48,28 +46,20 @@ class _retriveMarkersState extends State<retriveMarkers> {
                               specify["ConsumerID"].toString()),
                           SizedBox(height: 5),
                           Text("Name : " + specify["Name"]),
-                          SizedBox(height: 5),
                           Text("Id : " + specifyId),
                           SizedBox(height: 5),
                           Text("Email : " + specify["Email"]),
                           SizedBox(height: 5),
                           Text("Number : " + specify["Number"].toString()),
                           SizedBox(height: 5),
-                          Text("Nic Number : " +
-                              specify["NicNumber"].toString()),
-                          SizedBox(height: 5),
-                          Text("Plot Type : " + specify["Plot_type"].toString()),
-                          SizedBox(height: 5),
-                          Text("Taluka : " + specify["Taluka"].toString()),
                           SizedBox(height: 5),
                           Text("Address : " + specify["Address"]),
-                          SizedBox(height: 5),
-                          Text("Electric Company : " +
+                          Text("Electric_Company : " +
                               specify["ElectricCompany"]),
                           SizedBox(height: 5),
-                          Text("Gas Company : " + specify["GasCompany"]),
+                          Text("Gas_Company : " + specify["GasCompany"]),
                           SizedBox(height: 5),
-                          Text("Landline Company : " +
+                          Text("Landline_Company : " +
                               specify["LandlineCompany"]),
                         ],
                       ),
@@ -95,10 +85,21 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                         child: Column(
                                           children: <Widget>[
                                             TextFormField(
+                                              controller: TextEditingController(
+                                                  text: specify["ConsumerID"]
+                                                      .toString()),
+                                              onChanged: (val) => setState(() {
+                                                consumerID = int.parse(val);
+                                              }),
+                                              decoration: InputDecoration(
+                                                labelText: 'EnterConsumerID',
+                                              ),
+                                            ),
+                                            TextFormField(
                                                 controller:
                                                     TextEditingController(
                                                         text: specify["Name"]),
-                                                decoration: const InputDecoration(
+                                                decoration: InputDecoration(
                                                   labelText: 'Enter Name',
                                                 ),
                                                 onChanged: (val) =>
@@ -110,7 +111,7 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                                     TextEditingController(
                                                         text:
                                                             specify["Number"]),
-                                                decoration: const InputDecoration(
+                                                decoration: InputDecoration(
                                                   labelText: 'Enter Number',
                                                 ),
                                                 onChanged: (val) =>
@@ -121,7 +122,7 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                                 controller:
                                                     TextEditingController(
                                                         text: specify["Email"]),
-                                                decoration: const InputDecoration(
+                                                decoration: InputDecoration(
                                                   labelText: 'Enter Email',
                                                 ),
                                                 onChanged: (val) =>
@@ -133,7 +134,7 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                                     TextEditingController(
                                                         text:
                                                             specify["Address"]),
-                                                decoration: const InputDecoration(
+                                                decoration: InputDecoration(
                                                   labelText: 'Enter Address',
                                                 ),
                                                 onChanged: (val) =>
@@ -145,7 +146,7 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                                     TextEditingController(
                                                         text: specify[
                                                             "ElectricCompany"]),
-                                                decoration: const InputDecoration(
+                                                decoration: InputDecoration(
                                                   labelText:
                                                       'Enter Electric Company',
                                                 ),
@@ -158,7 +159,7 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                                     TextEditingController(
                                                         text: specify[
                                                             "GasCompany"]),
-                                                decoration: const InputDecoration(
+                                                decoration: InputDecoration(
                                                   labelText:
                                                       'Enter Gas Company',
                                                 ),
@@ -171,7 +172,7 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                                     TextEditingController(
                                                         text: specify[
                                                             "LandlineCompany"]),
-                                                decoration: const InputDecoration(
+                                                decoration: InputDecoration(
                                                   labelText:
                                                       'Enter Landline Company',
                                                 ),
@@ -191,7 +192,7 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             GestureDetector(
-                                              child: const Text(
+                                              child: Text(
                                                 "SAVE",
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.bold,
@@ -204,7 +205,7 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                                         (BuildContext context) {
                                                       return AlertDialog(
                                                         content: const Text(
-                                                            "Data edited"),
+                                                            "Edit Deleted!"),
                                                         actions: [
                                                           GestureDetector(
                                                               onTap: () {
@@ -215,6 +216,8 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                                                     .doc(
                                                                         specifyId)
                                                                     .update({
+                                                                  "ConsumerID":
+                                                                      consumerID,
                                                                   "Name": name,
                                                                   "Number":
                                                                       number,
@@ -236,7 +239,7 @@ class _retriveMarkersState extends State<retriveMarkers> {
                                                                             (context) =>
                                                                                 retriveMarkers()));
                                                               },
-                                                              child: const Text("OK"))
+                                                              child: Text("OK"))
                                                         ],
                                                       );
                                                     });
@@ -252,130 +255,47 @@ class _retriveMarkersState extends State<retriveMarkers> {
                           child: Text(
                             "Edit Data",
                             style: TextStyle(
-                                fontWeight: FontWeight.bold, color: kMaroon),
+                                fontWeight: FontWeight.bold, color: Colors.red),
                           ),
                         ),
                         GestureDetector(
-                          child: Text("Show Qr"),
                           onTap: () {
+                            FirebaseFirestore.instance
+                                .collection('Consumers')
+                                .doc(specifyId)
+                                .delete();
+
                             showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
-                                    // backgroundColor: Colors.red,
-                                    scrollable: true,
-                                    title: const Text('Consumer Check-In'),
-                                    content: Expanded(
-                                      child: Container(
-                                        width: 80,
-                                        height: 800,
-                                        child: QrImage(
-                                          data:
-                                          "Consumer_ID : ${specify["ConsumerID"].toString()}\n  Name : ${specify["Name"]}\n Email : ${specify["ConsumerID"].toString()}\n  Number : ${specify["Number"]}\n CNIC_Number : ${specify["NicNumber"].toString()}\n  Plot_Type : ${specify["Plot_type"]}\n Address : ${specify["Address"].toString()}\n  Taluka : ${specify["Taluka"]}\n ",
-                                          version: QrVersions.auto,
-                                          size: 60,
-                                        ),
-                                      ),
-                                    ),
-                                    actions: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(12.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            GestureDetector(
-                                              child: Text(
-                                                "Close",
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: kMaroon),
-                                              ),
-                                              onTap: () {
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  );
-                                });
-                          },
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    content: const Text("Are you sure you want to delete this data?"),
+                                    content: const Text("Data Deleted!"),
                                     actions: [
                                       GestureDetector(
                                           onTap: () {
-                                            FirebaseFirestore.instance
-                                                .collection('Consumers')
-                                                .doc(specifyId)
-                                                .delete();
                                             Navigator.pushReplacement(
                                                 context,
                                                 MaterialPageRoute(
                                                     builder: (context) =>
                                                         retriveMarkers()));
                                           },
-                                          child: const Text("OK"))
+                                          child: Text("OK"))
                                     ],
                                   );
                                 });
                           },
                           child: Text(
-                            "Delete Data",
+                            "Delet Data",
                             style: TextStyle(
-                                fontWeight: FontWeight.bold, color: kMaroon),
+                                fontWeight: FontWeight.bold, color: Colors.red),
                           ),
                         ),
                         GestureDetector(
-                          onTap: () {
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    // backgroundColor: Colors.red,
-                                    scrollable: true,
-                                    title: const Text('Consumer Check-In'),
-                                    content: specify["URL"] != "" ? Image.network(specify["URL"]) : const Text("There is no image associated with this consumer"),
-                                    //specify["URL"] != null ? Image.network(specify["URL"]) : const Text("There is no image associated with this consumer"),
-                                    //specify["Url"] != null ? Image.network(specify["Url"]) : const Text("No image for this consumer"),
-                                    //Image.network(specify["Url"] ?? "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/832px-No-Image-Placeholder.svg.png"),
-                                    actions: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(12.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            GestureDetector(
-                                              child: Text(
-                                                "Close",
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: kMaroon),
-                                              ),
-                                              onTap: () {
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  );
-                                });
-                          },
+                          onTap: () {},
                           child: Text(
-                            "Show Image",
+                            "Show IMAGE",
                             style: TextStyle(
-                                fontWeight: FontWeight.bold, color: kMaroon),
+                                fontWeight: FontWeight.bold, color: Colors.red),
                           ),
                         ),
                       ],
@@ -384,7 +304,7 @@ class _retriveMarkersState extends State<retriveMarkers> {
                 ],
               );
             }),
-        infoWindow: InfoWindow(title: specify["ConsumerID"], snippet: specify["Name"]));
+        infoWindow: InfoWindow(title: "oks", snippet: specify["Name"]));
     setState(() {
       markers[markerId] = marker;
     });
@@ -408,11 +328,22 @@ class _retriveMarkersState extends State<retriveMarkers> {
 
   @override
   Widget build(BuildContext context) {
+    Set<Marker> getMarkers() {
+      return <Marker>[
+        Marker(
+          markerId: MarkerId("Shop"),
+          position: LatLng(21.1458, 97.2882),
+          icon: BitmapDescriptor.defaultMarker,
+          infoWindow: InfoWindow(title: "home"),
+        )
+      ].toSet();
+    }
+
     return Scaffold(
         body: GoogleMap(
             mapType: MapType.normal,
             markers: Set<Marker>.of(markers.values),
-            initialCameraPosition: const CameraPosition(
+            initialCameraPosition: CameraPosition(
               target: LatLng(25.3960, 68.3578),
               zoom: 15.0,
             ),

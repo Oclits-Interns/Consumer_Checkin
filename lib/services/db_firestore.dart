@@ -26,7 +26,6 @@ class DatabaseService {
     required String number,
     required String email,
     required String address,
-    required String newAddress,
     required String gasCompany,
     required String electricCompany,
     required String landlineCompany,
@@ -39,6 +38,9 @@ class DatabaseService {
     required int houseNum,
     required String taluka,
     required String url,
+    required String loggedInUser,
+    required String loggedInEmail,
+    required String dateTime,
   }) async {
     try {
       return await _consumersCollection.add({
@@ -49,7 +51,6 @@ class DatabaseService {
         "Number": number,
         "Email": email,
         "Address": address,
-        "NewAddress": newAddress,
         "GasCompany": gasCompany,
         "ElectricCompany": electricCompany,
         "LandlineCompany": landlineCompany,
@@ -62,14 +63,17 @@ class DatabaseService {
         "UC": uc,
         "UnitNumber": unitNum,
         "Taluka": taluka,
-        "URL" : url
+        "URL" : url,
+        "Surveyor_Name" : loggedInUser,
+        "Surveyor_Email" : loggedInEmail,
+        "Date_Time" : dateTime
       });
     } catch (e) {
       print(e.toString());
     }
   }
 
-  Future editData({
+/*  Future editData({
   required String consumerID,
   required String zone,
   required String ward,
@@ -117,5 +121,42 @@ class DatabaseService {
     catch (e) {
       throw Exception(e.toString());
     }
+  }*/
+
+  Future<bool> doesNumberAlreadyExist(String mobNumber) async {
+    final QuerySnapshot result = await FirebaseFirestore.instance
+        .collection('Consumers')
+        .where('Number', isEqualTo: mobNumber)
+        .limit(1)
+        .get();
+    final List<DocumentSnapshot> documents = result.docs;
+    return documents.length == 1;
+  }
+
+  Future<bool> doesNicNumberAlreadyExist(String cnicNumber) async {
+    final QuerySnapshot result = await FirebaseFirestore.instance
+        .collection('Consumers')
+        .where('NicNumber', isEqualTo: cnicNumber)
+        .limit(1)
+        .get();
+    final List<DocumentSnapshot> documents = result.docs;
+    return documents.length == 1;
+  }
+
+  Future<bool> doesEmailAlreadyExist(String email) async {
+    final QuerySnapshot result = await FirebaseFirestore.instance
+        .collection('Consumers')
+        .where('Email', isEqualTo: email)
+        .limit(1)
+        .get();
+    final List<DocumentSnapshot> documents = result.docs;
+    return documents.length == 1;
+  }
+
+  Future getUserDetails(String uid) async {
+   return await userCollection.doc(uid).get().then((value) {
+     var fields = value.data();
+     return fields;
+   });
   }
 }
