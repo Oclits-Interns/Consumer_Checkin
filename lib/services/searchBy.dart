@@ -3,19 +3,20 @@ import 'package:consumer_checkin/constant/colors_constant.dart';
 import 'package:consumer_checkin/screens/retrieve_locations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-class retriveeMarkersBySearch extends StatefulWidget {
-  retriveeMarkersBySearch({required this.searchid, required this.name});
-  String searchid;
-  String name;
+class RetrieveMarkersBySearch extends StatefulWidget {
+  const RetrieveMarkersBySearch({Key? key, required this.searchID, required this.name}) : super(key: key);
+  final String searchID;
+  final String name;
 
   @override
-  _retriveeMarkersBySearchState createState() =>
-      _retriveeMarkersBySearchState();
+  _RetrieveMarkersBySearchState createState() =>
+      _RetrieveMarkersBySearchState();
 }
 
-class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
+class _RetrieveMarkersBySearchState extends State<RetrieveMarkersBySearch> {
   String consumerID = "";
   String name = "";
   String number = "";
@@ -25,6 +26,14 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
   String gasCompany = "";
   String electricCompany = "";
   String landlineCompany = "";
+  String totalEntries = "";
+  String nicNumber = "";
+
+  var numberFormatter = MaskTextInputFormatter(
+      mask: '####-#######', filter: {"#": RegExp(r'[0-9]')});
+
+  var nicNumberFormatter = MaskTextInputFormatter(
+      mask: '#####-#######-#', filter: {"#": RegExp(r'[0-9]')});
 
   late GoogleMapController controller;
 
@@ -45,40 +54,40 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                 title: const Text('Consumer Details'),
                 content: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Consumer_ID : " +
-                              specify["ConsumerID"].toString()),
-                          const SizedBox(height: 5),
-                          Text("Name : " + specify["Name"]),
-                          const SizedBox(height: 5),
-                          Text("Id : " + specifyId),
-                          const SizedBox(height: 5),
-                          Text("Email : " + specify["Email"]),
-                          const SizedBox(height: 5),
-                          Text("Number : " + specify["Number"].toString()),
-                          const SizedBox(height: 5),
-                          Text("Nic Number : " +
-                              specify["NicNumber"].toString()),
-                          const SizedBox(height: 5),
-                          Text("Plot Type : " + specify["Plot_type"].toString()),
-                          const SizedBox(height: 5),
-                          Text("Taluka : " + specify["Taluka"].toString()),
-                          const SizedBox(height: 5),
-                          Text("Address : " + specify["Address"]),
-                          const SizedBox(height: 5),
-                          Text("Electric Company : " +
-                              specify["ElectricCompany"]),
-                          const SizedBox(height: 5),
-                          Text("Gas Company : " + specify["GasCompany"]),
-                          const SizedBox(height: 5),
-                          Text("Landline Company : " +
-                              specify["LandlineCompany"]),
-                        ],
-                      ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Total Entries : " + totalEntries),
+                        const SizedBox(height: 5),
+                        Text("Consumer_ID : " +
+                            specify["ConsumerID"].toString()),
+                        const SizedBox(height: 5),
+                        Text("Name : " + specify["Name"]),
+                        const SizedBox(height: 5),
+                        Text("Id : " + specifyId),
+                        const SizedBox(height: 5),
+                        Text("Email : " + specify["Email"]),
+                        const SizedBox(height: 5),
+                        Text("Number : " + specify["Number"].toString()),
+                        const SizedBox(height: 5),
+                        Text("Nic Number : " +
+                            specify["NicNumber"].toString()),
+                        const SizedBox(height: 5),
+                        Text("Plot Type : " + specify["Plot_type"].toString()),
+                        const SizedBox(height: 5),
+                        Text("Taluka : " + specify["Taluka"].toString()),
+                        const SizedBox(height: 5),
+                        Text("Address : " + specify["Address"]),
+                        const SizedBox(height: 5),
+                        Text("Electric Company : " +
+                            specify["ElectricCompany"]),
+                        const SizedBox(height: 5),
+                        Text("Gas Company : " + specify["GasCompany"]),
+                        const SizedBox(height: 5),
+                        Text("Landline Company : " +
+                            specify["LandlineCompany"]),
+                      ],
                     )),
                 actions: [
                   Padding(
@@ -112,17 +121,55 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                                       name = val;
                                                     })),
                                             TextFormField(
-                                                controller:
-                                                TextEditingController(
-                                                    text:
-                                                    specify["Number"]),
-                                                decoration: const InputDecoration(
-                                                  labelText: 'Enter Number',
-                                                ),
-                                                onChanged: (val) =>
-                                                    setState(() {
-                                                      number = val;
-                                                    })),
+                                              controller: TextEditingController(
+                                                  text: specify["Number"]),
+                                              inputFormatters: [
+                                                numberFormatter
+                                              ],
+                                              keyboardType:
+                                              TextInputType.number,
+                                              decoration: const InputDecoration(
+                                                labelText: 'Mobile Number',
+                                              ),
+                                              onChanged: (val) => setState(() {
+                                                number = val;
+                                              }),
+                                              validator: (String? val) {
+                                                if (val == null ||
+                                                    val.trim().isEmpty) {
+                                                  return "Consumer Number is mandatory";
+                                                } else if (val.length < 12) {
+                                                  return "Consumer Number is Invalid";
+                                                } else {
+                                                  return null;
+                                                }
+                                              },
+                                            ),
+                                            TextFormField(
+                                              controller: TextEditingController(
+                                                  text: specify["NicNumber"]),
+                                              inputFormatters: [
+                                                nicNumberFormatter
+                                              ],
+                                              keyboardType:
+                                              TextInputType.number,
+                                              decoration: const InputDecoration(
+                                                labelText: 'NIC Number',
+                                              ),
+                                              onChanged: (val) => setState(() {
+                                                nicNumber = val;
+                                              }),
+                                              validator: (String? val) {
+                                                if (val == null ||
+                                                    val.trim().isEmpty) {
+                                                  return "Consumer Nic_Number is mandatory";
+                                                } else if (val.length < 12) {
+                                                  return "Consumer Nic_Number is Invalid";
+                                                } else {
+                                                  return null;
+                                                }
+                                              },
+                                            ),
                                             TextFormField(
                                                 controller:
                                                 TextEditingController(
@@ -151,7 +198,8 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                                 TextEditingController(
                                                     text: specify[
                                                     "ElectricCompany"]),
-                                                decoration: const InputDecoration(
+                                                decoration:
+                                                const InputDecoration(
                                                   labelText:
                                                   'Enter Electric Company',
                                                 ),
@@ -164,7 +212,8 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                                 TextEditingController(
                                                     text: specify[
                                                     "GasCompany"]),
-                                                decoration: const InputDecoration(
+                                                decoration:
+                                                const InputDecoration(
                                                   labelText:
                                                   'Enter Gas Company',
                                                 ),
@@ -177,7 +226,8 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                                 TextEditingController(
                                                     text: specify[
                                                     "LandlineCompany"]),
-                                                decoration: const InputDecoration(
+                                                decoration:
+                                                const InputDecoration(
                                                   labelText:
                                                   'Enter Landline Company',
                                                 ),
@@ -197,11 +247,22 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                           MainAxisAlignment.spaceBetween,
                                           children: [
                                             GestureDetector(
-                                              child: const Text(
-                                                "SAVE",
-                                                style: const TextStyle(
+                                                onTap: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Text(
+                                                  "Close",
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                      FontWeight.bold,
+                                                      color: kMaroon),
+                                                )),
+                                            GestureDetector(
+                                              child: Text(
+                                                "Save",
+                                                style: TextStyle(
                                                     fontWeight: FontWeight.bold,
-                                                    color: Colors.black),
+                                                    color: kMaroon),
                                               ),
                                               onTap: () {
                                                 showDialog(
@@ -210,7 +271,7 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                                         (BuildContext context) {
                                                       return AlertDialog(
                                                         content: const Text(
-                                                            "Edit Deleted!"),
+                                                            "Data Updated"),
                                                         actions: [
                                                           GestureDetector(
                                                               onTap: () {
@@ -221,29 +282,51 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                                                     .doc(
                                                                     specifyId)
                                                                     .update({
-                                                                  "Name":
-                                                                  name,
-                                                                  "Number":
-                                                                  number,
-                                                                  "Email":
-                                                                  email,
-                                                                  "Address":
-                                                                  address,
-                                                                  "GasCompany":
-                                                                  gasCompany,
-                                                                  "ElectricCompany":
-                                                                  electricCompany,
-                                                                  "LandlineCompany":
-                                                                  landlineCompany,
+                                                                  "Name": name ==
+                                                                      ""
+                                                                      ? specify[
+                                                                  "Name"]
+                                                                      : name,
+                                                                  "Number": number ==
+                                                                      ""
+                                                                      ? specify[
+                                                                  "Number"]
+                                                                      : number,
+                                                                  "NicNumber": nicNumber ==
+                                                                      ""
+                                                                      ? specify[
+                                                                  "NicNumber"]
+                                                                      : nicNumber,
+                                                                  "Email": email ==
+                                                                      ""
+                                                                      ? specify[
+                                                                  "Email"]
+                                                                      : email,
+                                                                  "Address": address ==
+                                                                      ""
+                                                                      ? specify[
+                                                                  "Address"]
+                                                                      : address,
+                                                                  "GasCompany": gasCompany ==
+                                                                      ""
+                                                                      ? specify[
+                                                                  "GasCompany"]
+                                                                      : gasCompany,
+                                                                  "ElectricCompany": electricCompany ==
+                                                                      ""
+                                                                      ? specify[
+                                                                  "ElectricCompany"]
+                                                                      : electricCompany,
+                                                                  "LandlineCompany": landlineCompany ==
+                                                                      ""
+                                                                      ? specify[
+                                                                  "LandlineCompany"]
+                                                                      : landlineCompany
                                                                 });
-                                                                Navigator.pushReplacement(
-                                                                    context,
-                                                                    MaterialPageRoute(
-                                                                        builder:
-                                                                            (context) =>
-                                                                            retriveMarkers()));
+                                                                Navigator.pop(context);
                                                               },
-                                                              child: const Text("OK"))
+                                                              child: const Text(
+                                                                  "OK"))
                                                         ],
                                                       );
                                                     });
@@ -262,8 +345,12 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                 fontWeight: FontWeight.bold, color: kMaroon),
                           ),
                         ),
+
                         GestureDetector(
-                          child: Text("Show Qr"),
+                          child: Text(
+                              "Show Qr",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, color: kMaroon)),
                           onTap: () {
                             showDialog(
                                 context: context,
@@ -273,7 +360,7 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                     scrollable: true,
                                     title: const Text('Consumer Check-In'),
                                     content: Expanded(
-                                      child: Container(
+                                      child: SizedBox(
                                         width: 80,
                                         height: 800,
                                         child: QrImage(
@@ -328,7 +415,7 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
                                                 context,
                                                 MaterialPageRoute(
                                                     builder: (context) =>
-                                                        retriveMarkers()));
+                                                        const RetrieveMarkers()));
                                           },
                                           child: const Text("OK"))
                                     ],
@@ -392,15 +479,18 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
     });
   }
 
-  getmarkerdata() async {
+  getMarkersData() async {
     FirebaseFirestore.instance
         .collection('Consumers')
-        .where("${widget.name}", isEqualTo: widget.searchid)
+        .where(widget.name, isEqualTo: widget.searchID)
         .get()
         .then((myMocDoc) {
       if (myMocDoc.docs.isNotEmpty) {
         for (int a = 0; a < myMocDoc.docs.length; a++) {
           initMarker(myMocDoc.docs[a].data(), myMocDoc.docs[a].id);
+        }
+        if (widget.name == "Surveyor_Email") {
+          totalEntries = myMocDoc.docs.length.toString();
         }
       }
       else {
@@ -421,7 +511,7 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
 
   @override
   void initState() {
-    getmarkerdata();
+    getMarkersData();
     super.initState();
   }
 
@@ -433,7 +523,7 @@ class _retriveeMarkersBySearchState extends State<retriveeMarkersBySearch> {
             mapType: MapType.normal,
             markers: Set<Marker>.of(markers.values),
             initialCameraPosition: const CameraPosition(
-              target: const LatLng(25.3960, 68.3578),
+              target: LatLng(25.3960, 68.3578),
               zoom: 15.0,
             ),
             onMapCreated: (GoogleMapController controller) {

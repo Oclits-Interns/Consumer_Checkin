@@ -1,11 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:consumer_checkin/local_DB/local_db.dart';
-import 'package:consumer_checkin/models/consumer.dart';
 import 'package:consumer_checkin/screens/retrieve_single_location.dart';
-import 'package:consumer_checkin/screens/retrieve_locations.dart';
 import 'package:consumer_checkin/services/auth.dart';
-import 'package:consumer_checkin/services/google_sheets.dart';
 import 'package:flutter/material.dart';
 import 'package:consumer_checkin/constant/colors_constant.dart';
 import 'package:consumer_checkin/services/loading_services.dart';
@@ -44,156 +40,15 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: Drawer(
-        child: ListView(
-          shrinkWrap: true,
-          // Important: Remove any padding from the ListView.
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: const BoxDecoration(
-                color: Color(0xffb11118),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 20),
-                        decoration: const BoxDecoration(
-                            image: DecorationImage(
-                                image: AssetImage("assets/logo.png"),
-                                fit: BoxFit.scaleDown
-                            )
-                        ),
-                        height: MediaQuery.of(context).size.height * 0.15, width: MediaQuery.of(context).size.width * 0.20,)),
-                  // const SizedBox(width: 20,),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Text(
-                          "CONSUMER",
-                          style: TextStyle(
-                              letterSpacing: 3,
-                              color: Colors.black54,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                              fontFamily: "Montserrat"
-                          )),
-                      Text(
-                          "CHECKIN",
-                          style: TextStyle(
-                              letterSpacing: 8,
-                              color: Colors.amber,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              fontFamily: "Montserrat"
-                          )),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            ListTile(
-              title: const Text('Load Data'),
-              leading: const Icon(Icons.download),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => retriveMarkers()));
-              },
-            ),
-            ListTile(
-              enabled: isConnected ? true : false,
-              title: const Text('Sync Data'),
-              leading: const Icon(Icons.sync),
-              onTap: () async {
-                Map<String, dynamic> consumer;
-                try{
-                  List<Map<String, dynamic>> consumerEntries = await DBProvider.db.queryAllRows();
-                  if(consumerEntries.isEmpty) {
-                    showDialog(
-                        barrierDismissible: false,
-                        context: context,
-                        builder: (context) {
-                          Future.delayed(const Duration(milliseconds: 1500), () {
-                            Navigator.of(context).pop(true);
-                          });
-                          return const AlertDialog(
-                            title: Text("There is no data to sync"),
-                          );
-                        });
-                  }
-                  else {
-                    for (var element in consumerEntries) {
-                      consumer = {
-                        ConsumerFields.id : element["Consumer_Id"],
-                        ConsumerFields.plotType : element["Plot_Type"],
-                        ConsumerFields.name : element["Consumer_Name"],
-                        ConsumerFields.number : element["Number"],
-                        ConsumerFields.cnicNum : element["CNIC"],
-                        ConsumerFields.email : element["Email"],
-                        ConsumerFields.taluka : element["Taluka"],
-                        ConsumerFields.ucNum : element["UC_Num"],
-                        ConsumerFields.zoneNum : element["Zone_Num"],
-                        ConsumerFields.wardNum : element["Ward_Num"],
-                        ConsumerFields.area : element["Area"],
-                        ConsumerFields.unitNum : element["Unit_Num"],
-                        ConsumerFields.block : element["Block"],
-                        ConsumerFields.houseNum : element["House_Number"],
-                        ConsumerFields.address : element["Address"],
-                        ConsumerFields.newAddress : element["New_Address"],
-                        ConsumerFields.gasCompanyId : element["Gas_Company_Id"],
-                        ConsumerFields.electricCompanyId : element["Electricity_Company_Id"],
-                        ConsumerFields.landlineCompanyId : element["Landline_Company_Id"],
-                      };
-                      await ConsumerSheetsAPI.insert([consumer]);
-                    }
-                  }
-                  showDialog(
-                      barrierDismissible: false,
-                      context: context,
-                      builder: (context) {
-                        Future.delayed(const Duration(milliseconds: 1500), () {
-                          Navigator.of(context).pop(true);
-                        });
-                        return const AlertDialog(
-                          title: Text('Data uploaded to Google Sheets'),
-                        );
-                      });
-                  DBProvider.db.deleteFromConsumersTable();
-                }
-                catch(e) {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          content: Text("Something went wrong... " + e.toString()),
-                          actions: [
-                            GestureDetector(
-                              child: const Text("Okay"),
-                              onTap: () {
-                                Navigator.of(context, rootNavigator: true).pop();
-                              },
-                            )
-                          ],
-                        );
-                      });
-                }
-              },
-            ),
-            ListTile(
-              title: const Text('Sign out'),
-              leading: const Icon(Icons.power_settings_new_sharp),
-              onTap: () {
-                _auth.signOut();
-              },
-            ),
-          ],
-        ),
-      ),
       appBar: AppBar(
         backgroundColor: kMaroon,
+        actions: [
+          GestureDetector(child: const Icon(Icons.logout),
+          onTap: () {
+              _auth.signOut();
+            },
+          )
+        ],
       ),
       body: SingleChildScrollView(
         physics: const ScrollPhysics(),
@@ -284,7 +139,7 @@ class _HomeState extends State<Home> {
                               onTap: () {
                                 Navigator.push(context,
                                     MaterialPageRoute(builder: (context) {
-                                      return retriveSingleMarker(
+                                      return RetrieveSingleMarker(
                                           _items.id,
                                           _items["location"].latitude,
                                           _items["location"].longitude);

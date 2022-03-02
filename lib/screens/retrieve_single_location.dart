@@ -5,17 +5,17 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-class retriveSingleMarker extends StatefulWidget {
-  const retriveSingleMarker([this.id, this.lat, this.lon]);
+class RetrieveSingleMarker extends StatefulWidget {
+  const RetrieveSingleMarker([this.id, this.lat, this.lon]);
 
   final id;
   final lat;
   final lon;
   @override
-  _retriveSingleMarkerState createState() => _retriveSingleMarkerState();
+  _RetrieveSingleMarkerState createState() => _RetrieveSingleMarkerState();
 }
 
-class _retriveSingleMarkerState extends State<retriveSingleMarker> {
+class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
   int consumerID = 0;
   String name = "";
   String number = "";
@@ -27,10 +27,10 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
   String landlineCompany = "";
   String nicnumber = "";
 
-  var nummberFormatter = new MaskTextInputFormatter(
+  var nummberFormatter = MaskTextInputFormatter(
       mask: '####-#######', filter: {"#": RegExp(r'[0-9]')});
 
-  var nicmnumberFormatter = new MaskTextInputFormatter(
+  var nicmnumberFormatter = MaskTextInputFormatter(
       mask: '#####-#######-#', filter: {"#": RegExp(r'[0-9]')});
 
   late GoogleMapController controller;
@@ -52,40 +52,38 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                 title: const Text('Consumer Details'),
                 content: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Consumer_ID : " +
-                              specify["ConsumerID"].toString()),
-                          const SizedBox(height: 5),
-                          Text("Name : " + specify["Name"]),
-                          const SizedBox(height: 5),
-                          Text("Id : " + specifyId),
-                          const SizedBox(height: 5),
-                          Text("Email : " + specify["Email"]),
-                          const SizedBox(height: 5),
-                          Text("Number : " + specify["Number"].toString()),
-                          const SizedBox(height: 5),
-                          Text("Nic Number : " +
-                              specify["NicNumber"].toString()),
-                          const SizedBox(height: 5),
-                          Text("Plot Type : " + specify["Plot_type"].toString()),
-                          const SizedBox(height: 5),
-                          Text("Taluka : " + specify["Taluka"].toString()),
-                          const SizedBox(height: 5),
-                          Text("Address : " + specify["Address"]),
-                          const SizedBox(height: 5),
-                          Text("Electric Company : " +
-                              specify["ElectricCompany"]),
-                          const SizedBox(height: 5),
-                          Text("Gas Company : " + specify["GasCompany"]),
-                          const SizedBox(height: 5),
-                          Text("Landline Company : " +
-                              specify["LandlineCompany"]),
-                        ],
-                      ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Consumer_ID : " +
+                            specify["ConsumerID"].toString()),
+                        const SizedBox(height: 5),
+                        Text("Name : " + specify["Name"]),
+                        const SizedBox(height: 5),
+                        Text("Id : " + specifyId),
+                        const SizedBox(height: 5),
+                        Text("Email : " + specify["Email"]),
+                        const SizedBox(height: 5),
+                        Text("Number : " + specify["Number"].toString()),
+                        const SizedBox(height: 5),
+                        Text("Nic Number : " +
+                            specify["NicNumber"].toString()),
+                        const SizedBox(height: 5),
+                        Text("Plot Type : " + specify["Plot_type"].toString()),
+                        const SizedBox(height: 5),
+                        Text("Taluka : " + specify["Taluka"].toString()),
+                        const SizedBox(height: 5),
+                        Text("Address : " + specify["Address"]),
+                        const SizedBox(height: 5),
+                        Text("Electric Company : " +
+                            specify["ElectricCompany"]),
+                        const SizedBox(height: 5),
+                        Text("Gas Company : " + specify["GasCompany"]),
+                        const SizedBox(height: 5),
+                        Text("Landline Company : " +
+                            specify["LandlineCompany"]),
+                      ],
                     )),
                 actions: [
                   Padding(
@@ -196,7 +194,8 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                                                 TextEditingController(
                                                     text: specify[
                                                     "ElectricCompany"]),
-                                                decoration: const InputDecoration(
+                                                decoration:
+                                                const InputDecoration(
                                                   labelText:
                                                   'Enter Electric Company',
                                                 ),
@@ -209,7 +208,8 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                                                 TextEditingController(
                                                     text: specify[
                                                     "GasCompany"]),
-                                                decoration: const InputDecoration(
+                                                decoration:
+                                                const InputDecoration(
                                                   labelText:
                                                   'Enter Gas Company',
                                                 ),
@@ -222,7 +222,8 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                                                 TextEditingController(
                                                     text: specify[
                                                     "LandlineCompany"]),
-                                                decoration: const InputDecoration(
+                                                decoration:
+                                                const InputDecoration(
                                                   labelText:
                                                   'Enter Landline Company',
                                                 ),
@@ -242,12 +243,16 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                                           MainAxisAlignment.spaceBetween,
                                           children: [
                                             GestureDetector(
-                                              onTap: () {
-                                                Navigator.pop(context);
-                                              },
+                                                onTap: () {
+                                                  Navigator.pop(context);
+                                                },
                                                 child: Text(
                                                   "Close",
-                                                style: TextStyle(fontWeight: FontWeight.bold, color: kMaroon),)),
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                      FontWeight.bold,
+                                                      color: kMaroon),
+                                                )),
                                             GestureDetector(
                                               child: Text(
                                                 "Save",
@@ -273,30 +278,51 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                                                                     .doc(
                                                                     specifyId)
                                                                     .update({
-                                                                  "Name": name,
-                                                                  "Number":
-                                                                  number,
-                                                                  "NicNumber":
-                                                                  nicnumber,
-                                                                  "Email":
-                                                                  email,
-                                                                  "Address":
-                                                                  address,
-                                                                  "GasCompany":
-                                                                  gasCompany,
-                                                                  "ElectricCompany":
-                                                                  electricCompany,
-                                                                  "LandlineCompany":
-                                                                  landlineCompany,
+                                                                  "Name": name ==
+                                                                      ""
+                                                                      ? specify[
+                                                                  "Name"]
+                                                                      : name,
+                                                                  "Number": number ==
+                                                                      ""
+                                                                      ? specify[
+                                                                  "Number"]
+                                                                      : number,
+                                                                  "NicNumber": nicnumber ==
+                                                                      ""
+                                                                      ? specify[
+                                                                  "NicNumber"]
+                                                                      : nicnumber,
+                                                                  "Email": email ==
+                                                                      ""
+                                                                      ? specify[
+                                                                  "Email"]
+                                                                      : email,
+                                                                  "Address": address ==
+                                                                      ""
+                                                                      ? specify[
+                                                                  "Address"]
+                                                                      : address,
+                                                                  "GasCompany": gasCompany ==
+                                                                      ""
+                                                                      ? specify[
+                                                                  "GasCompany"]
+                                                                      : gasCompany,
+                                                                  "ElectricCompany": electricCompany ==
+                                                                      ""
+                                                                      ? specify[
+                                                                  "ElectricCompany"]
+                                                                      : electricCompany,
+                                                                  "LandlineCompany": landlineCompany ==
+                                                                      ""
+                                                                      ? specify[
+                                                                  "LandlineCompany"]
+                                                                      : landlineCompany
                                                                 });
-                                                                Navigator.pushReplacement(
-                                                                    context,
-                                                                    MaterialPageRoute(
-                                                                        builder:
-                                                                            (context) =>
-                                                                            const retriveSingleMarker()));
+                                                                Navigator.pop(context);
                                                               },
-                                                              child: const Text("OK"))
+                                                              child: const Text(
+                                                                  "OK"))
                                                         ],
                                                       );
                                                     });
@@ -316,7 +342,10 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                           ),
                         ),
                         GestureDetector(
-                          child: const Text("Show Qr"),
+                          child: Text(
+                            "Show Qr",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, color: kMaroon)),
                           onTap: () {
                             showDialog(
                                 context: context,
@@ -325,17 +354,11 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                                     // backgroundColor: Colors.red,
                                     scrollable: true,
                                     title: const Text('Consumer Check-In'),
-                                    content: Expanded(
-                                      child: SizedBox(
-                                        width: 80,
-                                        height: 800,
-                                        child: QrImage(
-                                          data:
-                                          "Consumer_ID : ${specify["ConsumerID"].toString()}\n  Name : ${specify["Name"]}\n Email : ${specify["ConsumerID"].toString()}\n  Number : ${specify["Number"]}\n CNIC_Number : ${specify["NicNumber"].toString()}\n  Plot_Type : ${specify["Plot_type"]}\n Address : ${specify["Address"].toString()}\n  Taluka : ${specify["Taluka"]}\n ",
-                                          version: QrVersions.auto,
-                                          size: 60,
-                                        ),
-                                      ),
+                                    content: QrImage(
+                                      data:
+                                      "Consumer_ID : ${specify["ConsumerID"].toString()}\n  Name : ${specify["Name"]}\n Email : ${specify["ConsumerID"].toString()}\n  Number : ${specify["Number"]}\n CNIC_Number : ${specify["NicNumber"].toString()}\n  Plot_Type : ${specify["Plot_type"]}\n Address : ${specify["Address"].toString()}\n  Taluka : ${specify["Taluka"]}\n ",
+                                      version: QrVersions.auto,
+                                      size: 60,
                                     ),
                                     actions: [
                                       Padding(
@@ -381,7 +404,7 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                                                 context,
                                                 MaterialPageRoute(
                                                     builder: (context) =>
-                                                        const retriveSingleMarker()));
+                                                        const RetrieveSingleMarker()));
                                           },
                                           child: const Text("OK"))
                                     ],
@@ -433,7 +456,7 @@ class _retriveSingleMarkerState extends State<retriveSingleMarker> {
                                 });
                           },
                           child: Text(
-                            "Show IMAGE",
+                            "Show image",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, color: kMaroon),
                           ),

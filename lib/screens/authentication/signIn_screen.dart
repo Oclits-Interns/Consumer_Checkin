@@ -53,6 +53,7 @@ class _SignInState extends State<SignIn> {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 20.0),
                           child: TextFormField(
+                            keyboardType: TextInputType.emailAddress,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
@@ -62,7 +63,7 @@ class _SignInState extends State<SignIn> {
                             ),
                             onChanged: (val) => setState(() {_email = val;}),
                               validator: (String? val) {
-                                if(val == null || val.trim().length == 0) {
+                                if(val == null || val.trim().isEmpty) {
                                   return "Please enter a valid email";
                                 }
                                 else {
@@ -111,7 +112,14 @@ class _SignInState extends State<SignIn> {
                                   case "You have entered incorrect password":
                                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
                                     break;
-                                  default: print(error);
+                                  default: showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return const AlertDialog(
+                                          content: Text("Something went wrong.. "),
+                                        );
+                                      }
+                                  );
                                     break;
                                 }
                               }
@@ -123,7 +131,7 @@ class _SignInState extends State<SignIn> {
                                 borderRadius: BorderRadius.circular(8),
                                 color: kMaroon
                               ),
-                              child: const Center(child: const Text("Login", style: TextStyle(color: Colors.black),)),
+                              child: const Center(child: Text("Login", style: TextStyle(color: Colors.black),)),
                             ),
                           ),
                         ),

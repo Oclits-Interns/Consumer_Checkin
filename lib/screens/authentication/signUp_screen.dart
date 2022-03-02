@@ -17,7 +17,7 @@ class SignUp extends StatefulWidget {
 class _SignUpState extends State<SignUp> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  AuthService _auth = AuthService();
+  final AuthService _auth = AuthService();
   String _userName = "";
   String _email = "";
   String _password = "";
@@ -71,7 +71,7 @@ class _SignUpState extends State<SignUp> {
                           ),
                           onChanged: (val) => setState(() {_userName = val;}),
                           validator: (String? val) {
-                            if(val == null || val.trim().length == 0) {
+                            if(val == null || val.trim().isEmpty) {
                               return "Please enter a valid user name";
                             }
                             else {
@@ -92,7 +92,7 @@ class _SignUpState extends State<SignUp> {
                           ),
                           onChanged: (val) => setState(() {_email = val;}),
                           validator: (String? val) {
-                            if(val == null || val.trim().length == 0) {
+                            if(val == null || val.trim().isEmpty) {
                               return "Please enter a valid email";
                             }
                             else {
@@ -135,7 +135,14 @@ class _SignUpState extends State<SignUp> {
                                 case "This password is too weak":
                                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_error.toString())));
                                   break;
-                                default: print(_error);
+                                default: showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      content: Text("Something went wrong.. " + _error.toString()),
+                                    );
+                                  }
+                                );
                                 break;
                               }
                             },

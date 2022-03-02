@@ -61,6 +61,7 @@ class _MapAppState extends State<MapApp> {
   String searchID = "";
   String loggedInUserName = "";
   String loggedInUserEmail = "";
+  String surveyorEmail = "";
   bool isConnected = false;
   bool isLocked = false;
   late Uri url1;
@@ -441,6 +442,22 @@ class _MapAppState extends State<MapApp> {
                                 onChanged: (val) => setState(() {
                                   email = val;
                                 }),
+                                validator: (val) {
+                                  // Check if this field is empty
+                                  if (val == null || val.isEmpty) {
+                                    return 'This field is required';
+                                  }
+                                  // using regular expression
+                                  if (!RegExp(
+                                      r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+                                      r"{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+                                      r"{0,253}[a-zA-Z0-9])?)*$")
+                                      .hasMatch(val)) {
+                                    return "Please enter a valid email address";
+                                  }
+                                  // the email is valid
+                                  return null;
+                                },
                               ),
                               Row(
                                 children: [
@@ -1016,7 +1033,7 @@ class _MapAppState extends State<MapApp> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => retriveMarkers()));
+                            builder: (context) => RetrieveMarkers()));
                   },
                 ),
                 // Search tile in navigation drawer
@@ -1033,8 +1050,9 @@ class _MapAppState extends State<MapApp> {
                               content: Column(
                                 children: [
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 12.0),
-                                    child: Row(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12.0),
+                                    child: Column(
                                       children: [
                                         TextFormField(
                                             decoration: InputDecoration(
@@ -1048,9 +1066,9 @@ class _MapAppState extends State<MapApp> {
                                                           MaterialPageRoute(
                                                               builder:
                                                                   (context) {
-                                                                return retriveeMarkersBySearch(
+                                                                return RetrieveMarkersBySearch(
                                                                   name: "ConsumerID",
-                                                                  searchid: searchID,
+                                                                  searchID: searchID,
                                                                 );
                                                               }));
                                                     }
@@ -1076,9 +1094,9 @@ class _MapAppState extends State<MapApp> {
                                                           MaterialPageRoute(
                                                               builder:
                                                                   (context) {
-                                                                return retriveeMarkersBySearch(
+                                                                return RetrieveMarkersBySearch(
                                                                   name: "NicNumber",
-                                                                  searchid: nicNumber,
+                                                                  searchID: nicNumber,
                                                                 );
                                                               }));
                                                     }
@@ -1103,9 +1121,9 @@ class _MapAppState extends State<MapApp> {
                                                           MaterialPageRoute(
                                                               builder:
                                                                   (context) {
-                                                                return retriveeMarkersBySearch(
+                                                                return RetrieveMarkersBySearch(
                                                                   name: "Number",
-                                                                  searchid: number,
+                                                                  searchID: number,
                                                                 );
                                                               }));
                                                     }
@@ -1116,16 +1134,61 @@ class _MapAppState extends State<MapApp> {
                                             onChanged: (val) => setState(() {
                                               number = val;
                                             })),
+                                        TextFormField(
+                                          keyboardType:
+                                          TextInputType.emailAddress,
+                                          decoration: InputDecoration(
+                                              labelText:
+                                              'Search by Surveyor_Email',
+                                              // border: const OutlineInputBorder(),
+                                              suffixIcon: GestureDetector(
+                                                onTap: () {
+                                                  if (surveyorEmail
+                                                      .isNotEmpty) {
+                                                    Navigator.push(context,
+                                                        MaterialPageRoute(
+                                                            builder: (context) {
+                                                              return RetrieveMarkersBySearch(
+                                                                name: "Surveyor_Email",
+                                                                searchID: surveyorEmail,
+                                                              );
+                                                            }));
+                                                  }
+                                                },
+                                                child: const Icon(Icons.search),
+                                              )),
+                                          onChanged: (val) => setState(() {
+                                            surveyorEmail = val;
+                                          }),
+                                          validator: (val) {
+                                            // Check if this field is empty
+                                            if (val == null || val.isEmpty) {
+                                              return 'This field is required';
+                                            }
+
+                                            // using regular expression
+                                            if (!RegExp(
+                                                r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+                                                r"{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+                                                r"{0,253}[a-zA-Z0-9])?)*$")
+                                                .hasMatch(val)) {
+                                              return "Please enter a valid email address";
+                                            }
+
+                                            // the email is valid
+                                            return null;
+                                          },
+                                        ),
                                       ],
                                     ),
                                   ),
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12.0),
                                     child: DropdownButtonFormField(
                                         decoration: const InputDecoration(
-                                          labelText: "Plot Type",
-                                          border: OutlineInputBorder()
-                                        ),
+                                            labelText: "Plot Type",
+                                            border: OutlineInputBorder()),
                                         items: plotTypeDropDown.map((plotType) {
                                           return DropdownMenuItem(
                                             child: Text(plotType),
@@ -1136,20 +1199,20 @@ class _MapAppState extends State<MapApp> {
                                           Navigator.push(context,
                                               MaterialPageRoute(
                                                   builder: (context) {
-                                                    return retriveeMarkersBySearch(
+                                                    return RetrieveMarkersBySearch(
                                                       name: "Plot_type",
-                                                      searchid: val.toString(),
+                                                      searchID: val.toString(),
                                                     );
                                                   }));
                                         }),
                                   ),
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12.0),
                                     child: DropdownButtonFormField(
                                         decoration: const InputDecoration(
-                                          labelText: "UC",
-                                            border: OutlineInputBorder()
-                                        ),
+                                            labelText: "UC",
+                                            border: OutlineInputBorder()),
                                         items: _ucNumList.map((ucNum) {
                                           return DropdownMenuItem(
                                             child: Text(ucNum),
@@ -1160,20 +1223,20 @@ class _MapAppState extends State<MapApp> {
                                           Navigator.push(context,
                                               MaterialPageRoute(
                                                   builder: (context) {
-                                                    return retriveeMarkersBySearch(
+                                                    return RetrieveMarkersBySearch(
                                                       name: "UC",
-                                                      searchid: val.toString(),
+                                                      searchID: val.toString(),
                                                     );
                                                   }));
                                         }),
                                   ),
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12.0),
                                     child: DropdownButtonFormField(
                                         decoration: const InputDecoration(
-                                          labelText: "Taluka",
-                                            border: OutlineInputBorder()
-                                        ),
+                                            labelText: "Taluka",
+                                            border: OutlineInputBorder()),
                                         items: _talukaList.map((taluka) {
                                           return DropdownMenuItem(
                                             child: Text(taluka),
@@ -1184,20 +1247,20 @@ class _MapAppState extends State<MapApp> {
                                           Navigator.push(context,
                                               MaterialPageRoute(
                                                   builder: (context) {
-                                                    return retriveeMarkersBySearch(
+                                                    return RetrieveMarkersBySearch(
                                                       name: "Taluka",
-                                                      searchid: val.toString(),
+                                                      searchID: val.toString(),
                                                     );
                                                   }));
                                         }),
                                   ),
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12.0),
                                     child: DropdownButtonFormField(
                                         decoration: const InputDecoration(
-                                          labelText: "Zone",
-                                            border: OutlineInputBorder()
-                                        ),
+                                            labelText: "Zone",
+                                            border: OutlineInputBorder()),
                                         items: _zoneList.map((zone) {
                                           return DropdownMenuItem(
                                             child: Text(zone.toString()),
@@ -1208,20 +1271,20 @@ class _MapAppState extends State<MapApp> {
                                           Navigator.push(context,
                                               MaterialPageRoute(
                                                   builder: (context) {
-                                                    return retriveeMarkersBySearch(
+                                                    return RetrieveMarkersBySearch(
                                                       name: "Zone",
-                                                      searchid: val.toString(),
+                                                      searchID: val.toString(),
                                                     );
                                                   }));
                                         }),
                                   ),
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12.0),
                                     child: DropdownButtonFormField(
                                         decoration: const InputDecoration(
-                                          labelText: "Ward",
-                                            border: OutlineInputBorder()
-                                        ),
+                                            labelText: "Ward",
+                                            border: OutlineInputBorder()),
                                         items: _wardList.map((ward) {
                                           return DropdownMenuItem(
                                             child: Text(ward.toString()),
@@ -1232,9 +1295,9 @@ class _MapAppState extends State<MapApp> {
                                           Navigator.push(context,
                                               MaterialPageRoute(
                                                   builder: (context) {
-                                                    return retriveeMarkersBySearch(
+                                                    return RetrieveMarkersBySearch(
                                                       name: "Ward",
-                                                      searchid: val.toString(),
+                                                      searchID: val.toString(),
                                                     );
                                                   }));
                                         }),
@@ -1244,19 +1307,18 @@ class _MapAppState extends State<MapApp> {
                               actions: [
                                 GestureDetector(
                                     child: Padding(
-                                      padding: const EdgeInsets.only(right: 8.0),
+                                      padding:
+                                      const EdgeInsets.only(right: 8.0),
                                       child: Text(
-                                          "Close",
+                                        "Close",
                                         style: TextStyle(
-                                          color: kMaroon,
-                                          fontWeight: FontWeight.bold
-                                        ),
+                                            color: kMaroon,
+                                            fontWeight: FontWeight.bold),
                                       ),
                                     ),
-                                onTap: () {
-                                  Navigator.pop(context);
-                                }
-                                )
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                    })
                               ]);
                         });
                   },
