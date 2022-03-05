@@ -20,17 +20,14 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
   Future<void> getCurrentLocation() async {
     try {
-      Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
+      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
       double latitud = position.latitude;
       double longitud = position.longitude;
-      // print(latitud);
-      // print(longitud);
-      // print("on");
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
         return MapApp(lan: longitud, lat: latitud);
       }));
-    } catch (e) {
+    }
+    catch (e) {
       showDialog(context: context, builder: (BuildContext context) {
         return const AlertDialog(
           content: Text("There seems to be a problem, restart the app and try again"),

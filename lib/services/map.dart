@@ -11,6 +11,7 @@ import 'package:consumer_checkin/services/auth.dart';
 import 'package:consumer_checkin/services/db_firestore.dart';
 import 'package:consumer_checkin/services/google_sheets.dart';
 import 'package:consumer_checkin/services/searchBy.dart';
+import 'package:cool_alert/cool_alert.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
@@ -55,13 +56,15 @@ class _MapAppState extends State<MapApp> {
   String newAddress = "";
   String gasCompany = "";
   String electricCompany = "";
-  String landlineCompany = "";
+  String landlineNumber = "";
   String nicNumber = "";
   String taluka = "";
   String searchID = "";
   String loggedInUserName = "";
   String loggedInUserEmail = "";
   String surveyorEmail = "";
+  String plotTypeLetter = "";
+  int entryNum = 0;
   bool isConnected = false;
   bool isLocked = false;
   late Uri url1;
@@ -329,7 +332,7 @@ class _MapAppState extends State<MapApp> {
                                       )),
                                 ],
                               ),
-                              TextFormField(
+                             /* TextFormField(
                                 controller: _consumerIdTextController,
                                 decoration: const InputDecoration(
                                   labelText: 'Consumer Id',
@@ -348,7 +351,7 @@ class _MapAppState extends State<MapApp> {
                                     return null;
                                   }
                                 },
-                              ),
+                              ),*/
                               DropdownButtonFormField(
                                   decoration: const InputDecoration(
                                     labelText: "Plot Type",
@@ -542,7 +545,7 @@ class _MapAppState extends State<MapApp> {
                                         ),
                                         items: _zoneList.map((zone) {
                                           return DropdownMenuItem(
-                                              child: new Text(zone), value: zone);
+                                              child: Text(zone), value: zone);
                                         }).toList(),
                                         validator: (String? val) {
                                           if (val == null || val.trim().isEmpty) {
@@ -563,7 +566,7 @@ class _MapAppState extends State<MapApp> {
                                         ),
                                         items: _wardList.map((ward) {
                                           return DropdownMenuItem(
-                                            child: new Text(ward),
+                                            child: Text(ward),
                                             value: ward,
                                           );
                                         }).toList(),
@@ -713,19 +716,27 @@ class _MapAppState extends State<MapApp> {
                           nicNumExists = await _db.doesNicNumberAlreadyExist(nicNumber);
                           emailExists = await _db.doesEmailAlreadyExist(email);
                           if (numberExists || nicNumExists || emailExists) {
-                            showDialog(context: context, builder: (context) {
-                              return AlertDialog(
-                                content: const Text("This data already exists"),
-                                actions: [
-                                  GestureDetector(
-                                      child: Text("Close", style: TextStyle(color: kMaroon, fontWeight: FontWeight.bold)),
-                                    onTap: () {Navigator.pop(context);},
-                                  )
-                                ],
-                              );
-                            });
+                            CoolAlert.show(context: context,
+                                type: CoolAlertType.error,
+                                text: "This Data already exists",
+                                autoCloseDuration: const Duration(milliseconds: 3000)
+                            );
+                            // showDialog(context: context, builder: (context) {
+                            //   return AlertDialog(
+                            //     content: const Text("This data already exists"),
+                            //     actions: [
+                            //       GestureDetector(
+                            //           child: Text("Close", style: TextStyle(color: kMaroon, fontWeight: FontWeight.bold)),
+                            //         onTap: () {Navigator.pop(context);},
+                            //       )
+                            //     ],
+                            //   );
+                            // });
                           }
                           else {
+                            entryNum = await _db.countEntriesInZoneWard(zone, ward) + 1;
+                            plotType == "Domestic" ? plotTypeLetter = "D" : plotTypeLetter = "C";
+                            consumerID = zone + "-" + ward + "-" + entryNum.toString() + plotTypeLetter ;
                             address = "";
                             address += "House # " +
                                 houseNum.toString() +
@@ -758,7 +769,7 @@ class _MapAppState extends State<MapApp> {
                                   newAddress: newAddress,
                                   gasCompany: gasCompany,
                                   electricCompany: electricCompany,
-                                  landlineCompany: landlineCompany
+                                  landlineCompany: landlineNumber
                               );
                               showDialog(
                                   barrierDismissible: false,
@@ -795,18 +806,21 @@ class _MapAppState extends State<MapApp> {
                                 ConsumerFields
                                     .electricCompanyId: electricCompany,
                                 ConsumerFields
-                                    .landlineCompanyId: landlineCompany,
+                                    .landlineCompanyId: landlineNumber,
                                 ConsumerFields.dateTime: json.encode(DateTime.now().toIso8601String()) ,
                               };
-                              showDialog(context: context,
-                                  builder: (BuildContext context) {
-                                    return const Center(
-                                        child: CircularProgressIndicator());
-                                  });
+                              CoolAlert.show(context: context, type: CoolAlertType.loading);
+                              // showDialog(context: context,
+                              //     builder: (BuildContext context) {
+                              //       return const Center(
+                              //           child: CircularProgressIndicator());
+                              //     });
                               await uploadFile();
                               Navigator.pop(context);
                               await ConsumerSheetsAPI.insert([consumer]);
                             }
+
+                            print("::::::::::::::::::::::::::::" + entryNum.toString());
                             // Along storing the data to sqlite, we also insert to Firebase, the data will be stored in firebase cache, and when network status changes, the offline data is synced with firebase
                             _db.addConsumerEntry(
                               plotType: plotType,
@@ -826,7 +840,7 @@ class _MapAppState extends State<MapApp> {
                               address: address,
                               gasCompany: gasCompany,
                               electricCompany: electricCompany,
-                              landlineCompany: landlineCompany,
+                              landlineCompany: landlineNumber,
                               location: GeoPoint(widget.lat, widget.lan),
                               url: imageList.isNotEmpty ? imageList[0]
                                   .toString() : "",
@@ -914,10 +928,10 @@ class _MapAppState extends State<MapApp> {
                     TextFormField(
                         controller: _landlineIdTextController,
                         decoration: const InputDecoration(
-                          labelText: 'Land Line Id',
+                          labelText: 'Land-Line Number',
                         ),
                         onChanged: (val) => setState(() {
-                          landlineCompany = val;
+                          landlineNumber = val;
                         })),
                   ],
                 ),
@@ -1033,7 +1047,7 @@ class _MapAppState extends State<MapApp> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => RetrieveMarkers()));
+                            builder: (context) => const RetrieveMarkers()));
                   },
                 ),
                 // Search tile in navigation drawer

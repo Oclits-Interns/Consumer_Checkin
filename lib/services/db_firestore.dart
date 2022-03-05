@@ -153,10 +153,13 @@ class DatabaseService {
     return documents.length == 1;
   }
 
-  Future getUserDetails(String uid) async {
-   return await userCollection.doc(uid).get().then((value) {
-     var fields = value.data();
-     return fields;
-   });
+  Future<int> countEntriesInZoneWard(String zone, String ward) async {
+    final QuerySnapshot result = await FirebaseFirestore.instance
+        .collection('Consumers')
+        .where('Zone', isEqualTo: zone)
+        .where("Ward", isEqualTo: ward)
+                .get();
+    final List<DocumentSnapshot> documents = result.docs;
+    return documents.length;
   }
 }

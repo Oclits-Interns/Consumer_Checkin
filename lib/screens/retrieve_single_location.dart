@@ -25,12 +25,12 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
   String gasCompany = "";
   String electricCompany = "";
   String landlineCompany = "";
-  String nicnumber = "";
+  String nicNumber = "";
 
-  var nummberFormatter = MaskTextInputFormatter(
+  var numberFormatter = MaskTextInputFormatter(
       mask: '####-#######', filter: {"#": RegExp(r'[0-9]')});
 
-  var nicmnumberFormatter = MaskTextInputFormatter(
+  var nicNumberFormatter = MaskTextInputFormatter(
       mask: '#####-#######-#', filter: {"#": RegExp(r'[0-9]')});
 
   late GoogleMapController controller;
@@ -120,7 +120,7 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                               controller: TextEditingController(
                                                   text: specify["Number"]),
                                               inputFormatters: [
-                                                nummberFormatter
+                                                numberFormatter
                                               ],
                                               keyboardType:
                                               TextInputType.number,
@@ -145,7 +145,7 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                               controller: TextEditingController(
                                                   text: specify["NicNumber"]),
                                               inputFormatters: [
-                                                nicmnumberFormatter
+                                                nicNumberFormatter
                                               ],
                                               keyboardType:
                                               TextInputType.number,
@@ -153,7 +153,7 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                                 labelText: 'NIC Number',
                                               ),
                                               onChanged: (val) => setState(() {
-                                                nicnumber = val;
+                                                nicNumber = val;
                                               }),
                                               validator: (String? val) {
                                                 if (val == null ||
@@ -288,11 +288,11 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                                                       ? specify[
                                                                   "Number"]
                                                                       : number,
-                                                                  "NicNumber": nicnumber ==
+                                                                  "NicNumber": nicNumber ==
                                                                       ""
                                                                       ? specify[
                                                                   "NicNumber"]
-                                                                      : nicnumber,
+                                                                      : nicNumber,
                                                                   "Email": email ==
                                                                       ""
                                                                       ? specify[
