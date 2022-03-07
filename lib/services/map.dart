@@ -819,8 +819,6 @@ class _MapAppState extends State<MapApp> {
                               Navigator.pop(context);
                               await ConsumerSheetsAPI.insert([consumer]);
                             }
-
-                            print("::::::::::::::::::::::::::::" + entryNum.toString());
                             // Along storing the data to sqlite, we also insert to Firebase, the data will be stored in firebase cache, and when network status changes, the offline data is synced with firebase
                             _db.addConsumerEntry(
                               plotType: plotType,

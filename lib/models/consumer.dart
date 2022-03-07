@@ -43,17 +43,22 @@ class ConsumerFields {
     dateTime];
 }
 
-/*
 class Consumers {
   final String id;
   final String plotType;
   final String name;
   final String number;
   final String emailAddress;
+  final String nicNumber;
+  final String taluka;
   final String ucNum;
+  final String zoneNum;
   final String wardNum;
+  final String area;
+  final String block;
+  final String houseNumber;
+  final String unitNum;
   final String address;
-  final String newAddress;
   final String gasCompanyId;
   final String electricCompanyId;
   final String landlineCompanyId;
@@ -63,10 +68,16 @@ class Consumers {
     required this.name,
     required this.number,
     required this.emailAddress,
+    required this.nicNumber,
+    required this.taluka,
     required this.ucNum,
+    required this.zoneNum,
+    required this.area,
+    required this.block,
+    required this.houseNumber,
+    required this.unitNum,
     required this.wardNum,
     required this.address,
-    required this.newAddress,
     required this.gasCompanyId,
     required this.electricCompanyId,
     required this.landlineCompanyId,
@@ -74,18 +85,24 @@ class Consumers {
 
   factory Consumers.fromJson(Map<String, dynamic> json) {
     return Consumers(
-      id: json["id"],
-      plotType: json["plot_type"],
-      name: json["name"],
-      number: json["number"],
-      emailAddress: json["email_address"],
-      ucNum: json["uc_num"],
-      wardNum: json["ward_num"],
-      address: json["address"],
-      newAddress: json["new_address"],
-      gasCompanyId: json["gas_company_id"],
-      electricCompanyId: json["electric_company_id"],
-      landlineCompanyId: json["landline_company_id"],
+      id: json["ConsumerID"],
+      plotType: json["Plot_type"],
+      name: json["Name"],
+      number: json["Number"],
+      nicNumber: json["Nic_Number"],
+      emailAddress: json["Email"],
+      taluka: json["Taluka"],
+      ucNum: json["UC"],
+      zoneNum: json["Zone"],
+      wardNum: json["Ward"],
+      area: json["Area"],
+      block: json["Block"],
+      houseNumber: json["HouseNO"],
+      address: json["Address"],
+      unitNum: json["UnitNumber"],
+      gasCompanyId: json["GasCompany"],
+      electricCompanyId: json["ElectricCompany"],
+      landlineCompanyId: json["LandlineCompany"],
     );
   }
 
@@ -96,11 +113,10 @@ class Consumers {
     ConsumerFields.number : number,
     ConsumerFields.email : emailAddress,
     ConsumerFields.ucNum : ucNum,
-    ConsumerFields.zone_ward : wardNum,
+    ConsumerFields.zoneNum : wardNum,
     ConsumerFields.address : address,
-    ConsumerFields.newAddress : newAddress,
     ConsumerFields.gasCompanyId : gasCompanyId,
     ConsumerFields.electricCompanyId : electricCompanyId,
     ConsumerFields.landlineCompanyId : landlineCompanyId
   };
-}*/
+}

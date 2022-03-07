@@ -45,6 +45,12 @@ class ConsumerSheetsAPI {
   static Future insert(List<Map<String, dynamic>> rowList) async {
     if(_consumerSheet != null) {
     await _consumerSheet!.values.map.appendRows(rowList);
+    }
   }
-}
+
+  static Future<bool> update(String id, Map<String, dynamic> consumerRow) async {
+      if(_consumerSheet == null) return false;
+
+      return _consumerSheet!.values.map.insertRowByKey(id, consumerRow);
+  }
 }

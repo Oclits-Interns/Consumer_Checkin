@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:consumer_checkin/constant/colors_constant.dart';
+import 'package:consumer_checkin/services/google_sheets.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
@@ -16,7 +19,7 @@ class RetrieveSingleMarker extends StatefulWidget {
 }
 
 class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
-  int consumerID = 0;
+  String consumerID = "";
   String name = "";
   String number = "";
   String email = "";
@@ -26,6 +29,7 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
   String electricCompany = "";
   String landlineCompany = "";
   String nicNumber = "";
+  Map<String,dynamic> _consumerRow = {};
 
   var numberFormatter = MaskTextInputFormatter(
       mask: '####-#######', filter: {"#": RegExp(r'[0-9]')});
@@ -36,6 +40,10 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
   late GoogleMapController controller;
 
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
+
+  void updateConsumerSheet(String consumerID, Map<String, dynamic> _consumerRow) async {
+    await ConsumerSheetsAPI.update(consumerID, _consumerRow);
+  }
 
   void initMarker(specify, specifyId) async {
     var markerIdVal = specifyId;
@@ -93,6 +101,28 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                       children: [
                         GestureDetector(
                           onTap: () {
+                            /* Below we set _consumerRow Map with all keys from firestore document for editing in Google Sheet
+                            we retrieve these values from firestore because if user does not wish to edit any values
+                            then the previous values will not be changed. */
+                            _consumerRow["Consumer_Id"] = specify["ConsumerID"];
+                            _consumerRow["Consumer_Name"] = specify["Name"];
+                            _consumerRow["Plot_Type"] = specify["Plot_type"];
+                            _consumerRow["Number"] = specify["Number"];
+                            _consumerRow["CNIC_Number"] = specify["NicNumber"];
+                            _consumerRow["Email"] = specify["Email"];
+                            _consumerRow["Taluka"] = specify["Taluka"];
+                            _consumerRow["UC_Num"] = specify["UC"];
+                            _consumerRow["Zone_Num"] = specify["Zone"];
+                            _consumerRow["Ward_Num"] = specify["Ward"];
+                            _consumerRow["Area"] = specify["Area"];
+                            _consumerRow["Unit_Number"] = specify["UnitNumber"];
+                            _consumerRow["Block"] = specify["Block"];
+                            _consumerRow["House_Number"] = specify["HouseNO"];
+                            _consumerRow["Address"] = specify["Address"];
+                            _consumerRow["Gas_Company_Id"] = specify["GasCompany"];
+                            _consumerRow["Electric_Company_Id"] = specify["ElectricCompany"];
+                            _consumerRow["Landline_Company_Id"] = specify["LandlineCompany"];
+                            _consumerRow["Date_Time"] = json.encode(DateTime.now().toIso8601String());
                             showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
@@ -115,6 +145,7 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                                 onChanged: (val) =>
                                                     setState(() {
                                                       name = val;
+                                                      _consumerRow["Consumer_Name"] = val;
                                                     })),
                                             TextFormField(
                                               controller: TextEditingController(
@@ -129,6 +160,7 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                               ),
                                               onChanged: (val) => setState(() {
                                                 number = val;
+                                                _consumerRow["Number"] = val;
                                               }),
                                               validator: (String? val) {
                                                 if (val == null ||
@@ -154,6 +186,7 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                               ),
                                               onChanged: (val) => setState(() {
                                                 nicNumber = val;
+                                                _consumerRow["CNIC_Number"] = val;
                                               }),
                                               validator: (String? val) {
                                                 if (val == null ||
@@ -176,6 +209,7 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                                 onChanged: (val) =>
                                                     setState(() {
                                                       email = val;
+                                                      _consumerRow["Email"] = val;
                                                     })),
                                             TextFormField(
                                                 controller:
@@ -188,6 +222,7 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                                 onChanged: (val) =>
                                                     setState(() {
                                                       address = val;
+                                                      _consumerRow["Address"] = val;
                                                     })),
                                             TextFormField(
                                                 controller:
@@ -202,6 +237,7 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                                 onChanged: (val) =>
                                                     setState(() {
                                                       electricCompany = val;
+                                                      _consumerRow["Electric_Company_ID"] = val;
                                                     })),
                                             TextFormField(
                                                 controller:
@@ -216,6 +252,7 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                                 onChanged: (val) =>
                                                     setState(() {
                                                       gasCompany = val;
+                                                      _consumerRow["Gas_Company_ID"] = val;
                                                     })),
                                             TextFormField(
                                                 controller:
@@ -230,6 +267,7 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                                 onChanged: (val) =>
                                                     setState(() {
                                                       landlineCompany = val;
+                                                      _consumerRow["Landline_Company_ID"] = val;
                                                     })),
                                           ],
                                         ),
@@ -319,6 +357,7 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                                                   "LandlineCompany"]
                                                                       : landlineCompany
                                                                 });
+                                                                updateConsumerSheet(specify["ConsumerID"], _consumerRow);
                                                                 Navigator.pop(context);
                                                               },
                                                               child: const Text(
