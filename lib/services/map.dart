@@ -146,6 +146,7 @@ class _MapAppState extends State<MapApp> {
         maxWidth: 640,
         imageQuality: 50);
 
+    if (!mounted) return;
     setState(() {
       _image.add(File(pickedFile!.path));
     });
@@ -157,6 +158,7 @@ class _MapAppState extends State<MapApp> {
     if (response.isEmpty) {
       return;
     }
+    if (!mounted) return;
     if (response.file != null) {
       setState(() {
         _image.add(File(response.file!.path));
@@ -169,6 +171,7 @@ class _MapAppState extends State<MapApp> {
   Future uploadFile() async {
     int i = 1;
 
+    if (!mounted) return;
     for (var img in _image) {
       setState(() {
         val = i / _image.length;
@@ -188,6 +191,7 @@ class _MapAppState extends State<MapApp> {
   void _takePhoto(String name) async {
     int i = 1;
 
+    if (!mounted) return;
     for (var img in _image) {
       setState(() {
         val = i / _image.length;
@@ -195,6 +199,7 @@ class _MapAppState extends State<MapApp> {
       final recordedImage = img;
 
       {
+        if (!mounted) return;
         if (recordedImage != null && recordedImage.path != null) {
           setState(() {
             //  firstButtonText = 'saving in progress...';
@@ -204,9 +209,9 @@ class _MapAppState extends State<MapApp> {
           File fa = await File(recordedImage.path).copy(newPath);
           GallerySaver.saveImage(fa.path, albumName: "Intrapreneur")
               .then((path) {
-            setState(() {
-              //      firstButtonText = 'image saved!';
-            });
+            // setState(() {
+            //   //      firstButtonText = 'image saved!';
+            // });
           });
         }
       }
@@ -225,6 +230,7 @@ class _MapAppState extends State<MapApp> {
       filter: {"#": RegExp(r'[0-9]'), "*": RegExp(r'[a-z, A-Z]')});
 
   void clearForm() {
+    if (!mounted) return;
     setState(() {
       _consumerIdTextController.clear();
       _consumerNameTextController.clear();
@@ -241,6 +247,7 @@ class _MapAppState extends State<MapApp> {
   }
 
   void clearFormLocked() {
+    if (!mounted) return;
     setState(() {
       _consumerIdTextController.clear();
       _consumerNameTextController.clear();
@@ -256,8 +263,10 @@ class _MapAppState extends State<MapApp> {
   void checkConn() async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
+      if (!mounted) return;
       setState(() => isConnected = false);
     } else {
+      if (!mounted) return;
       setState(() => isConnected = true);
     }
   }
@@ -271,6 +280,7 @@ class _MapAppState extends State<MapApp> {
 
   @override
   void dispose() {
+    super.dispose();
     _consumerIdTextController.dispose();
     _consumerNameTextController.dispose();
     _mobileNumberTextController.dispose();
@@ -285,7 +295,8 @@ class _MapAppState extends State<MapApp> {
     _gasCompanyIdTextController.dispose();
     _electricCompanyIdTextController.dispose();
     _landlineIdTextController.dispose();
-    super.dispose();
+    imageList.clear();
+    markers.clear();
   }
 
   void _showAlertDialog() {
@@ -860,18 +871,16 @@ class _MapAppState extends State<MapApp> {
                                 });
                             if (!isLocked) {
                               clearForm();
-                              //imageList.clear();
                             } else {
                               clearFormLocked();
                               _formKey.currentState!.reset();
-                              //imageList.clear();
                             }
                             _markers.clear();
                           }
                         }
                       },
                       child: Text(
-                        "SAVE",
+                        "Save",
                         style:
                         TextStyle(fontWeight: FontWeight.bold, color: kMaroon),
                       ),
@@ -881,7 +890,7 @@ class _MapAppState extends State<MapApp> {
                         _showAlertMoreDetails();
                       },
                       child: Text(
-                        "MORE",
+                        "More",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, color: kMaroon),
                       ),
@@ -946,13 +955,13 @@ class _MapAppState extends State<MapApp> {
                         Navigator.of(context, rootNavigator: true).pop();
                       },
                       child: Text(
-                        "BACK",
+                        "Back",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, color: kMaroon),
                       ),
                     ),
                     Text(
-                      "SAVE",
+                      "Save",
                       style: TextStyle(
                           fontWeight: FontWeight.bold, color: kMaroon),
                     ),
@@ -970,7 +979,7 @@ class _MapAppState extends State<MapApp> {
 
   MapType _currentMapType = MapType.normal;
 
-  Future<void> _goToTheLake() async {
+  Future<void> _goToCurrentLocation() async {
     GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
       target: LatLng(widget.lat, widget.lan),
@@ -1462,11 +1471,26 @@ class _MapAppState extends State<MapApp> {
                       const SizedBox(height: 16.0),
                       FloatingActionButton(
                         heroTag: "btn3",
-                        onPressed: _goToTheLake,
+                        onPressed: _goToCurrentLocation,
                         materialTapTargetSize: MaterialTapTargetSize.padded,
                         backgroundColor: const Color(0xffb11118),
                         child: const Icon(
                           Icons.my_location,
+                          size: 36.0,
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      FloatingActionButton(
+                        heroTag: "btn2",
+                        onPressed: () {
+                          setState(() {
+                            _markers.clear();
+                          });
+                        },
+                        materialTapTargetSize: MaterialTapTargetSize.padded,
+                        backgroundColor: const Color(0xffb11118),
+                        child: const Icon(
+                          Icons.delete_forever,
                           size: 36.0,
                         ),
                       ),

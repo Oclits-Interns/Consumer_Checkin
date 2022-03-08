@@ -1,8 +1,7 @@
 import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:consumer_checkin/constant/colors_constant.dart';
-import 'package:consumer_checkin/services/google_sheets.dart';
+import 'package:consumer_checkin/constant/functions/functions.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
@@ -37,10 +36,6 @@ class _RetrieveMarkersState extends State<RetrieveMarkers> {
   late GoogleMapController controller;
 
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
-
-  void updateConsumerSheet(String consumerID, Map<String, dynamic> _consumerRow) async {
-    await ConsumerSheetsAPI.update(consumerID, _consumerRow);
-  }
 
   void initMarker(specify, specifyId) async {
     var markerIdVal = specifyId;
@@ -354,6 +349,7 @@ class _RetrieveMarkersState extends State<RetrieveMarkers> {
                                                                   "LandlineCompany"]
                                                                       : landlineCompany
                                                                 });
+                                                                updateConsumerSheet(specify["ConsumerID"], _consumerRow);
                                                                 Navigator.pop(context);
                                                               },
                                                               child: const Text(
@@ -371,7 +367,7 @@ class _RetrieveMarkersState extends State<RetrieveMarkers> {
                                 });
                           },
                           child: Text(
-                            "Edit Data",
+                            "Edit",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, color: kMaroon),
                           ),
@@ -454,7 +450,7 @@ class _RetrieveMarkersState extends State<RetrieveMarkers> {
                                 });
                           },
                           child: Text(
-                            "Delete Data",
+                            "Delete",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, color: kMaroon),
                           ),

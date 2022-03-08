@@ -53,4 +53,12 @@ class ConsumerSheetsAPI {
 
       return _consumerSheet!.values.map.insertRowByKey(id, consumerRow);
   }
+
+  static Future<bool> deleteById(String id) async {
+    if(_consumerSheet == null) return false;
+    final index = await _consumerSheet!.values.rowIndexOf(id);
+    if(index == -1) return false;
+    return _consumerSheet!.deleteRow(index);
+  }
+
 }

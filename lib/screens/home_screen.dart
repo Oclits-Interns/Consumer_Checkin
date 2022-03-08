@@ -137,13 +137,25 @@ class _HomeState extends State<Home> {
                             snapshot.data!.docs[index];
                             return GestureDetector(
                               onTap: () {
-                                Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) {
-                                      return RetrieveSingleMarker(
-                                          _items.id,
-                                          _items["location"].latitude,
-                                          _items["location"].longitude);
-                                    }));
+                                final bool hasLocation =
+                                (snapshot.data!.docs[index].data()
+                                as Map<String, dynamic>)
+                                    .containsKey('location');
+                                if (hasLocation) {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
+                                        return RetrieveSingleMarker(
+                                            _items.id,
+                                            _items["location"].latitude,
+                                            _items["location"].longitude);
+                                      }));
+                                } else {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
+                                        return RetrieveSingleMarker(
+                                            _items.id, 0.0, 0.0);
+                                      }));
+                                }
                               },
                               child: ListTile(
                                 contentPadding: const EdgeInsets.all(8.0),

@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:consumer_checkin/constant/colors_constant.dart';
+import 'package:consumer_checkin/constant/functions/functions.dart';
 import 'package:consumer_checkin/screens/retrieve_locations.dart';
-import 'package:consumer_checkin/services/google_sheets.dart';
 import 'package:cool_alert/cool_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -43,10 +43,6 @@ class _RetrieveMarkersBySearchState extends State<RetrieveMarkersBySearch> {
   late GoogleMapController controller;
 
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
-
-  void updateConsumerSheet(String consumerID, Map<String, dynamic> _consumerRow) async {
-    await ConsumerSheetsAPI.update(consumerID, _consumerRow);
-  }
 
   void initMarker(specify, specifyId) async {
     var markerIdVal = specifyId;
@@ -362,6 +358,7 @@ class _RetrieveMarkersBySearchState extends State<RetrieveMarkersBySearch> {
                                                                   "LandlineCompany"]
                                                                       : landlineCompany
                                                                 });
+                                                                updateConsumerSheet(specify["ConsumerID"], _consumerRow);
                                                                 Navigator.pop(context);
                                                               },
                                                               child: const Text(
@@ -379,7 +376,7 @@ class _RetrieveMarkersBySearchState extends State<RetrieveMarkersBySearch> {
                                 });
                           },
                           child: Text(
-                            "Edit Data",
+                            "Edit",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, color: kMaroon),
                           ),
@@ -462,7 +459,7 @@ class _RetrieveMarkersBySearchState extends State<RetrieveMarkersBySearch> {
                                 });
                           },
                           child: Text(
-                            "Delete Data",
+                            "Delete",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, color: kMaroon),
                           ),
