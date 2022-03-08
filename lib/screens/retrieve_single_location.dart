@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:consumer_checkin/constant/colors_constant.dart';
 import 'package:consumer_checkin/constant/functions/functions.dart';
+import 'package:consumer_checkin/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
@@ -372,7 +373,7 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                 });
                           },
                           child: Text(
-                            "Edit Data",
+                            "Edit",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, color: kMaroon),
                           ),
@@ -436,11 +437,10 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                                 .collection('Consumers')
                                                 .doc(specifyId)
                                                 .delete();
-                                            Navigator.pushReplacement(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        const RetrieveSingleMarker()));
+                                            deleteConsumerRow(specify["ConsumerID"]);
+                                            Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                              return const Home();
+                                            }));
                                           },
                                           child: const Text("OK"))
                                     ],
@@ -448,7 +448,7 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                 });
                           },
                           child: Text(
-                            "Delete Data",
+                            "Delete",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, color: kMaroon),
                           ),

@@ -438,11 +438,8 @@ class _RetrieveMarkersState extends State<RetrieveMarkers> {
                                                 .collection('Consumers')
                                                 .doc(specifyId)
                                                 .delete();
-                                            Navigator.pushReplacement(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        const RetrieveMarkers()));
+                                            deleteConsumerRow(specify["ConsumerID"]);
+                                            Navigator.pop(context);
                                           },
                                           child: const Text("OK"))
                                     ],

@@ -104,7 +104,7 @@ class _MapAppState extends State<MapApp> {
   final _blockTextController = TextEditingController();
   final _areaTextController = TextEditingController();
 
-  Future<void> scanBarcodeNormal() async {
+  Future<void> scanBarcode() async {
     String barcodeScanRes;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
@@ -331,7 +331,7 @@ class _MapAppState extends State<MapApp> {
                                   GestureDetector(
                                       onTap: () {
                                         setState(() {
-                                          scanBarcodeNormal();
+                                          scanBarcode();
                                         });
                                       },
                                       child: Text(
@@ -343,26 +343,6 @@ class _MapAppState extends State<MapApp> {
                                       )),
                                 ],
                               ),
-                             /* TextFormField(
-                                controller: _consumerIdTextController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Consumer Id',
-                                  suffixText: '*',
-                                  suffixStyle: TextStyle(
-                                    color: Colors.red,
-                                  ),
-                                ),
-                                onChanged: (val) => setState(() {
-                                  consumerID = val;
-                                }),
-                                validator: (String? val) {
-                                  if (val == null || val.trim().length == 0) {
-                                    return "Consumer ID is mandatory";
-                                  } else {
-                                    return null;
-                                  }
-                                },
-                              ),*/
                               DropdownButtonFormField(
                                   decoration: const InputDecoration(
                                     labelText: "Plot Type",
@@ -713,7 +693,7 @@ class _MapAppState extends State<MapApp> {
                         openCamera();
                       },
                       child: Text(
-                        "TAKE IMAGE",
+                        "Take Image",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, color: kMaroon),
                       ),
@@ -732,17 +712,6 @@ class _MapAppState extends State<MapApp> {
                                 text: "This Data already exists",
                                 autoCloseDuration: const Duration(milliseconds: 3000)
                             );
-                            // showDialog(context: context, builder: (context) {
-                            //   return AlertDialog(
-                            //     content: const Text("This data already exists"),
-                            //     actions: [
-                            //       GestureDetector(
-                            //           child: Text("Close", style: TextStyle(color: kMaroon, fontWeight: FontWeight.bold)),
-                            //         onTap: () {Navigator.pop(context);},
-                            //       )
-                            //     ],
-                            //   );
-                            // });
                           }
                           else {
                             entryNum = await _db.countEntriesInZoneWard(zone, ward) + 1;
@@ -821,11 +790,6 @@ class _MapAppState extends State<MapApp> {
                                 ConsumerFields.dateTime: json.encode(DateTime.now().toIso8601String()) ,
                               };
                               CoolAlert.show(context: context, type: CoolAlertType.loading);
-                              // showDialog(context: context,
-                              //     builder: (BuildContext context) {
-                              //       return const Center(
-                              //           child: CircularProgressIndicator());
-                              //     });
                               await uploadFile();
                               Navigator.pop(context);
                               await ConsumerSheetsAPI.insert([consumer]);
