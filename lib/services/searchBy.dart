@@ -63,8 +63,6 @@ class _RetrieveMarkersBySearchState extends State<RetrieveMarkersBySearch> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Total Entries : " + totalEntries),
-                        const SizedBox(height: 5),
                         Text("Consumer_ID : " +
                             specify["ConsumerID"].toString()),
                         const SizedBox(height: 5),

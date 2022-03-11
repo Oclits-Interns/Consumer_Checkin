@@ -721,9 +721,10 @@ class _MapAppState extends State<MapApp> {
                             address += "House # " +
                                 houseNum.toString() +
                                 " " +
-                                unitNum.toString() +
                                 " block " +
                                 block.toString() +
+                                " " +
+                                unitNum.toString() +
                                 " " +
                                 area.toString();
 
