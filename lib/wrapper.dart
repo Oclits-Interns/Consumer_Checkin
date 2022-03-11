@@ -1,5 +1,4 @@
 import 'package:consumer_checkin/screens/authentication/authenticate.dart';
-import 'package:consumer_checkin/screens/authentication/signIn_screen.dart';
 import 'package:consumer_checkin/screens/home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

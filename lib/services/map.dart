@@ -716,7 +716,7 @@ class _MapAppState extends State<MapApp> {
                           else {
                             entryNum = await _db.countEntriesInZoneWard(zone, ward) + 1;
                             plotType == "Domestic" ? plotTypeLetter = "D" : plotTypeLetter = "C";
-                            consumerID = zone + "-" + ward + "-" + entryNum.toString() + plotTypeLetter ;
+                            consumerID = zone + "-" + ward + "-" + entryNum.toString() + "-" + plotTypeLetter;
                             address = "";
                             address += "House # " +
                                 houseNum.toString() +
@@ -729,7 +729,7 @@ class _MapAppState extends State<MapApp> {
 
                             if (!isConnected) {
                               _takePhoto(consumerID);
-                              // If network detected is found to be false, the the consumer records are stored in SQLite db using the method below
+                              // If network detected is found to be false, then the consumer records are stored in SQLite db using the method below
                               DBProvider.db.insertConsumerEntryOffline(
                                   consumerId: consumerID,
                                   plotType: plotType,
@@ -783,10 +783,8 @@ class _MapAppState extends State<MapApp> {
                                 ConsumerFields.address: address,
                                 ConsumerFields.newAddress: newAddress,
                                 ConsumerFields.gasCompanyId: gasCompany,
-                                ConsumerFields
-                                    .electricCompanyId: electricCompany,
-                                ConsumerFields
-                                    .landlineCompanyId: landlineNumber,
+                                ConsumerFields.electricCompanyId: electricCompany,
+                                ConsumerFields.landlineCompanyId: landlineNumber,
                                 ConsumerFields.dateTime: json.encode(DateTime.now().toIso8601String()) ,
                               };
                               CoolAlert.show(context: context, type: CoolAlertType.loading);
@@ -971,8 +969,7 @@ class _MapAppState extends State<MapApp> {
         _markers.add(Marker(
             markerId: MarkerId(point.toString()),
             position: point,
-            icon:
-            BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
             onTap: () {
               _showAlertDialog();
             }));
@@ -1349,12 +1346,9 @@ class _MapAppState extends State<MapApp> {
                             ConsumerFields.houseNum: element["House_Number"],
                             ConsumerFields.address: element["Address"],
                             ConsumerFields.newAddress: element["New_Address"],
-                            ConsumerFields.gasCompanyId:
-                            element["Gas_Company_Id"],
-                            ConsumerFields.electricCompanyId:
-                            element["Electricity_Company_Id"],
-                            ConsumerFields.landlineCompanyId:
-                            element["Landline_Company_Id"],
+                            ConsumerFields.gasCompanyId: element["Gas_Company_Id"],
+                            ConsumerFields.electricCompanyId: element["Electricity_Company_Id"],
+                            ConsumerFields.landlineCompanyId: element["Landline_Company_Id"],
                           };
                           await ConsumerSheetsAPI.insert([consumer]);
                         }

@@ -1,4 +1,3 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:consumer_checkin/services/google_sheets.dart';
 
 //The below functions are used in more than a single place
