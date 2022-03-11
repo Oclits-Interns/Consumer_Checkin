@@ -42,6 +42,8 @@ class _RetrieveMarkersBySearchState extends State<RetrieveMarkersBySearch> {
 
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
 
+  final GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey<ScaffoldState>();
+
   void initMarker(specify, specifyId) async {
     var markerIdVal = specifyId;
     final MarkerId markerId = MarkerId(markerIdVal);
@@ -527,6 +529,7 @@ class _RetrieveMarkersBySearchState extends State<RetrieveMarkersBySearch> {
         }
         if (widget.name == "Surveyor_Email") {
           totalEntries = myMocDoc.docs.length.toString();
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Total entries by this surveyor: " + totalEntries)));
         }
       }
       else {
@@ -556,6 +559,7 @@ class _RetrieveMarkersBySearchState extends State<RetrieveMarkersBySearch> {
   Widget build(BuildContext context) {
 
     return Scaffold(
+      key: _scaffoldkey,
         body: GoogleMap(
             mapType: MapType.normal,
             markers: Set<Marker>.of(markers.values),
