@@ -63,6 +63,7 @@ dependencies:
   gallery_saver: ^2.3.2
   qr_flutter: ^4.0.0
   cool_alert: ^1.1.0
+  firebase_phone_auth_handler: ^1.0.1
 
 
 flutter_native_splash:

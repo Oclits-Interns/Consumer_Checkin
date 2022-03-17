@@ -1,4 +1,6 @@
+import 'package:consumer_checkin/models/TheUser.dart';
 import 'package:consumer_checkin/screens/authentication/authenticate.dart';
+import 'package:consumer_checkin/screens/authentication/verify_email.dart';
 import 'package:consumer_checkin/screens/home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +17,9 @@ class Wrapper extends StatelessWidget {
     //Display either the authentication screens or home screen
     if(user == null) {
       return const Authenticate();
+    }
+    else if(!user.emailVerified) {
+      return VerifyEmail();
     }
     else {
       return const Home();

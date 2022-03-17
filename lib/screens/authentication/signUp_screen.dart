@@ -1,10 +1,11 @@
 import 'package:consumer_checkin/constant/colors_constant.dart';
+import 'package:consumer_checkin/screens/authentication/verify_email.dart';
 import 'package:consumer_checkin/services/auth.dart';
 import 'package:consumer_checkin/widgets/logo.dart';
 import 'package:flutter/material.dart';
 import 'package:consumer_checkin/local_DB/local_db.dart';
 
-String _error = "";
+String _message = "";
 
 class SignUp extends StatefulWidget {
   final void Function() toggleView;
@@ -120,26 +121,29 @@ class _SignUpState extends State<SignUp> {
                               if(_formKey.currentState!.validate()) {
                                 DBProvider.db.createTableAtLogin();
                                 DBProvider.db.insertSigninUser(_email, _password);
-                                _error = await _auth.register(_userName, _email, _password);
+                                _message = await _auth.register(_userName, _email, _password) ?? "";
+                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+                                  return VerifyEmail();
+                                }));
                               }
-                              switch(_error) {
+                              switch(_message) {
                                 case "This email is already registered with another account":
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_error.toString())));
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_message.toString())));
                                   break;
                                 case "You have entered an invalid email":
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_error.toString())));
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_message.toString())));
                                   break;
                                 case "There seems to be a problem signing up, please try again at a different time":
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_error.toString())));
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_message.toString())));
                                   break;
                                 case "This password is too weak":
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_error.toString())));
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_message.toString())));
                                   break;
                                 default: showDialog(
                                   context: context,
                                   builder: (context) {
                                     return AlertDialog(
-                                      content: Text("Something went wrong.. " + _error.toString()),
+                                      content: Text("Something went wrong.. " + _message.toString()),
                                     );
                                   }
                                 );

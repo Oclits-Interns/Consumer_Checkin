@@ -17,6 +17,39 @@ class AuthService {
     return _auth.authStateChanges();
   }
 
+  //Sign in with phone
+  Future signInWithPhone(String phoneNumber,) async {
+    _auth.verifyPhoneNumber(
+        phoneNumber: phoneNumber,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          // ANDROID ONLY!
+
+          // Sign the user in (or link) with the auto-generated credential
+          await _auth.signInWithCredential(credential);
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          if (e.code == 'invalid-phone-number') {
+            print('The provided phone number is not valid.');
+          }
+          // Handle other errors
+        },
+        codeSent: (String verificationId, int? resendToken) async {
+          // Update the UI - wait for the user to enter the SMS code
+          String smsCode = 'xxxx';
+
+          // Create a PhoneAuthCredential with the code
+          PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: smsCode);
+
+          // Sign the user in (or link) with the credential
+          await _auth.signInWithCredential(credential);
+        },
+      timeout: const Duration(seconds: 60),
+      codeAutoRetrievalTimeout: (String verificationId) {
+        // Auto-resolution timed out...
+      },
+    );
+  }
+
   //sign in
   Future signInWithEmailAndPassword(String email, String password) async {
     try{
@@ -65,7 +98,11 @@ class AuthService {
       User? user = result.user;
       //create a new user with the uid
       await DatabaseService().addUser(userName, email, password, user!.uid);
-      return _userFromFirebaseUser(user);
+      if (user!= null && !user.emailVerified) {
+        await user.sendEmailVerification();
+        // if user verifies their email
+          return _userFromFirebaseUser(user);
+      }
     }
     on FirebaseAuthException catch (e) {
       var message = '';
@@ -92,5 +129,4 @@ class AuthService {
       rethrow;
     }
   }
-
 }
