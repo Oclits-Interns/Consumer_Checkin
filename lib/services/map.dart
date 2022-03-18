@@ -10,6 +10,7 @@ import 'package:consumer_checkin/screens/retrieve_locations.dart';
 import 'package:consumer_checkin/services/auth.dart';
 import 'package:consumer_checkin/services/db_firestore.dart';
 import 'package:consumer_checkin/services/google_sheets.dart';
+import 'package:consumer_checkin/services/networking.dart';
 import 'package:consumer_checkin/services/searchBy.dart';
 import 'package:cool_alert/cool_alert.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -218,6 +219,27 @@ class _MapAppState extends State<MapApp> {
     }
   }
 
+  // retriving data from server and set into feilds
+
+  Future<dynamic> getDataFromID(id) async {
+    Networkhelper networkhelper = Networkhelper(
+        'http://182.176.105.49:8081/consumercheckin/linker.php?search_consumer=true&consumer_no=$id');
+
+    var iddata = await networkhelper.getData();
+
+    _consumerNameTextController.text =
+        iddata[1]["consumer_name"] ?? "";
+    name = iddata[1]["consumer_name"] ?? "";
+
+    _mobileNumberTextController.text =
+        iddata[1]["consumer_phone"] ?? "";
+    number = iddata[1]["consumer_phone"] ?? "";
+
+    _emailTextController.text = iddata[1]["consumer_email"] ?? "";
+    email = iddata[1]["consumer_email"] ?? "";
+
+    return iddata[1];
+  }
 
   var numberFormatter = MaskTextInputFormatter(
       mask: '####-#######', filter: {"#": RegExp(r'[0-9]')});
@@ -342,6 +364,27 @@ class _MapAppState extends State<MapApp> {
                                         )
                                       )),
                                 ],
+                              ),
+                              TextFormField(
+                                controller: _consumerIdTextController,
+                                decoration: InputDecoration(
+                                  labelText: 'Consumer ID',
+                                  suffixIcon: GestureDetector(
+                                      onTap: () {
+                                        getDataFromID(consumerID);
+                                      },
+                                      child: const Icon(Icons.navigate_next_outlined)),
+                                ),
+                                onChanged: (val) => setState(() {
+                                  consumerID = val.toString();
+                                }),
+                                validator: (String? val) {
+                                  if (val == null || val.trim().isEmpty) {
+                                    return "Please enter Consumer ID First";
+                                  } else {
+                                    return null;
+                                  }
+                                },
                               ),
                               DropdownButtonFormField(
                                   decoration: const InputDecoration(

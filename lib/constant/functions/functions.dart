@@ -41,12 +41,10 @@ sendEmail(String otp, String userName, String email) async {
 
   try {
     final sendReport = await send(message, smtpServer);
-    print('Message sent: ' + sendReport.toString());
   } on MailerException catch (e) {
     print(e);
-    print('Message not sent.');
     for (var p in e.problems) {
-      print('Problem: ${p.code}: ${p.msg}');
+
     }
   }
 }
