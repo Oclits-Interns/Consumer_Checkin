@@ -31,7 +31,7 @@ class _WrapperState extends State<Wrapper> {
             if(user == null || !snapshot.hasData) {
               return const Authenticate();
             }
-          else if(!user.emailVerified && (_items as dynamic)["Authenticated"] == "false") {
+          else if(!user.emailVerified || (_items as dynamic)["Authenticated"] == "false") {
               return const VerifyEmail();
             }
           else {

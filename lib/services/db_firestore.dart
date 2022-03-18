@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:mailer/mailer.dart';
 
 class DatabaseService {
   final CollectionReference _consumersCollection = FirebaseFirestore.instance.collection("Consumers");
