@@ -1,5 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:consumer_checkin/constant/colors_constant.dart';
-import 'package:consumer_checkin/screens/home_screen.dart';
+import 'package:consumer_checkin/services/db_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,9 +11,14 @@ class VerifyEmail extends StatefulWidget {
   State<VerifyEmail> createState() => _VerifyEmailState();
 }
 
+bool isAuthenticated = false;
+
 class _VerifyEmailState extends State<VerifyEmail> {
   String message = "A confirmation email is sent to your email address, click the link in the email to verify your account";
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  TextEditingController otpController = TextEditingController();
+  String otp = "";
+
   @override
   Widget build(BuildContext context) {
 
@@ -33,6 +39,34 @@ class _VerifyEmailState extends State<VerifyEmail> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text("A 6 digit OTP has been sent to the admin, enter that OTP below",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w400
+              ),),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
+              child: TextFormField(
+                controller: otpController,
+                decoration: InputDecoration(
+                  hintText: "Enter OTP",
+                  border: const OutlineInputBorder(),
+                  suffixIcon: GestureDetector(
+                      onTap: () async {
+                        isAuthenticated = await DatabaseService().getOtp(otp);
+                        FirebaseFirestore.instance.collection("users").doc(user!.uid).update(
+                            {"Authenticated" : isAuthenticated});
+                      },
+                      child: const Icon(Icons.arrow_forward)),
+                ),
+                onChanged: (val) {setState(() => otp = val);},
+              ),
+            ),
+            const SizedBox(height: 10,),
+            Divider(thickness: 1.5, color: kYellow,),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
               child: Text(
@@ -51,9 +85,18 @@ class _VerifyEmailState extends State<VerifyEmail> {
                   await user!.reload();
                   user = _auth.currentUser;
                   if(user!.emailVerified) {
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context){
-                        return const Home();
-                      }));
+                    showDialog(context: context, builder: (context) {
+                      return AlertDialog(
+                        content: const Text("Your email has been verified, now enter OTP from admin"),
+                        actions: [
+                          GestureDetector(
+                              child: const Text("Close"),
+                          onTap: () {
+                                Navigator.pop(context);
+                          },)
+                        ],
+                      );
+                    });
                     }
                 },
                 child: Container(

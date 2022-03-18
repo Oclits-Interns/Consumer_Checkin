@@ -3,7 +3,7 @@ import 'package:consumer_checkin/services/auth.dart';
 import 'package:consumer_checkin/widgets/logo.dart';
 import 'package:flutter/material.dart';
 
-String error = "";
+var error;
 
 class SignIn extends StatefulWidget {
   final void Function() toggleView;
@@ -112,14 +112,7 @@ class _SignInState extends State<SignIn> {
                                   case "You have entered incorrect password":
                                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
                                     break;
-                                  default: showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return const AlertDialog(
-                                          content: Text("Something went wrong.. "),
-                                        );
-                                      }
-                                  );
+                                  default: print("Something went wrong");
                                     break;
                                 }
                               }

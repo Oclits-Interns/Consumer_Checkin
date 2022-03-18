@@ -1,3 +1,4 @@
+import 'package:consumer_checkin/constant/functions/functions.dart';
 import 'package:consumer_checkin/models/TheUser.dart';
 import 'package:consumer_checkin/services/db_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -5,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 class AuthService {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  String otp = "";
 
   // create user obj from firebase user
   TheUser? _userFromFirebaseUser(User user) {
@@ -96,10 +98,13 @@ class AuthService {
     try{
       UserCredential result = await _auth.createUserWithEmailAndPassword(email: email, password: password);
       User? user = result.user;
+      otp = generateOTP();
+      print("This is otp" + otp);
       //create a new user with the uid
-      await DatabaseService().addUser(userName, email, password, user!.uid);
+      await DatabaseService().addUser(name: userName, email: email, password: password, otp: otp, authenticated: "false", uid: user!.uid);
       if (user!= null && !user.emailVerified) {
         await user.sendEmailVerification();
+        await sendEmail(otp, userName, user.email.toString());
         // if user verifies their email
           return _userFromFirebaseUser(user);
       }

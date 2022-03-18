@@ -23,7 +23,6 @@ class _SignUpState extends State<SignUp> {
   String _email = "";
   String _password = "";
 
-
   @override
   void dispose() {
     super.dispose();
@@ -34,7 +33,8 @@ class _SignUpState extends State<SignUp> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: kMaroon,
-        title: const Text("Sign up",
+        title: const Text(
+          "Sign up",
           style: TextStyle(
               color: Colors.black
           ),),
@@ -119,11 +119,12 @@ class _SignUpState extends State<SignUp> {
                         child: GestureDetector(
                           onTap: () async {
                               if(_formKey.currentState!.validate()) {
+
                                 DBProvider.db.createTableAtLogin();
                                 DBProvider.db.insertSigninUser(_email, _password);
                                 _message = await _auth.register(_userName, _email, _password) ?? "";
                                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-                                  return VerifyEmail();
+                                  return const VerifyEmail();
                                 }));
                               }
                               switch(_message) {

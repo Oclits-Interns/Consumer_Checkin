@@ -1,15 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mailer/mailer.dart';
 
 class DatabaseService {
   final CollectionReference _consumersCollection = FirebaseFirestore.instance.collection("Consumers");
   CollectionReference userCollection = FirebaseFirestore.instance.collection("users");
 
-  Future addUser(String name, String email, String password, String uid) async {
+  Future addUser(
+      {
+        required String name,
+        required String email,
+        required String password,
+        required String otp,
+        required String authenticated,
+        required String uid}) async {
     try {
       return await userCollection.doc(uid).set({
         "userName" : name,
         "Email" : email,
-        "Password" : password
+        "Password" : password,
+        "OTP" : otp,
+        "Authenticated" : authenticated
       });
     }
     catch(e) {
@@ -122,6 +132,16 @@ class DatabaseService {
       throw Exception(e.toString());
     }
   }*/
+
+  Future<bool> getOtp(String otp) async {
+    final QuerySnapshot result = await FirebaseFirestore.instance
+        .collection('users')
+        .where('OTP', isEqualTo: otp)
+        .limit(1)
+        .get();
+    final List<DocumentSnapshot> documents = result.docs;
+    return documents.length == 1;
+  }
 
   Future<bool> doesNumberAlreadyExist(String mobNumber) async {
     final QuerySnapshot result = await FirebaseFirestore.instance
