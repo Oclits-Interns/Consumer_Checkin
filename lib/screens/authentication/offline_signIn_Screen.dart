@@ -72,23 +72,23 @@ class _OfflineSignInState extends State<OfflineSignIn> {
                       TextFormField(
                         obscureText: _showPassword,
                         decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          hintText: "Enter your Password",
-                          prefixIcon: const Icon(Icons.lock_outline_rounded),
-                          suffixIcon: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _showPassword = !_showPassword;
-                                if(_showPassword) {
-                                  showPasswordIcon = const Icon(Icons.visibility_rounded);
-                                } else{
-                                  showPasswordIcon = const Icon(Icons.visibility_off_rounded);
-                                }
-                              });
-                            },
-                              child: showPasswordIcon)
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            hintText: "Enter your Password",
+                            prefixIcon: const Icon(Icons.lock_outline_rounded),
+                            suffixIcon: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _showPassword = !_showPassword;
+                                    if(_showPassword) {
+                                      showPasswordIcon = const Icon(Icons.visibility_rounded);
+                                    } else{
+                                      showPasswordIcon = const Icon(Icons.visibility_off_rounded);
+                                    }
+                                  });
+                                },
+                                child: showPasswordIcon)
                         ),
                         onChanged: (val) => setState(() {_password = val;}),
                         validator: (val) => val!.length< 6 ? 'Password must be 6 characters or more' : null,
@@ -104,7 +104,7 @@ class _OfflineSignInState extends State<OfflineSignIn> {
                               // Then we check whether table SignInUser exists, if it doesn't we create it first
                               await DBProvider.db.createTableAtLogin();
                               // If Database is found, we look for the user with the provided credentials in the SignInUser table,
-                                signInUser = await DBProvider.db.validateWithoutInternet(_email, _password);
+                              signInUser = await DBProvider.db.validateWithoutInternet(_email, _password);
                               // The above method will return 1 if user is found, and 0 or garbage value if not found
                               if(signInUser == 1){
                                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Home()));
@@ -120,9 +120,9 @@ class _OfflineSignInState extends State<OfflineSignIn> {
                               else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                     new SnackBar(
-                                  content: const Text("Credentials don't match, please try again"),
+                                      content: const Text("Credentials don't match, please try again"),
                                       duration: new Duration(milliseconds: 3000),
-                                ));
+                                    ));
                               }
                             }
                           },

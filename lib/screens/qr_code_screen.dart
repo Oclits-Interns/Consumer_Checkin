@@ -64,7 +64,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                           ),
                           style: ButtonStyle(
                             backgroundColor:
-                                MaterialStateProperty.all(Color(0xffb11118)),
+                            MaterialStateProperty.all(Color(0xffb11118)),
                           ),
                         ),
                       ),
@@ -82,7 +82,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
   Widget _buildQrView(BuildContext context) {
     // For this example we check how width or tall the device is and change the scanArea and overlay accordingly.
     var scanArea = (MediaQuery.of(context).size.width < 500 ||
-            MediaQuery.of(context).size.height < 500)
+        MediaQuery.of(context).size.height < 500)
         ? 300.0
         : 300.0;
     // To ensure the Scanner view is properly sizes after rotation

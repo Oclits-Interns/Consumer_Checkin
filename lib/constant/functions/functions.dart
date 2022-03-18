@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:consumer_checkin/services/google_sheets.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server/gmail.dart';
 
