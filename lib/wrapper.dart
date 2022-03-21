@@ -14,6 +14,8 @@ class Wrapper extends StatefulWidget {
 }
 
 class _WrapperState extends State<Wrapper> {
+
+  var _items;
   @override
   Widget build(BuildContext context) {
 
@@ -27,16 +29,20 @@ class _WrapperState extends State<Wrapper> {
             return const Authenticate();
           }
           else {
-            var _items = snapshot.data;
             if (user == null && !snapshot.hasData) {
               return const Authenticate();
             }
-            if (user!.emailVerified &&
-                (_items as dynamic)["Authenticated"] == true) {
-              return const Home();
-            }
+            if(snapshot.hasData) {
+              var _items = snapshot.data;
+              if (user!.emailVerified &&
+                  (_items as dynamic)["Authenticated"] == true) {
+                return const Home();
+              }
+              else {
+                return const VerifyEmail();
+              }}
             else {
-              return const VerifyEmail();
+              return const Center(child: CircularProgressIndicator());
             }
           }
         });

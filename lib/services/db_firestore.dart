@@ -28,12 +28,14 @@ class DatabaseService {
 
   Future addConsumerEntry({
     required String consumerID,
+    required String oldConsumerId,
     required String zone,
     required String ward,
     required String plotType,
     required String name,
     required String number,
     required String email,
+    required String tariffOrDia,
     required String address,
     required String gasCompany,
     required String electricCompany,
@@ -54,11 +56,13 @@ class DatabaseService {
     try {
       return await _consumersCollection.add({
         "ConsumerID": consumerID,
+        "Old_ConsumerID" : oldConsumerId,
         "Zone": zone,
         "Ward": ward,
         "Name": name,
         "Number": number,
         "Email": email,
+        "Tariff_Or_Dia" : tariffOrDia,
         "Address": address,
         "GasCompany": gasCompany,
         "ElectricCompany": electricCompany,

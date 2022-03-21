@@ -34,6 +34,7 @@ class DBProvider {
           Consumer_Name TEXT ,
           Number TEXT  ,
           CNIC TEXT  ,
+          Tariff_Or_Dia TEXT  ,
           Email TEXT  ,
           Taluka TEXT ,
           UC_Num TEXT ,
@@ -47,9 +48,11 @@ class DBProvider {
           New_address TEXT ,
           Gas_Company_Id TEXT  ,
           Electricity_Company_Id TEXT  ,
-          Landline_Company_Id TEXT
-           )
-           
+          Landline_Company_Id TEXT  ,
+          Surveyor_Name TEXT  ,
+          Surveyor_Email TEXT ,
+          DateTime TEXT
+           )  
           ''');
     });
   }
@@ -72,6 +75,7 @@ class DBProvider {
         required String plotType,
         required String name,
         required String number,
+        required String tariffOrDia,
         required String email,
         required String cnic,
         required String taluka,
@@ -86,10 +90,14 @@ class DBProvider {
         required String newAddress,
         required String gasCompany,
         required String electricCompany,
-        required String landlineCompany}) async {
+        required String landlineCompany,
+        required String surveyorName,
+        required String surveyorEmail,
+        required String dateTime,
+      }) async {
     await _database!.execute('''
-    INSERT INTO Consumers(Consumer_Id, Plot_Type, Consumer_Name, Number, Email, CNIC, Taluka, UC_Num, Zone_Num, Ward_Num, Area, Unit_Number, Block, House_Number, Address, New_Address, Gas_Company_Id, Electricity_Company_Id, Landline_Company_Id)
-    VALUES ('$consumerId', '$plotType', '$name', '$number', '$email', '$cnic', '$taluka', '$ucNum', '$zone', '$wardNumber', '$area', '$unitNum', '$block', '$houseNum', '$address', '$newAddress', '$gasCompany', '$electricCompany', '$landlineCompany') 
+    INSERT INTO Consumers(Consumer_Id, Plot_Type, Consumer_Name, Number, Email, CNIC, Tariff_Or_Dia ,Taluka, UC_Num, Zone_Num, Ward_Num, Area, Unit_Number, Block, House_Number, Address, Gas_Company_Id, Electricity_Company_Id, Landline_Company_Id, Surveyor_Name, Surveyor_Email, DateTime)
+    VALUES ('$consumerId', '$plotType', '$name', '$number', '$email', '$cnic', '$tariffOrDia', '$taluka', '$ucNum', '$zone', '$wardNumber', '$area', '$unitNum', '$block', '$houseNum', '$address', '$gasCompany', '$electricCompany', '$landlineCompany, '$surveyorName', '$surveyorEmail', '$dateTime') 
     ''');
   }
 

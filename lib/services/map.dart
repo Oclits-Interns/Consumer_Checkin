@@ -14,8 +14,6 @@ import 'package:consumer_checkin/services/networking.dart';
 import 'package:consumer_checkin/services/searchBy.dart';
 import 'package:cool_alert/cool_alert.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:gallery_saver/gallery_saver.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
@@ -25,7 +23,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';
-
 
 class MapApp extends StatefulWidget {
   const MapApp({this.lan, this.lat});
@@ -42,10 +39,13 @@ var emailExists;
 
 class _MapAppState extends State<MapApp> {
   String consumerID = "";
+  String oldAddress = "";
+  String oldconsumerID = "";
   String plotType = "";
   String name = "";
   String number = "";
   String email = "";
+  String tariffOrDia = "";
   String zone = "";
   String ward = "";
   String uc = "";
@@ -83,15 +83,66 @@ class _MapAppState extends State<MapApp> {
     "Latifabad Taluka",
     "Hyderabad City Taluka"
   ];
-  final List<String> _unitNumList = ["Unit # 1", "Unit # 2", "Unit # 3", "Unit # 4", "Unit # 5", "Unit # 6", "Unit # 7", "Unit # 8", "Unit # 9", "Unit # 10", "Unit # 11", "Unit # 12", ];
-  final List<String> _zoneList = ["01", "02", "03", "04", "05", "06", "07",];
-  final List<String> _wardList = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10",];
-  final List<String> _ucNumList = ["UC # 1", "UC # 2", "UC # 3", "UC # 4", "UC # 5", "UC # 6", "UC # 7", "UC # 8", "UC # 9", "UC # 10", "UC # 11", "UC # 12", "UC # 13", "UC # 14",
+  final List<String> _unitNumList = [
+    "Unit # 1",
+    "Unit # 2",
+    "Unit # 3",
+    "Unit # 4",
+    "Unit # 5",
+    "Unit # 6",
+    "Unit # 7",
+    "Unit # 8",
+    "Unit # 9",
+    "Unit # 10",
+    "Unit # 11",
+    "Unit # 12",
   ];
+  final List<String> _zoneList = [
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+  ];
+  final List<String> _wardList = [
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10",
+  ];
+  // final List<String> _ucNumList = [
+  //   "UC # 1",
+  //   "UC # 2",
+  //   "UC # 3",
+  //   "UC # 4",
+  //   "UC # 5",
+  //   "UC # 6",
+  //   "UC # 7",
+  //   "UC # 8",
+  //   "UC # 9",
+  //   "UC # 10",
+  //   "UC # 11",
+  //   "UC # 12",
+  //   "UC # 13",
+  //   "UC # 14",
+  // ];
+  final List<double> _diaList = [0.5, 0.75, 1, 1.5, 2];
+  final List<String> _tariffList = ["A", "AG + 1", "AG+2", "AG + 3", "B", "BG + 1", "BG + 2", "BG + 3",
+    "C", "CG + 1", "CG + 2", "CG + 3", "D", "DG + 1", "DG + 2", "DG + 3", "E", "EG + 1", "EG + 2", "EG + 3",
+    "F", "FG + 1", "FG + 2", "FG + 3"];
   final DatabaseService _db = DatabaseService();
   final AuthService _auth = AuthService();
   final _emailTextController = TextEditingController();
   final _consumerIdTextController = TextEditingController();
+  final _oldconsumerIdTextController = TextEditingController();
   final _consumerNameTextController = TextEditingController();
   final _mobileNumberTextController = TextEditingController();
   final _landlineIdTextController = TextEditingController();
@@ -104,6 +155,8 @@ class _MapAppState extends State<MapApp> {
   final _streetTextController = TextEditingController();
   final _blockTextController = TextEditingController();
   final _areaTextController = TextEditingController();
+  final _oldAddressTextController = TextEditingController();
+  final _plottypeTextController = TextEditingController();
 
   Future<void> scanBarcode() async {
     String barcodeScanRes;
@@ -121,12 +174,19 @@ class _MapAppState extends State<MapApp> {
     if (!mounted) return;
 
     setState(() {
-      int startIndexConsumerId = 0;
-      int endIndexConsumerId = 11;
+      int startIndexConsumerId = 4;
+      int endIndexConsumerId = 10;
       String resultConsumerId =
       barcodeScanRes.substring(startIndexConsumerId, endIndexConsumerId);
-      _consumerIdTextController.text = resultConsumerId.toString();
-      consumerID = resultConsumerId;
+      //_oldconsumerIdTextController.text = resultConsumerId.toString();
+      // oldconsumerID = resultConsumerId;
+
+      int startIndexConsumerplot = 10;
+      int endIndexConsumerplot = 11;
+      String resultConsumerplot = barcodeScanRes.substring(
+          startIndexConsumerplot, endIndexConsumerplot);
+      _plottypeTextController.text = resultConsumerplot.toString();
+
       int startIndexZone = 0;
       int endIndexZone = 2;
       String resultZone =
@@ -137,7 +197,45 @@ class _MapAppState extends State<MapApp> {
       String resultWard =
       barcodeScanRes.substring(startIndexWard, endIndexWard);
       _wardTextController.text = resultWard;
+
+      String oldidofconsumer = (resultZone +
+          "-" +
+          resultWard +
+          "-" +
+          resultConsumerId +
+          "-" +
+          resultConsumerplot);
+      _oldconsumerIdTextController.text = oldidofconsumer.toString();
+      oldconsumerID = oldidofconsumer;
     });
+  }
+
+  consumeridSubstring(dataById) {
+    String dataByIdintofeilds = dataById;
+    print("hhhhhhhhhhhhhh" + dataByIdintofeilds);
+    int startIndexConsumertype = 14;
+
+    String resultConsumertype = dataByIdintofeilds.substring(14);
+    print("hhhhhhhhhhhhhh" + resultConsumertype);
+    // _consumerIdTextController.text = resultConsumertype.toString();
+    //  consumerID = resultConsumertype;
+
+    int startIndexZone = 0;
+    int endIndexZone = 2;
+    String resultZone =
+    dataByIdintofeilds.substring(startIndexZone, endIndexZone);
+    print("hhhhhhhhhhhhhh" + resultZone);
+    //  _zoneTextController.text = resultZone;
+
+    int startIndexWard = 3;
+    int endIndexWard = 5;
+    String resultWard =
+    dataByIdintofeilds.substring(startIndexWard, endIndexWard);
+    setState(() {
+      ward = resultWard;
+    });
+    print("hhhhhhhhhhhhhh" + resultWard);
+    //    _wardTextController.text = resultWard;
   }
 
   openCamera() async {
@@ -165,7 +263,7 @@ class _MapAppState extends State<MapApp> {
         _image.add(File(response.file!.path));
       });
     } else {
-      //print(response.file);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Something went wrong, please reboot the app")));
     }
   }
 
@@ -189,37 +287,7 @@ class _MapAppState extends State<MapApp> {
     }
   }
 
-  void _takePhoto(String name) async {
-    int i = 1;
-
-    if (!mounted) return;
-    for (var img in _image) {
-      setState(() {
-        val = i / _image.length;
-      });
-      final recordedImage = img;
-
-      {
-        if (!mounted) return;
-        if (recordedImage != null && recordedImage.path != null) {
-          setState(() {
-            //  firstButtonText = 'saving in progress...';
-          });
-          String dir = (await getApplicationDocumentsDirectory()).path;
-          String newPath = path.join(dir, '$name.jpg');
-          File fa = await File(recordedImage.path).copy(newPath);
-          GallerySaver.saveImage(fa.path, albumName: "Intrapreneur")
-              .then((path) {
-            // setState(() {
-            //   //      firstButtonText = 'image saved!';
-            // });
-          });
-        }
-      }
-    }
-  }
-
-  // retrieving data from server and set into fields
+  // retriving data from server and set into feilds
 
   Future<dynamic> getDataFromID(id) async {
     Networkhelper networkhelper = Networkhelper(
@@ -227,18 +295,77 @@ class _MapAppState extends State<MapApp> {
 
     var iddata = await networkhelper.getData();
 
-    _consumerNameTextController.text =
-        iddata[1]["consumer_name"] ?? "";
-    name = iddata[1]["consumer_name"] ?? "";
+    print("Anas khan" + iddata[1]["consumer_no"]);
+    if (iddata[1]["consumer_no"] == null ||
+        iddata[1]["consumer_no"] == "null" ||
+        iddata[1]["consumer_no"] == "") {
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            // Future.delayed(const Duration(milliseconds: 1500), () {
+            //   Navigator.of(context).pop(true);
+            // });
+            return const AlertDialog(
+              title: Text('No such data'),
+            );
+          });
+    } else {
+      _consumerNameTextController.text =
+          iddata[1]["consumer_name"] ?? "";
+      name = iddata[1]["consumer_name"] ?? "";
 
-    _mobileNumberTextController.text =
-        iddata[1]["consumer_phone"] ?? "";
-    number = iddata[1]["consumer_phone"] ?? "";
+      _mobileNumberTextController.text =
+          iddata[1]["consumer_phone"] ?? "";
+      number = iddata[1]["consumer_phone"] ?? "";
 
-    _emailTextController.text = iddata[1]["consumer_email"] ?? "";
-    email = iddata[1]["consumer_email"] ?? "";
+      _emailTextController.text = iddata[1]["consumer_email"] ?? "";
+      email = iddata[1]["consumer_email"] ?? "";
 
-    return iddata[1];
+      _oldAddressTextController.text =
+          iddata[1]["consumer_address"] ?? "";
+      oldAddress = iddata[1]["consumer_address"] ?? "";
+
+      _oldconsumerIdTextController.text =
+          iddata[1]["consumer_no"] ?? "";
+      oldconsumerID = iddata[1]["consumer_no"] ?? "";
+
+      setState(() {
+        String cid = id.toString();
+        int startIndexZone = 0;
+        int endIndexZone = 2;
+        String resultZone = cid.substring(startIndexZone, endIndexZone);
+        _zoneTextController.text = resultZone;
+        int startIndexWard = 3;
+        int endIndexWard = 5;
+        String resultWard = cid.substring(startIndexWard, endIndexWard);
+        _wardTextController.text = resultWard;
+      });
+
+      // _zoneTextController.text =
+      //     iddata[1]["consumer_no"].toString() ?? "";
+      // zone = iddata[1]["consumer_no"].toString() ?? "";
+
+      // _wardTextController.text =
+      //     iddata[1]["consumer_no"].toString() ?? "";
+      // ward = iddata[1]["consumer_no"].toString() ?? "";
+
+      // _plottypeTextController.text =
+      //     iddata[1]["consumer_status"].toString() ?? "";
+      // plotType = iddata[1]["consumer_status"].toString() ?? "";
+
+      if (iddata[1]["consumer_status"].toString() == "Domestic") {
+        _plottypeTextController.text = "D";
+        plotType = "D";
+      } else if (iddata[1]["consumer_status"].toString() == "Commercial") {
+        _plottypeTextController.text = "C";
+        plotType = "C";
+      }
+
+      print(name);
+
+      return iddata[1];
+    }
   }
 
   var numberFormatter = MaskTextInputFormatter(
@@ -250,6 +377,19 @@ class _MapAppState extends State<MapApp> {
   var blockFormatter = MaskTextInputFormatter(
       mask: '*-##',
       filter: {"#": RegExp(r'[0-9]'), "*": RegExp(r'[a-z, A-Z]')});
+
+  var consumerIdFormatter = MaskTextInputFormatter(
+      mask: '##-##-#####-#-*',
+      filter: {"#": RegExp(r'[0-9]'), "*": RegExp(r'[A-Z]')});
+
+  var plotTypeMask =
+  MaskTextInputFormatter(mask: '#', filter: {"#": RegExp(r'[C-D]')});
+
+  var zoneFormatter =
+  MaskTextInputFormatter(mask: '0#', filter: {"#": RegExp(r'[1-9]')});
+
+  var wardFormatter =
+  MaskTextInputFormatter(mask: '0#', filter: {"#": RegExp(r'[1-9]')});
 
   void clearForm() {
     if (!mounted) return;
@@ -356,49 +496,109 @@ class _MapAppState extends State<MapApp> {
                                           scanBarcode();
                                         });
                                       },
-                                      child: Text(
-                                        "Scan QR/Barcode",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: kMaroon
-                                        )
+                                      child: Expanded(
+                                        child: Text("Scan QR/Barcode",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: kMaroon)),
+                                      )),
+                                  const Spacer(),
+                                  GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          showDialog(
+                                              barrierDismissible: false,
+                                              context: context,
+                                              builder: (context) {
+                                                return AlertDialog(
+                                                  title: TextFormField(
+                                                    controller:
+                                                    _oldconsumerIdTextController,
+                                                    inputFormatters: [
+                                                      consumerIdFormatter
+                                                    ],
+                                                    textCapitalization:
+                                                    TextCapitalization
+                                                        .characters,
+                                                    decoration: InputDecoration(
+                                                      labelText: 'Consumer ID',
+                                                      suffixIcon: GestureDetector(
+                                                          onTap: () {
+                                                            consumeridSubstring(
+                                                                oldconsumerID);
+                                                            Navigator.of(context)
+                                                                .pop(true);
+
+                                                            getDataFromID(
+                                                                oldconsumerID);
+                                                          },
+                                                          child: const Icon(Icons
+                                                              .navigate_next_outlined)),
+                                                    ),
+                                                    onChanged: (val) =>
+                                                        setState(() {
+                                                          oldconsumerID =
+                                                              val.toString();
+                                                        }),
+                                                    validator: (String? val) {
+                                                      if (val == null ||
+                                                          val.trim().isEmpty) {
+                                                        return "Please enter Consumer ID First";
+                                                      } else {
+                                                        return null;
+                                                      }
+                                                    },
+                                                  ),
+                                                );
+                                              });
+                                        });
+                                      },
+                                      child: Expanded(
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.search, color: kMaroon),
+                                            const SizedBox(
+                                              width: 3.2,
+                                            ),
+                                            Text("Search ID",
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: kMaroon)),
+                                          ],
+                                        ),
                                       )),
                                 ],
                               ),
                               TextFormField(
-                                controller: _consumerIdTextController,
-                                decoration: InputDecoration(
-                                  labelText: 'Consumer ID',
-                                  suffixIcon: GestureDetector(
-                                      onTap: () {
-                                        getDataFromID(consumerID);
-                                      },
-                                      child: const Icon(Icons.navigate_next_outlined)),
+                                enabled: false,
+                                controller: _oldconsumerIdTextController,
+                                inputFormatters: [consumerIdFormatter],
+                                textCapitalization: TextCapitalization.characters,
+                                decoration: const InputDecoration(
+                                  labelText: 'Old Consumer ID',
                                 ),
                                 onChanged: (val) => setState(() {
-                                  consumerID = val.toString();
+                                  oldconsumerID = val.toString();
                                 }),
                               ),
-                              DropdownButtonFormField(
-                                  decoration: const InputDecoration(
-                                    labelText: "Plot Type",
-                                  ),
-                                  items: plotTypeDropDown.map((plotType) {
-                                    return DropdownMenuItem(
-                                      child: Text(plotType),
-                                      value: plotType,
-                                    );
-                                  }).toList(),
-                                  validator: (String? val) {
-                                    if (val == null || val.trim().isEmpty) {
-                                      return "Please select a plot type first";
-                                    } else {
-                                      return null;
-                                    }
-                                  },
-                                  onChanged: (val) {
-                                    setState(() => plotType = val.toString());
-                                  }),
+                              TextFormField(
+                                controller: _plottypeTextController,
+                                inputFormatters: [plotTypeMask],
+                                textCapitalization: TextCapitalization.characters,
+                                decoration: const InputDecoration(
+                                  labelText: 'Plot Type',
+                                ),
+                                onChanged: (val) => setState(() {
+                                  plotType = val.toString();
+                                }),
+                                validator: (String? val) {
+                                  if (val == null || val.trim().isEmpty) {
+                                    return "Please select a plot type first";
+                                  } else {
+                                    return null;
+                                  }
+                                },
+                              ),
                               TextFormField(
                                 controller: _consumerNameTextController,
                                 decoration: const InputDecoration(
@@ -489,6 +689,64 @@ class _MapAppState extends State<MapApp> {
                                   return null;
                                 },
                               ),
+                              DropdownButtonFormField(
+                                decoration: const InputDecoration(
+                                    contentPadding: EdgeInsets.symmetric(vertical: 16),
+                                    hintText: "Tariff"
+                                ),
+                                  items:
+                                  _tariffList.map((tariff) {
+                                    return DropdownMenuItem(
+                                      child: Text(tariff),
+                                      value: tariff,
+                                    );
+                                  }).toList(),
+                                  onChanged: plotType == "D" ?
+                                      (val) {
+                                  setState(() => tariffOrDia = val.toString());
+                                } :
+                                  null,
+                              ),
+                              DropdownButtonFormField(
+                                  decoration: const InputDecoration(
+                                      contentPadding: EdgeInsets.symmetric(vertical: 16),
+                                      hintText: "Dia"
+                                  ),
+                                  items:
+                                  _diaList.map((dia) {
+                                    return DropdownMenuItem(
+                                      child: Text(dia.toString()),
+                                      value: dia,
+                                    );
+                                  }).toList(),
+                                  onChanged: plotType == "C" ?
+                                      (val) {
+                                    setState(() => tariffOrDia = val.toString());
+                                  } :
+                                      null,
+                                  ),
+                              // DropdownButtonFormField(
+                              //   value: "Select Tariff or Dia",
+                              //     items: plotType == "Domestic" ? _tariffList.map((tariff) {
+                              //   return DropdownMenuItem(
+                              //     child: Text(tariff),
+                              //     value: tariff,
+                              //   );
+                              // }).toList()
+                              //     :
+                              //   _diaList.map((dia) {
+                              //     return DropdownMenuItem(
+                              //       child: Text(dia.toString()),
+                              //       value: dia,
+                              //     );
+                              //   }).toList(),
+                              //     decoration: const InputDecoration(
+                              //       contentPadding: EdgeInsets.symmetric(vertical: 16),
+                              //       hintText: "Tariff / Dia"
+                              //     ),
+                              //     onChanged: (val) {
+                              //       setState(() => tariffOrDia = val.toString());
+                              //     }),
                               Row(
                                 children: [
                                   Expanded(
@@ -540,73 +798,81 @@ class _MapAppState extends State<MapApp> {
                                   )
                                 ],
                               ),
-                              DropdownButtonFormField(
-                                  decoration: const InputDecoration(
-                                    labelText: "UC",
-                                  ),
-                                  items: _ucNumList.map((ucNum) {
-                                    return DropdownMenuItem(
-                                      child: Text(ucNum),
-                                      value: ucNum,
-                                    );
-                                  }).toList(),
-                                  validator: (String? val) {
-                                    if (val == null || val.trim().isEmpty) {
-                                      return "Please select a UC";
-                                    } else {
-                                      return null;
-                                    }
-                                  },
-                                  onChanged: (val) {
-                                    setState(() => uc = val.toString());
-                                  }),
+                          /* UC list commented because it is not needed by Wasa currently, it will be
+                              uncommented once they need it and have the relevant data  */
+                              // DropdownButtonFormField(
+                              //     decoration: const InputDecoration(
+                              //       labelText: "UC",
+                              //     ),
+                              //     items: _ucNumList.map((ucNum) {
+                              //       return DropdownMenuItem(
+                              //         child: Text(ucNum),
+                              //         value: ucNum,
+                              //       );
+                              //     }).toList(),
+                              //     validator: (String? val) {
+                              //       if (val == null || val.trim().isEmpty) {
+                              //         return "Please select a UC";
+                              //       } else {
+                              //         return null;
+                              //       }
+                              //     },
+                              //     onChanged: (val) {
+                              //       setState(() => uc = val.toString());
+                              //     }),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisSize: MainAxisSize.max,
                                 children: [
                                   Expanded(
-                                    child: DropdownButtonFormField(
-                                        decoration: const InputDecoration(
-                                          labelText: "Zone",
+                                    child: TextFormField(
+                                      controller: _zoneTextController,
+                                      inputFormatters: [zoneFormatter],
+                                      keyboardType: TextInputType.number,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Zone',
+                                        suffixText: '*',
+                                        suffixStyle: TextStyle(
+                                          color: Colors.red,
                                         ),
-                                        items: _zoneList.map((zone) {
-                                          return DropdownMenuItem(
-                                              child: Text(zone), value: zone);
-                                        }).toList(),
-                                        validator: (String? val) {
-                                          if (val == null || val.trim().isEmpty) {
-                                            return "Please select a Zone";
-                                          } else {
-                                            return null;
-                                          }
-                                        },
-                                        onChanged: (val) {
-                                          setState(() => zone = val.toString());
-                                        }),
+                                      ),
+                                      onChanged: (val) => setState(() {
+                                        zone = val;
+                                      }),
+                                      validator: (String? val) {
+                                        if (val == null || val.trim().isEmpty) {
+                                          return "Please select a Zone";
+                                        } else {
+                                          return null;
+                                        }
+                                      },
+                                    ),
                                   ),
                                   const SizedBox(width: 20),
                                   Expanded(
-                                    child: DropdownButtonFormField(
-                                        decoration: const InputDecoration(
-                                          labelText: "Ward",
+                                    child: TextFormField(
+                                      controller: _wardTextController,
+                                      inputFormatters: [wardFormatter],
+                                      keyboardType: TextInputType.number,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Ward',
+                                        suffixText: '*',
+                                        suffixStyle: TextStyle(
+                                          color: Colors.red,
                                         ),
-                                        items: _wardList.map((ward) {
-                                          return DropdownMenuItem(
-                                            child: Text(ward),
-                                            value: ward,
-                                          );
-                                        }).toList(),
-                                        validator: (String? val) {
-                                          if (val == null || val.trim().isEmpty) {
-                                            return "Please select a Ward";
-                                          } else {
-                                            return null;
-                                          }
-                                        },
-                                        onChanged: (val) {
-                                          setState(() => ward = val.toString());
-                                        }),
+                                      ),
+                                      onChanged: (val) => setState(() {
+                                        ward = val;
+                                      }),
+                                      validator: (String? val) {
+                                        if (val == null || val.trim().isEmpty) {
+                                          return "Please Enter a Ward";
+                                        } else {
+                                          return null;
+                                        }
+                                      },
+                                    ),
                                   )
                                 ],
                               ),
@@ -758,15 +1024,17 @@ class _MapAppState extends State<MapApp> {
                                 area.toString();
 
                             if (!isConnected) {
-                              _takePhoto(consumerID);
                               // If network detected is found to be false, then the consumer records are stored in SQLite db using the method below
                               DBProvider.db.insertConsumerEntryOffline(
                                   consumerId: consumerID,
-                                  plotType: plotType,
+                                plotType: plotType == "D"
+                                    ? "Domestic"
+                                    : "Commercial",
                                   name: name,
                                   number: number,
                                   email: email,
                                   cnic: nicNumber,
+                                  tariffOrDia: tariffOrDia,
                                   taluka: taluka,
                                   ucNum: uc,
                                   zone: zone,
@@ -779,7 +1047,10 @@ class _MapAppState extends State<MapApp> {
                                   newAddress: newAddress,
                                   gasCompany: gasCompany,
                                   electricCompany: electricCompany,
-                                  landlineCompany: landlineNumber
+                                  landlineCompany: landlineNumber,
+                                surveyorName: loggedInUserName,
+                                surveyorEmail: loggedInUserEmail,
+                                dateTime: json.encode(DateTime.now().toIso8601String()),
                               );
                               showDialog(
                                   barrierDismissible: false,
@@ -796,12 +1067,15 @@ class _MapAppState extends State<MapApp> {
                             }
                             if (isConnected) {
                               final consumer = {
-                                ConsumerFields.plotType: plotType,
+                                ConsumerFields.plotType: plotType == "D"
+                                  ? "Domestic"
+                                  : "Commercial",
                                 ConsumerFields.id: consumerID,
                                 ConsumerFields.name: name,
                                 ConsumerFields.number: number,
                                 ConsumerFields.cnicNum: nicNumber,
                                 ConsumerFields.email: email,
+                                ConsumerFields.tariffOrDia: tariffOrDia,
                                 ConsumerFields.taluka: taluka,
                                 ConsumerFields.ucNum: uc,
                                 ConsumerFields.zoneNum: zone,
@@ -824,11 +1098,15 @@ class _MapAppState extends State<MapApp> {
                             }
                             // Along storing the data to sqlite, we also insert to Firebase, the data will be stored in firebase cache, and when network status changes, the offline data is synced with firebase
                             _db.addConsumerEntry(
-                              plotType: plotType,
+                                plotType: plotType == "D"
+                                    ? "Domestic"
+                                    : "Commercial",
+                              oldConsumerId: "",
                               consumerID: consumerID,
                               name: name,
                               number: number,
                               email: email,
+                              tariffOrDia: tariffOrDia,
                               taluka: taluka,
                               uc: uc,
                               zone: zone,
@@ -1218,30 +1496,30 @@ class _MapAppState extends State<MapApp> {
                                                   }));
                                         }),
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 12.0),
-                                    child: DropdownButtonFormField(
-                                        decoration: const InputDecoration(
-                                            labelText: "UC",
-                                            border: OutlineInputBorder()),
-                                        items: _ucNumList.map((ucNum) {
-                                          return DropdownMenuItem(
-                                            child: Text(ucNum),
-                                            value: ucNum,
-                                          );
-                                        }).toList(),
-                                        onChanged: (val) {
-                                          Navigator.push(context,
-                                              MaterialPageRoute(
-                                                  builder: (context) {
-                                                    return RetrieveMarkersBySearch(
-                                                      name: "UC",
-                                                      searchID: val.toString(),
-                                                    );
-                                                  }));
-                                        }),
-                                  ),
+                                  // Padding(
+                                  //   padding: const EdgeInsets.symmetric(
+                                  //       vertical: 12.0),
+                                  //   child: DropdownButtonFormField(
+                                  //       decoration: const InputDecoration(
+                                  //           labelText: "UC",
+                                  //           border: OutlineInputBorder()),
+                                  //       items: _ucNumList.map((ucNum) {
+                                  //         return DropdownMenuItem(
+                                  //           child: Text(ucNum),
+                                  //           value: ucNum,
+                                  //         );
+                                  //       }).toList(),
+                                  //       onChanged: (val) {
+                                  //         Navigator.push(context,
+                                  //             MaterialPageRoute(
+                                  //                 builder: (context) {
+                                  //                   return RetrieveMarkersBySearch(
+                                  //                     name: "UC",
+                                  //                     searchID: val.toString(),
+                                  //                   );
+                                  //                 }));
+                                  //       }),
+                                  // ),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 12.0),

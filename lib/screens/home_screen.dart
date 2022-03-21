@@ -127,14 +127,18 @@ class _HomeState extends State<Home> {
                     : FirebaseFirestore.instance.collection("Consumers").snapshots(),
                 builder: (context, snapshot) {
                   if(snapshot.connectionState == ConnectionState.active){
-                    if (snapshot.hasData) {
+                    if (!snapshot.hasData) {
+                      return const ListTile(
+                        title: Text("There seems to be no data yet"),
+                      );
+                    } else {
                       return ListView.builder(
                           physics: const NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
                           itemCount: snapshot.data?.docs.length,
                           itemBuilder: (context, index) {
                             DocumentSnapshot _items =
-                            snapshot.data!.docs[index];
+                            (snapshot.data!.docs as dynamic)[index];
                             return GestureDetector(
                               onTap: () {
                                 final bool hasLocation =
@@ -172,11 +176,6 @@ class _HomeState extends State<Home> {
                               ),
                             );
                           });
-
-                    } else {
-                      return const ListTile(
-                        title: Text("There seems to be no data yet"),
-                      );
                     }
                   }
                   else {

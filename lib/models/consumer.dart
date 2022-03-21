@@ -5,6 +5,7 @@ class ConsumerFields {
   static const number = "Number";
   static const cnicNum = "CNIC_Number";
   static const email = "Email";
+  static const tariffOrDia = "Tariff_Or_Dia";
   static const taluka = "Taluka";
   static const ucNum = "UC_Num";
   static const zoneNum = "Zone_Num";
@@ -18,7 +19,7 @@ class ConsumerFields {
   static const gasCompanyId = "Gas_Company_Id";
   static const electricCompanyId = "Electricity_Company_Id";
   static const landlineCompanyId = "Landline_Company_Id";
-  static const dateTime = "Date_Time";
+  static const dateTime = "DateTime";
 
   static List<String> getFields() => [
     id,
@@ -50,6 +51,7 @@ class Consumers {
   final String number;
   final String emailAddress;
   final String nicNumber;
+  final String tariffOrDia;
   final String taluka;
   final String ucNum;
   final String zoneNum;
@@ -69,6 +71,7 @@ class Consumers {
     required this.number,
     required this.emailAddress,
     required this.nicNumber,
+    required this.tariffOrDia,
     required this.taluka,
     required this.ucNum,
     required this.zoneNum,
@@ -90,6 +93,7 @@ class Consumers {
       name: json["Name"],
       number: json["Number"],
       nicNumber: json["Nic_Number"],
+      tariffOrDia: json["tariff_Or_Dia"],
       emailAddress: json["Email"],
       taluka: json["Taluka"],
       ucNum: json["UC"],

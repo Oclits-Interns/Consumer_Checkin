@@ -1,10 +1,16 @@
 import 'dart:convert';
+
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:consumer_checkin/constant/colors_constant.dart';
 import 'package:consumer_checkin/constant/functions/functions.dart';
 import 'package:consumer_checkin/screens/home_screen.dart';
+import 'package:cool_alert/cool_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:path/path.dart' as path;
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -27,9 +33,15 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
   String newAddress = "";
   String gasCompany = "";
   String electricCompany = "";
+  String url = "";
   String landlineCompany = "";
   String nicNumber = "";
-  Map<String,dynamic> _consumerRow = {};
+  Map<String, dynamic> _consumerRow = {};
+  double val = 0;
+  final List<Uri> imageList = [];
+  late firebase_storage.Reference ref;
+  final List<File> _image = [];
+  final picker = ImagePicker();
 
   var numberFormatter = MaskTextInputFormatter(
       mask: '####-#######', filter: {"#": RegExp(r'[0-9]')});
@@ -41,7 +53,52 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
 
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
 
+  openGallery() async {
+    dynamic pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+    );
 
+    if (!mounted) return;
+    setState(() {
+      _image.add(File(pickedFile!.path));
+    });
+    if (pickedFile!.path == null) retrieveLostData();
+  }
+
+  Future<void> retrieveLostData() async {
+    final LostData response = await picker.getLostData();
+    if (response.isEmpty) {
+      return;
+    }
+    if (!mounted) return;
+    if (response.file != null) {
+      setState(() {
+        _image.add(File(response.file!.path));
+      });
+    } else {
+      //print(response.file);
+    }
+  }
+
+  Future uploadFile() async {
+    int i = 1;
+
+    if (!mounted) return;
+    for (var img in _image) {
+      setState(() {
+        val = i / _image.length;
+      });
+      ref = firebase_storage.FirebaseStorage.instance
+          .ref()
+          .child('images/${path.basename(img.path)}');
+      await ref.putFile(img).whenComplete(() async {
+        await ref.getDownloadURL().then((value) {
+          imageList.add(Uri.parse(value));
+          i++;
+        });
+      });
+    }
+  }
 
   void initMarker(specify, specifyId) async {
     var markerIdVal = specifyId;
@@ -73,8 +130,7 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                         const SizedBox(height: 5),
                         Text("Number : " + specify["Number"].toString()),
                         const SizedBox(height: 5),
-                        Text("Nic Number : " +
-                            specify["NicNumber"].toString()),
+                        Text("Nic Number : " + specify["NicNumber"].toString()),
                         const SizedBox(height: 5),
                         Text("Plot Type : " + specify["Plot_type"].toString()),
                         const SizedBox(height: 5),
@@ -82,13 +138,13 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                         const SizedBox(height: 5),
                         Text("Address : " + specify["Address"]),
                         const SizedBox(height: 5),
-                        Text("Electric Company : " +
-                            specify["ElectricCompany"]),
+                        Text(
+                            "Electric Company : " + specify["ElectricCompany"]),
                         const SizedBox(height: 5),
                         Text("Gas Company : " + specify["GasCompany"]),
                         const SizedBox(height: 5),
-                        Text("Landline Company : " +
-                            specify["LandlineCompany"]),
+                        Text(
+                            "Landline Company : " + specify["LandlineCompany"]),
                       ],
                     )),
                 actions: [
@@ -117,10 +173,14 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                             _consumerRow["Block"] = specify["Block"];
                             _consumerRow["House_Number"] = specify["HouseNO"];
                             _consumerRow["Address"] = specify["Address"];
-                            _consumerRow["Gas_Company_Id"] = specify["GasCompany"];
-                            _consumerRow["Electric_Company_Id"] = specify["ElectricCompany"];
-                            _consumerRow["Landline_Company_Id"] = specify["LandlineCompany"];
-                            _consumerRow["Date_Time"] = json.encode(DateTime.now().toIso8601String());
+                            _consumerRow["Gas_Company_Id"] =
+                            specify["GasCompany"];
+                            _consumerRow["Electric_Company_Id"] =
+                            specify["ElectricCompany"];
+                            _consumerRow["Landline_Company_Id"] =
+                            specify["LandlineCompany"];
+                            _consumerRow["Date_Time"] =
+                                json.encode(DateTime.now().toIso8601String());
                             showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
@@ -137,13 +197,16 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                                 controller:
                                                 TextEditingController(
                                                     text: specify["Name"]),
-                                                decoration: const InputDecoration(
+                                                decoration:
+                                                const InputDecoration(
                                                   labelText: 'Enter Name',
                                                 ),
                                                 onChanged: (val) =>
                                                     setState(() {
                                                       name = val;
-                                                      _consumerRow["Consumer_Name"] = val;
+                                                      _consumerRow[
+                                                      "Consumer_Name"] =
+                                                          val;
                                                     })),
                                             TextFormField(
                                               controller: TextEditingController(
@@ -184,7 +247,8 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                               ),
                                               onChanged: (val) => setState(() {
                                                 nicNumber = val;
-                                                _consumerRow["CNIC_Number"] = val;
+                                                _consumerRow["CNIC_Number"] =
+                                                    val;
                                               }),
                                               validator: (String? val) {
                                                 if (val == null ||
@@ -201,26 +265,30 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                                 controller:
                                                 TextEditingController(
                                                     text: specify["Email"]),
-                                                decoration: const InputDecoration(
+                                                decoration:
+                                                const InputDecoration(
                                                   labelText: 'Enter Email',
                                                 ),
                                                 onChanged: (val) =>
                                                     setState(() {
                                                       email = val;
-                                                      _consumerRow["Email"] = val;
+                                                      _consumerRow["Email"] =
+                                                          val;
                                                     })),
                                             TextFormField(
                                                 controller:
                                                 TextEditingController(
                                                     text:
                                                     specify["Address"]),
-                                                decoration: const InputDecoration(
+                                                decoration:
+                                                const InputDecoration(
                                                   labelText: 'Enter Address',
                                                 ),
                                                 onChanged: (val) =>
                                                     setState(() {
                                                       address = val;
-                                                      _consumerRow["Address"] = val;
+                                                      _consumerRow["Address"] =
+                                                          val;
                                                     })),
                                             TextFormField(
                                                 controller:
@@ -235,7 +303,9 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                                 onChanged: (val) =>
                                                     setState(() {
                                                       electricCompany = val;
-                                                      _consumerRow["Electric_Company_ID"] = val;
+                                                      _consumerRow[
+                                                      "Electric_Company_ID"] =
+                                                          val;
                                                     })),
                                             TextFormField(
                                                 controller:
@@ -250,7 +320,9 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                                 onChanged: (val) =>
                                                     setState(() {
                                                       gasCompany = val;
-                                                      _consumerRow["Gas_Company_ID"] = val;
+                                                      _consumerRow[
+                                                      "Gas_Company_ID"] =
+                                                          val;
                                                     })),
                                             TextFormField(
                                                 controller:
@@ -265,7 +337,9 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                                 onChanged: (val) =>
                                                     setState(() {
                                                       landlineCompany = val;
-                                                      _consumerRow["Landline_Company_ID"] = val;
+                                                      _consumerRow[
+                                                      "Landline_Company_ID"] =
+                                                          val;
                                                     })),
                                           ],
                                         ),
@@ -290,6 +364,17 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                                       color: kMaroon),
                                                 )),
                                             GestureDetector(
+                                                onTap: () {
+                                                  openGallery();
+                                                },
+                                                child: Text(
+                                                  "Open Gallery",
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                      FontWeight.bold,
+                                                      color: kMaroon),
+                                                )),
+                                            GestureDetector(
                                               child: Text(
                                                 "Save",
                                                 style: TextStyle(
@@ -298,15 +383,17 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                               ),
                                               onTap: () {
                                                 showDialog(
+                                                    barrierDismissible: false,
                                                     context: context,
                                                     builder:
                                                         (BuildContext context) {
                                                       return AlertDialog(
+
                                                         content: const Text(
-                                                            "Data Updated"),
+                                                            "Are You Sure To Update The Exixting Data!"),
                                                         actions: [
                                                           GestureDetector(
-                                                              onTap: () {
+                                                              onTap: () async {
                                                                 FirebaseFirestore
                                                                     .instance
                                                                     .collection(
@@ -353,10 +440,27 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                                                       ""
                                                                       ? specify[
                                                                   "LandlineCompany"]
-                                                                      : landlineCompany
+                                                                      : landlineCompany,
+                                                                  "URL": imageList
+                                                                      .isNotEmpty
+                                                                      ? imageList[
+                                                                  0]
+                                                                      .toString()
+                                                                      : "...",
                                                                 });
-                                                                updateConsumerSheet(specify["ConsumerID"], _consumerRow);
-                                                                Navigator.pop(context);
+
+                                                                updateConsumerSheet(
+                                                                    specify[
+                                                                    "ConsumerID"],
+                                                                    _consumerRow);
+                                                                CoolAlert.show(
+                                                                    context:
+                                                                    context,
+                                                                    type: CoolAlertType
+                                                                        .loading);
+                                                                await uploadFile();
+                                                                Navigator.pop(
+                                                                    context);
                                                               },
                                                               child: const Text(
                                                                   "OK"))
@@ -379,8 +483,7 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                           ),
                         ),
                         GestureDetector(
-                          child: Text(
-                              "Show Qr",
+                          child: Text("Show Qr",
                               style: TextStyle(
                                   fontWeight: FontWeight.bold, color: kMaroon)),
                           onTap: () {
@@ -429,7 +532,8 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
-                                    content: const Text("Are you sure you want to delete this data?"),
+                                    content: const Text(
+                                        "Are you sure you want to delete this data?"),
                                     actions: [
                                       GestureDetector(
                                           onTap: () {
@@ -437,10 +541,13 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                                 .collection('Consumers')
                                                 .doc(specifyId)
                                                 .delete();
-                                            deleteConsumerRow(specify["ConsumerID"]);
-                                            Navigator.push(context, MaterialPageRoute(builder: (context) {
-                                              return const Home();
-                                            }));
+                                            deleteConsumerRow(
+                                                specify["ConsumerID"]);
+                                            Navigator.push(context,
+                                                MaterialPageRoute(
+                                                    builder: (context) {
+                                                      return const Home();
+                                                    }));
                                           },
                                           child: const Text("OK"))
                                     ],
@@ -462,7 +569,10 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                     // backgroundColor: Colors.red,
                                     scrollable: true,
                                     title: const Text('Consumer Check-In'),
-                                    content: specify["URL"] != "" ? Image.network(specify["URL"]) : const Text("There is no image associated with this consumer"),
+                                    content: specify["URL"] != ""
+                                        ? Image.network(specify["URL"])
+                                        : const Text(
+                                        "There is no image associated with this consumer"),
                                     //specify["URL"] != null ? Image.network(specify["URL"]) : const Text("There is no image associated with this consumer"),
                                     //specify["Url"] != null ? Image.network(specify["Url"]) : const Text("No image for this consumer"),
                                     //Image.network(specify["Url"] ?? "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/832px-No-Image-Placeholder.svg.png"),
@@ -503,15 +613,14 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                 ],
               );
             }),
-
-
-        infoWindow: InfoWindow(title: specify["ConsumerID"], snippet: specify["Name"]));
+        infoWindow:
+        InfoWindow(title: specify["ConsumerID"], snippet: specify["Name"]));
     setState(() {
       markers[markerId] = marker;
     });
   }
 
-
+// data which have no cordinations
   void showDataWithoutLocation(specify, specifyId) async {
     showDialog(
         context: context,
@@ -525,8 +634,7 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Consumer_ID : " +
-                        specify["ConsumerID"].toString()),
+                    Text("Consumer_ID : " + specify["ConsumerID"].toString()),
                     const SizedBox(height: 5),
                     Text("Name : " + specify["Name"]),
                     const SizedBox(height: 5),
@@ -536,8 +644,7 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                     const SizedBox(height: 5),
                     Text("Number : " + specify["Number"].toString()),
                     const SizedBox(height: 5),
-                    Text("Nic Number : " +
-                        specify["NicNumber"].toString()),
+                    Text("Nic Number : " + specify["NicNumber"].toString()),
                     const SizedBox(height: 5),
                     Text("Plot Type : " + specify["Plot_type"].toString()),
                     const SizedBox(height: 5),
@@ -545,13 +652,11 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                     const SizedBox(height: 5),
                     Text("Address : " + specify["Address"]),
                     const SizedBox(height: 5),
-                    Text("Electric Company : " +
-                        specify["ElectricCompany"]),
+                    Text("Electric Company : " + specify["ElectricCompany"]),
                     const SizedBox(height: 5),
                     Text("Gas Company : " + specify["GasCompany"]),
                     const SizedBox(height: 5),
-                    Text("Landline Company : " +
-                        specify["LandlineCompany"]),
+                    Text("Landline Company : " + specify["LandlineCompany"]),
                   ],
                 )),
             actions: [
@@ -581,9 +686,12 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                         _consumerRow["House_Number"] = specify["HouseNO"];
                         _consumerRow["Address"] = specify["Address"];
                         _consumerRow["Gas_Company_Id"] = specify["GasCompany"];
-                        _consumerRow["Electric_Company_Id"] = specify["ElectricCompany"];
-                        _consumerRow["Landline_Company_Id"] = specify["LandlineCompany"];
-                        _consumerRow["Date_Time"] = json.encode(DateTime.now().toIso8601String());
+                        _consumerRow["Electric_Company_Id"] =
+                        specify["ElectricCompany"];
+                        _consumerRow["Landline_Company_Id"] =
+                        specify["LandlineCompany"];
+                        _consumerRow["Date_Time"] =
+                            json.encode(DateTime.now().toIso8601String());
                         showDialog(
                             context: context,
                             builder: (BuildContext context) {
@@ -597,25 +705,21 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                     child: Column(
                                       children: <Widget>[
                                         TextFormField(
-                                            controller:
-                                            TextEditingController(
+                                            controller: TextEditingController(
                                                 text: specify["Name"]),
                                             decoration: const InputDecoration(
                                               labelText: 'Enter Name',
                                             ),
-                                            onChanged: (val) =>
-                                                setState(() {
-                                                  name = val;
-                                                  _consumerRow["Consumer_Name"] = val;
-                                                })),
+                                            onChanged: (val) => setState(() {
+                                              name = val;
+                                              _consumerRow[
+                                              "Consumer_Name"] = val;
+                                            })),
                                         TextFormField(
                                           controller: TextEditingController(
                                               text: specify["Number"]),
-                                          inputFormatters: [
-                                            numberFormatter
-                                          ],
-                                          keyboardType:
-                                          TextInputType.number,
+                                          inputFormatters: [numberFormatter],
+                                          keyboardType: TextInputType.number,
                                           decoration: const InputDecoration(
                                             labelText: 'Mobile Number',
                                           ),
@@ -637,11 +741,8 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                         TextFormField(
                                           controller: TextEditingController(
                                               text: specify["NicNumber"]),
-                                          inputFormatters: [
-                                            nicNumberFormatter
-                                          ],
-                                          keyboardType:
-                                          TextInputType.number,
+                                          inputFormatters: [nicNumberFormatter],
+                                          keyboardType: TextInputType.number,
                                           decoration: const InputDecoration(
                                             labelText: 'NIC Number',
                                           ),
@@ -661,75 +762,64 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                           },
                                         ),
                                         TextFormField(
-                                            controller:
-                                            TextEditingController(
+                                            controller: TextEditingController(
                                                 text: specify["Email"]),
                                             decoration: const InputDecoration(
                                               labelText: 'Enter Email',
                                             ),
-                                            onChanged: (val) =>
-                                                setState(() {
-                                                  email = val;
-                                                  _consumerRow["Email"] = val;
-                                                })),
+                                            onChanged: (val) => setState(() {
+                                              email = val;
+                                              _consumerRow["Email"] = val;
+                                            })),
                                         TextFormField(
-                                            controller:
-                                            TextEditingController(
-                                                text:
-                                                specify["Address"]),
+                                            controller: TextEditingController(
+                                                text: specify["Address"]),
                                             decoration: const InputDecoration(
                                               labelText: 'Enter Address',
                                             ),
-                                            onChanged: (val) =>
-                                                setState(() {
-                                                  address = val;
-                                                  _consumerRow["Address"] = val;
-                                                })),
+                                            onChanged: (val) => setState(() {
+                                              address = val;
+                                              _consumerRow["Address"] = val;
+                                            })),
                                         TextFormField(
-                                            controller:
-                                            TextEditingController(
-                                                text: specify[
-                                                "ElectricCompany"]),
-                                            decoration:
-                                            const InputDecoration(
+                                            controller: TextEditingController(
+                                                text:
+                                                specify["ElectricCompany"]),
+                                            decoration: const InputDecoration(
                                               labelText:
                                               'Enter Electric Company',
                                             ),
-                                            onChanged: (val) =>
-                                                setState(() {
-                                                  electricCompany = val;
-                                                  _consumerRow["Electric_Company_ID"] = val;
-                                                })),
+                                            onChanged: (val) => setState(() {
+                                              electricCompany = val;
+                                              _consumerRow[
+                                              "Electric_Company_ID"] =
+                                                  val;
+                                            })),
                                         TextFormField(
-                                            controller:
-                                            TextEditingController(
-                                                text: specify[
-                                                "GasCompany"]),
-                                            decoration:
-                                            const InputDecoration(
-                                              labelText:
-                                              'Enter Gas Company',
+                                            controller: TextEditingController(
+                                                text: specify["GasCompany"]),
+                                            decoration: const InputDecoration(
+                                              labelText: 'Enter Gas Company',
                                             ),
-                                            onChanged: (val) =>
-                                                setState(() {
-                                                  gasCompany = val;
-                                                  _consumerRow["Gas_Company_ID"] = val;
-                                                })),
+                                            onChanged: (val) => setState(() {
+                                              gasCompany = val;
+                                              _consumerRow[
+                                              "Gas_Company_ID"] = val;
+                                            })),
                                         TextFormField(
-                                            controller:
-                                            TextEditingController(
-                                                text: specify[
-                                                "LandlineCompany"]),
-                                            decoration:
-                                            const InputDecoration(
+                                            controller: TextEditingController(
+                                                text:
+                                                specify["LandlineCompany"]),
+                                            decoration: const InputDecoration(
                                               labelText:
                                               'Enter Landline Company',
                                             ),
-                                            onChanged: (val) =>
-                                                setState(() {
-                                                  landlineCompany = val;
-                                                  _consumerRow["Landline_Company_ID"] = val;
-                                                })),
+                                            onChanged: (val) => setState(() {
+                                              landlineCompany = val;
+                                              _consumerRow[
+                                              "Landline_Company_ID"] =
+                                                  val;
+                                            })),
                                       ],
                                     ),
                                   ),
@@ -748,8 +838,17 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                             child: Text(
                                               "Close",
                                               style: TextStyle(
-                                                  fontWeight:
-                                                  FontWeight.bold,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: kMaroon),
+                                            )),
+                                        GestureDetector(
+                                            onTap: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: Text(
+                                              "Upload image",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
                                                   color: kMaroon),
                                             )),
                                         GestureDetector(
@@ -774,11 +873,9 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                                                 .instance
                                                                 .collection(
                                                                 'Consumers')
-                                                                .doc(
-                                                                specifyId)
+                                                                .doc(specifyId)
                                                                 .update({
-                                                              "Name": name ==
-                                                                  ""
+                                                              "Name": name == ""
                                                                   ? specify[
                                                               "Name"]
                                                                   : name,
@@ -787,7 +884,8 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                                                   ? specify[
                                                               "Number"]
                                                                   : number,
-                                                              "NicNumber": nicNumber ==
+                                                              "NicNumber":
+                                                              nicNumber ==
                                                                   ""
                                                                   ? specify[
                                                               "NicNumber"]
@@ -802,27 +900,34 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                                                   ? specify[
                                                               "Address"]
                                                                   : address,
-                                                              "GasCompany": gasCompany ==
+                                                              "GasCompany":
+                                                              gasCompany ==
                                                                   ""
                                                                   ? specify[
                                                               "GasCompany"]
                                                                   : gasCompany,
-                                                              "ElectricCompany": electricCompany ==
+                                                              "ElectricCompany":
+                                                              electricCompany ==
                                                                   ""
                                                                   ? specify[
                                                               "ElectricCompany"]
                                                                   : electricCompany,
-                                                              "LandlineCompany": landlineCompany ==
+                                                              "LandlineCompany":
+                                                              landlineCompany ==
                                                                   ""
                                                                   ? specify[
                                                               "LandlineCompany"]
                                                                   : landlineCompany
                                                             });
-                                                            updateConsumerSheet(specify["ConsumerID"], _consumerRow);
-                                                            Navigator.pop(context);
+                                                            updateConsumerSheet(
+                                                                specify[
+                                                                "ConsumerID"],
+                                                                _consumerRow);
+                                                            Navigator.pop(
+                                                                context);
                                                           },
-                                                          child: const Text(
-                                                              "OK"))
+                                                          child:
+                                                          const Text("OK"))
                                                     ],
                                                   );
                                                 });
@@ -842,8 +947,7 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                       ),
                     ),
                     GestureDetector(
-                      child: Text(
-                          "Show Qr",
+                      child: Text("Show Qr",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, color: kMaroon)),
                       onTap: () {
@@ -892,7 +996,8 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
-                                content: const Text("Are you sure you want to delete this data?"),
+                                content: const Text(
+                                    "Are you sure you want to delete this data?"),
                                 actions: [
                                   GestureDetector(
                                       onTap: () {
@@ -926,7 +1031,10 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
                                 // backgroundColor: Colors.red,
                                 scrollable: true,
                                 title: const Text('Consumer Check-In'),
-                                content: specify["URL"] != "" ? Image.network(specify["URL"]) : const Text("There is no image associated with this consumer"),
+                                content: specify["URL"] != ""
+                                    ? Image.network(specify["URL"])
+                                    : const Text(
+                                    "There is no image associated with this consumer"),
                                 //specify["URL"] != null ? Image.network(specify["URL"]) : const Text("There is no image associated with this consumer"),
                                 //specify["Url"] != null ? Image.network(specify["Url"]) : const Text("No image for this consumer"),
                                 //Image.network(specify["Url"] ?? "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/832px-No-Image-Placeholder.svg.png"),
@@ -967,7 +1075,6 @@ class _RetrieveSingleMarkerState extends State<RetrieveSingleMarker> {
             ],
           );
         });
-
   }
 
   getMarkerData() async {
