@@ -28,15 +28,17 @@ class _WrapperState extends State<Wrapper> {
           }
           else {
             var _items = snapshot.data;
-            if(user == null || !snapshot.hasData) {
+            if (user == null && !snapshot.hasData) {
               return const Authenticate();
             }
-          else if(!user.emailVerified || (_items as dynamic)["Authenticated"] == "false") {
+            if (user!.emailVerified &&
+                (_items as dynamic)["Authenticated"] == true) {
+              return const Home();
+            }
+            else {
               return const VerifyEmail();
             }
-          else {
-              return const Home();
-          }}
+          }
         });
     
     // //Display either the authentication screens or home screen

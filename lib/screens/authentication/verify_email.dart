@@ -1,5 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:consumer_checkin/constant/colors_constant.dart';
-import 'package:consumer_checkin/widgets/otp_input.dart';
+import 'package:consumer_checkin/services/db_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +10,8 @@ class VerifyEmail extends StatefulWidget {
   @override
   State<VerifyEmail> createState() => _VerifyEmailState();
 }
+
+bool isAuthenticated = false;
 
 class _VerifyEmailState extends State<VerifyEmail> {
   String message = "A confirmation email is sent to your email address, click the link in the email to verify your account";
@@ -101,7 +104,42 @@ class _VerifyEmailState extends State<VerifyEmail> {
                 ),
               ],
             ),
-            user!.emailVerified ? const OtpConfirmation() : Container(),
+      Divider(thickness: 1.5, color: kYellow,),
+      const Padding(
+        padding: EdgeInsets.only(left: 8.0, right: 8.0, top: 20),
+        child: Text(
+          "A 6 digit OTP has been sent to the admin, enter that OTP below",
+          style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w400
+          ),),
+      ),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
+        child: TextFormField(
+          maxLength: 6,
+          keyboardType: TextInputType.number,
+          style: const TextStyle(
+              letterSpacing: 6
+          ),
+          controller: otpController,
+          decoration: InputDecoration(
+            hintText: "Enter OTP",
+            border: const OutlineInputBorder(),
+            suffixIcon: GestureDetector(
+                onTap: () async {
+                  isAuthenticated = await DatabaseService().getOtp(otp);
+                  FirebaseFirestore.instance.collection("users").doc(
+                      user!.uid).update(
+                      {"Authenticated": isAuthenticated});
+                },
+                child: const Icon(Icons.arrow_forward)),
+          ),
+          onChanged: (val) {
+            setState(() => otp = val);
+          },
+        ),
+      ),
           ],
         ),
       )

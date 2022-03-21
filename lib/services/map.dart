@@ -219,7 +219,7 @@ class _MapAppState extends State<MapApp> {
     }
   }
 
-  // retriving data from server and set into feilds
+  // retrieving data from server and set into fields
 
   Future<dynamic> getDataFromID(id) async {
     Networkhelper networkhelper = Networkhelper(
@@ -378,13 +378,6 @@ class _MapAppState extends State<MapApp> {
                                 onChanged: (val) => setState(() {
                                   consumerID = val.toString();
                                 }),
-                                validator: (String? val) {
-                                  if (val == null || val.trim().isEmpty) {
-                                    return "Please enter Consumer ID First";
-                                  } else {
-                                    return null;
-                                  }
-                                },
                               ),
                               DropdownButtonFormField(
                                   decoration: const InputDecoration(
@@ -692,13 +685,6 @@ class _MapAppState extends State<MapApp> {
                                         onChanged: (val) => setState(() {
                                           block = val;
                                         }),
-                                        validator: (String? val) {
-                                          if (val == null || val.trim().isEmpty) {
-                                            return "Please enter block number";
-                                          } else {
-                                            return null;
-                                          }
-                                        },
                                       )),
                                   const SizedBox(width: 10),
                                   Expanded(

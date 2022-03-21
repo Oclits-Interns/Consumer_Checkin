@@ -119,9 +119,9 @@ class _OfflineSignInState extends State<OfflineSignIn> {
                               }
                               else {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                    new SnackBar(
-                                      content: const Text("Credentials don't match, please try again"),
-                                      duration: new Duration(milliseconds: 3000),
+                                    const SnackBar(
+                                      content: Text("Credentials don't match, please try again"),
+                                      duration: Duration(milliseconds: 3000),
                                     ));
                               }
                             }
