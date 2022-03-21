@@ -64,7 +64,6 @@ class _MapAppState extends State<MapApp> {
   String loggedInUserName = "";
   String loggedInUserEmail = "";
   String surveyorEmail = "";
-  String plotTypeLetter = "";
   int entryNum = 0;
   bool isConnected = false;
   bool isLocked = false;
@@ -192,11 +191,13 @@ class _MapAppState extends State<MapApp> {
       String resultZone =
       barcodeScanRes.substring(startIndexZone, endIndexZone);
       _zoneTextController.text = resultZone;
+      zone = resultZone;
       int startIndexWard = 2;
       int endIndexWard = 4;
       String resultWard =
       barcodeScanRes.substring(startIndexWard, endIndexWard);
       _wardTextController.text = resultWard;
+      ward = resultWard;
 
       String oldidofconsumer = (resultZone +
           "-" +
@@ -210,7 +211,7 @@ class _MapAppState extends State<MapApp> {
     });
   }
 
-  consumeridSubstring(dataById) {
+  consumerIdSubstring(dataById) {
     String dataByIdintofeilds = dataById;
     print("hhhhhhhhhhhhhh" + dataByIdintofeilds);
     int startIndexConsumertype = 14;
@@ -224,8 +225,12 @@ class _MapAppState extends State<MapApp> {
     int endIndexZone = 2;
     String resultZone =
     dataByIdintofeilds.substring(startIndexZone, endIndexZone);
+
     print("hhhhhhhhhhhhhh" + resultZone);
-    //  _zoneTextController.text = resultZone;
+   //  _zoneTextController.text = resultZone;
+      setState(() {
+        zone = resultZone;
+      });
 
     int startIndexWard = 3;
     int endIndexWard = 5;
@@ -356,10 +361,10 @@ class _MapAppState extends State<MapApp> {
 
       if (iddata[1]["consumer_status"].toString() == "Domestic") {
         _plottypeTextController.text = "D";
-        plotType = "D";
+        setState(() => plotType = "D");
       } else if (iddata[1]["consumer_status"].toString() == "Commercial") {
         _plottypeTextController.text = "C";
-        plotType = "C";
+        setState(() => plotType = "C");
       }
 
       print(name);
@@ -524,7 +529,7 @@ class _MapAppState extends State<MapApp> {
                                                       labelText: 'Consumer ID',
                                                       suffixIcon: GestureDetector(
                                                           onTap: () {
-                                                            consumeridSubstring(
+                                                            consumerIdSubstring(
                                                                 oldconsumerID);
                                                             Navigator.of(context)
                                                                 .pop(true);
@@ -1010,8 +1015,8 @@ class _MapAppState extends State<MapApp> {
                           }
                           else {
                             entryNum = await _db.countEntriesInZoneWard(zone, ward) + 1;
-                            plotType == "Domestic" ? plotTypeLetter = "D" : plotTypeLetter = "C";
-                            consumerID = zone + "-" + ward + "-" + entryNum.toString() + "-" + plotTypeLetter;
+                            // plotType == "D" ? plotTypeLetter = "D" : plotTypeLetter = "C";
+                            consumerID = zone + "-" + ward + "-" + entryNum.toString() + "-" + plotType;
                             address = "";
                             address += "House # " +
                                 houseNum.toString() +
