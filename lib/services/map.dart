@@ -64,6 +64,7 @@ class _MapAppState extends State<MapApp> {
   String loggedInUserName = "";
   String loggedInUserEmail = "";
   String surveyorEmail = "";
+  String plotTypeLetter = "";
   int entryNum = 0;
   bool isConnected = false;
   bool isLocked = false;
@@ -134,9 +135,32 @@ class _MapAppState extends State<MapApp> {
   //   "UC # 14",
   // ];
   final List<double> _diaList = [0.5, 0.75, 1, 1.5, 2];
-  final List<String> _tariffList = ["A", "AG + 1", "AG+2", "AG + 3", "B", "BG + 1", "BG + 2", "BG + 3",
-    "C", "CG + 1", "CG + 2", "CG + 3", "D", "DG + 1", "DG + 2", "DG + 3", "E", "EG + 1", "EG + 2", "EG + 3",
-    "F", "FG + 1", "FG + 2", "FG + 3"];
+  final List<String> _tariffList = [
+    "A",
+    "AG + 1",
+    "AG+2",
+    "AG + 3",
+    "B",
+    "BG + 1",
+    "BG + 2",
+    "BG + 3",
+    "C",
+    "CG + 1",
+    "CG + 2",
+    "CG + 3",
+    "D",
+    "DG + 1",
+    "DG + 2",
+    "DG + 3",
+    "E",
+    "EG + 1",
+    "EG + 2",
+    "EG + 3",
+    "F",
+    "FG + 1",
+    "FG + 2",
+    "FG + 3"
+  ];
   final DatabaseService _db = DatabaseService();
   final AuthService _auth = AuthService();
   final _emailTextController = TextEditingController();
@@ -191,13 +215,11 @@ class _MapAppState extends State<MapApp> {
       String resultZone =
       barcodeScanRes.substring(startIndexZone, endIndexZone);
       _zoneTextController.text = resultZone;
-      zone = resultZone;
       int startIndexWard = 2;
       int endIndexWard = 4;
       String resultWard =
       barcodeScanRes.substring(startIndexWard, endIndexWard);
       _wardTextController.text = resultWard;
-      ward = resultWard;
 
       String oldidofconsumer = (resultZone +
           "-" +
@@ -211,13 +233,39 @@ class _MapAppState extends State<MapApp> {
     });
   }
 
+  // consumeridSubstring(dataById) {
+  //   String dataByIdintofeilds = dataById;
+  //   print("hhhhhhhhhhhhhh" + dataByIdintofeilds);
+  //   int startIndexConsumertype = 14;
+
+  //   String resultConsumertype = dataByIdintofeilds.substring(14);
+  //   print("hhhhhhhhhhhhhh" + resultConsumertype);
+  //   // _consumerIdTextController.text = resultConsumertype.toString();
+  //   //  consumerID = resultConsumertype;
+
+  //   int startIndexZone = 0;
+  //   int endIndexZone = 2;
+  //   String resultZone =
+  //       dataByIdintofeilds.substring(startIndexZone, endIndexZone);
+  //   print("hhhhhhhhhhhhhh" + resultZone);
+  //   //  _zoneTextController.text = resultZone;
+
+  //   int startIndexWard = 3;
+  //   int endIndexWard = 5;
+  //   String resultWard =
+  //       dataByIdintofeilds.substring(startIndexWard, endIndexWard);
+  //   setState(() {
+  //     ward = resultWard;
+  //   });
+  //   print("hhhhhhhhhhhhhh" + resultWard);
+  //   //    _wardTextController.text = resultWard;
+  // }
+
   consumerIdSubstring(dataById) {
     String dataByIdintofeilds = dataById;
-    print("hhhhhhhhhhhhhh" + dataByIdintofeilds);
-    int startIndexConsumertype = 14;
+    //int startIndexConsumertype = 14;
 
     String resultConsumertype = dataByIdintofeilds.substring(14);
-    print("hhhhhhhhhhhhhh" + resultConsumertype);
     // _consumerIdTextController.text = resultConsumertype.toString();
     //  consumerID = resultConsumertype;
 
@@ -225,12 +273,10 @@ class _MapAppState extends State<MapApp> {
     int endIndexZone = 2;
     String resultZone =
     dataByIdintofeilds.substring(startIndexZone, endIndexZone);
-
-    print("hhhhhhhhhhhhhh" + resultZone);
-   //  _zoneTextController.text = resultZone;
-      setState(() {
-        zone = resultZone;
-      });
+    //  _zoneTextController.text = resultZone;
+    setState(() {
+      zone = resultZone;
+    });
 
     int startIndexWard = 3;
     int endIndexWard = 5;
@@ -239,7 +285,6 @@ class _MapAppState extends State<MapApp> {
     setState(() {
       ward = resultWard;
     });
-    print("hhhhhhhhhhhhhh" + resultWard);
     //    _wardTextController.text = resultWard;
   }
 
@@ -258,7 +303,7 @@ class _MapAppState extends State<MapApp> {
   }
 
   Future<void> retrieveLostData() async {
-    final LostData response = await picker.getLostData();
+    var response = await picker.retrieveLostData();
     if (response.isEmpty) {
       return;
     }
@@ -268,7 +313,7 @@ class _MapAppState extends State<MapApp> {
         _image.add(File(response.file!.path));
       });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Something went wrong, please reboot the app")));
+      //print(response.file);
     }
   }
 
@@ -292,15 +337,45 @@ class _MapAppState extends State<MapApp> {
     }
   }
 
-  // retriving data from server and set into feilds
-
   Future<dynamic> getDataFromID(id) async {
+    setState(() {
+      _oldAddressTextController.text = id;
+      oldconsumerID = id;
+      String cid = id.toString();
+      int startIndexZone = 0;
+      int endIndexZone = 2;
+      String resultZone = cid.substring(startIndexZone, endIndexZone);
+      _zoneTextController.text = resultZone;
+      zone = resultZone;
+      int startIndexWard = 3;
+      int endIndexWard = 5;
+      String resultWard = cid.substring(startIndexWard, endIndexWard);
+      _wardTextController.text = resultWard;
+      ward = resultWard;
+
+      // int startIndexConsumerplot = 13;
+      // int endIndexConsumerplot = 14;
+      String resultConsumerplot = cid.substring(14);
+      _plottypeTextController.text = resultConsumerplot.toString();
+    });
+
     Networkhelper networkhelper = Networkhelper(
         'http://182.176.105.49:8081/consumercheckin/linker.php?search_consumer=true&consumer_no=$id');
 
     var iddata = await networkhelper.getData();
 
-    print("Anas khan" + iddata[1]["consumer_no"]);
+    // _zoneTextController.text =
+    //     iddata[1]["consumer_no"].toString() ?? "";
+    // zone = iddata[1]["consumer_no"].toString() ?? "";
+
+    // _wardTextController.text =
+    //     iddata[1]["consumer_no"].toString() ?? "";
+    // ward = iddata[1]["consumer_no"].toString() ?? "";
+
+    // _plottypeTextController.text =
+    //     iddata[1]["consumer_status"].toString() ?? "";
+    // plotType = iddata[1]["consumer_status"].toString() ?? "";
+
     if (iddata[1]["consumer_no"] == null ||
         iddata[1]["consumer_no"] == "null" ||
         iddata[1]["consumer_no"] == "") {
@@ -316,58 +391,30 @@ class _MapAppState extends State<MapApp> {
             );
           });
     } else {
-      _consumerNameTextController.text =
-          iddata[1]["consumer_name"] ?? "";
-      name = iddata[1]["consumer_name"] ?? "";
-
-      _mobileNumberTextController.text =
-          iddata[1]["consumer_phone"] ?? "";
-      number = iddata[1]["consumer_phone"] ?? "";
-
-      _emailTextController.text = iddata[1]["consumer_email"] ?? "";
-      email = iddata[1]["consumer_email"] ?? "";
-
-      _oldAddressTextController.text =
-          iddata[1]["consumer_address"] ?? "";
-      oldAddress = iddata[1]["consumer_address"] ?? "";
-
-      _oldconsumerIdTextController.text =
-          iddata[1]["consumer_no"] ?? "";
-      oldconsumerID = iddata[1]["consumer_no"] ?? "";
-
       setState(() {
-        String cid = id.toString();
-        int startIndexZone = 0;
-        int endIndexZone = 2;
-        String resultZone = cid.substring(startIndexZone, endIndexZone);
-        _zoneTextController.text = resultZone;
-        int startIndexWard = 3;
-        int endIndexWard = 5;
-        String resultWard = cid.substring(startIndexWard, endIndexWard);
-        _wardTextController.text = resultWard;
+        _consumerNameTextController.text = iddata[1]["consumer_name"] ?? "";
+        name = iddata[1]["consumer_name"] ?? "";
+
+        _mobileNumberTextController.text = iddata[1]["consumer_phone"] ?? "";
+        number = iddata[1]["consumer_phone"] ?? "";
+
+        _emailTextController.text = iddata[1]["consumer_email"] ?? "";
+        email = iddata[1]["consumer_email"] ?? "";
+
+        _oldAddressTextController.text = iddata[1]["consumer_address"] ?? "";
+        oldAddress = iddata[1]["consumer_address"] ?? "";
+
+        _oldconsumerIdTextController.text = iddata[1]["consumer_no"] ?? "";
+        oldconsumerID = iddata[1]["consumer_no"] ?? "";
+
+        if (iddata[1]["consumer_status"].toString() == "Domestic") {
+          _plottypeTextController.text = "D";
+          plotType = "D";
+        } else if (iddata[1]["consumer_status"].toString() == "Commercial") {
+          _plottypeTextController.text = "C";
+          plotType = "C";
+        }
       });
-
-      // _zoneTextController.text =
-      //     iddata[1]["consumer_no"].toString() ?? "";
-      // zone = iddata[1]["consumer_no"].toString() ?? "";
-
-      // _wardTextController.text =
-      //     iddata[1]["consumer_no"].toString() ?? "";
-      // ward = iddata[1]["consumer_no"].toString() ?? "";
-
-      // _plottypeTextController.text =
-      //     iddata[1]["consumer_status"].toString() ?? "";
-      // plotType = iddata[1]["consumer_status"].toString() ?? "";
-
-      if (iddata[1]["consumer_status"].toString() == "Domestic") {
-        _plottypeTextController.text = "D";
-        setState(() => plotType = "D");
-      } else if (iddata[1]["consumer_status"].toString() == "Commercial") {
-        _plottypeTextController.text = "C";
-        setState(() => plotType = "C");
-      }
-
-      print(name);
 
       return iddata[1];
     }
@@ -383,9 +430,12 @@ class _MapAppState extends State<MapApp> {
       mask: '*-##',
       filter: {"#": RegExp(r'[0-9]'), "*": RegExp(r'[a-z, A-Z]')});
 
-  var consumerIdFormatter = MaskTextInputFormatter(
-      mask: '##-##-#####-#-*',
-      filter: {"#": RegExp(r'[0-9]'), "*": RegExp(r'[A-Z]')});
+  var consumerIdFormatter =
+  MaskTextInputFormatter(mask: '##-##-#####-#-*', filter: {
+    "#": RegExp(r'[0-9]'),
+    // "": RegExp(r'[D-C]'),
+    "*": RegExp(r'[C-D]')
+  });
 
   var plotTypeMask =
   MaskTextInputFormatter(mask: '#', filter: {"#": RegExp(r'[C-D]')});
@@ -424,6 +474,9 @@ class _MapAppState extends State<MapApp> {
       _houseNumTextController.clear();
       _streetTextController.clear();
       _blockTextController.clear();
+      _oldAddressTextController.clear();
+      _oldconsumerIdTextController.clear();
+      _plottypeTextController.clear();
     });
   }
 
@@ -462,6 +515,9 @@ class _MapAppState extends State<MapApp> {
     _gasCompanyIdTextController.dispose();
     _electricCompanyIdTextController.dispose();
     _landlineIdTextController.dispose();
+    _oldAddressTextController.dispose();
+    _oldconsumerIdTextController.dispose();
+
     imageList.clear();
     markers.clear();
   }
@@ -501,12 +557,10 @@ class _MapAppState extends State<MapApp> {
                                           scanBarcode();
                                         });
                                       },
-                                      child: Expanded(
-                                        child: Text("Scan QR/Barcode",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color: kMaroon)),
-                                      )),
+                                      child: Text("Scan QR/Barcode",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: kMaroon))),
                                   const Spacer(),
                                   GestureDetector(
                                       onTap: () {
@@ -526,7 +580,8 @@ class _MapAppState extends State<MapApp> {
                                                     TextCapitalization
                                                         .characters,
                                                     decoration: InputDecoration(
-                                                      labelText: 'Consumer ID',
+                                                      labelText:
+                                                      'Enter Consumer ID',
                                                       suffixIcon: GestureDetector(
                                                           onTap: () {
                                                             consumerIdSubstring(
@@ -558,28 +613,28 @@ class _MapAppState extends State<MapApp> {
                                               });
                                         });
                                       },
-                                      child: Expanded(
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.search, color: kMaroon),
-                                            const SizedBox(
-                                              width: 3.2,
-                                            ),
-                                            Text("Search ID",
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: kMaroon)),
-                                          ],
-                                        ),
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.search, color: kMaroon),
+                                          const SizedBox(
+                                            width: 3.2,
+                                          ),
+                                          Text("Search ID",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: kMaroon)),
+                                        ],
                                       )),
                                 ],
                               ),
-                              TextFormField(
+                              TextField(
                                 enabled: false,
                                 controller: _oldconsumerIdTextController,
                                 inputFormatters: [consumerIdFormatter],
                                 textCapitalization: TextCapitalization.characters,
                                 decoration: const InputDecoration(
+                                  // enabledBorder: InputBorder.none,
+                                  border: InputBorder.none,
                                   labelText: 'Old Consumer ID',
                                 ),
                                 onChanged: (val) => setState(() {
@@ -635,7 +690,7 @@ class _MapAppState extends State<MapApp> {
                                   number = val;
                                 }),
                                 validator: (String? val) {
-                                  if (val == null || val.trim().length == 0) {
+                                  if (val == null || val.trim().isEmpty) {
                                     return "Consumer Number is mandatory";
                                   } else if (val.length < 12) {
                                     return "Consumer Number is Invalid";
@@ -659,7 +714,7 @@ class _MapAppState extends State<MapApp> {
                                   nicNumber = val;
                                 }),
                                 validator: (String? val) {
-                                  if (val == null || val.trim().length == 0) {
+                                  if (val == null || val.trim().isEmpty) {
                                     return "Consumer CNIC Number is mandatory";
                                   } else if (val.length < 12) {
                                     return "Consumer CNIC_Number is Invalid";
@@ -694,42 +749,52 @@ class _MapAppState extends State<MapApp> {
                                   return null;
                                 },
                               ),
+
+                              TextField(
+                                  enabled: false,
+                                  controller: _oldAddressTextController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Old Address',
+                                  ),
+                                  onChanged: (val) => setState(() {
+                                    oldAddress = val.toString();
+                                  })),
                               DropdownButtonFormField(
                                 decoration: const InputDecoration(
-                                    contentPadding: EdgeInsets.symmetric(vertical: 16),
-                                    hintText: "Tariff"
-                                ),
-                                  items:
-                                  _tariffList.map((tariff) {
-                                    return DropdownMenuItem(
-                                      child: Text(tariff),
-                                      value: tariff,
-                                    );
-                                  }).toList(),
-                                  onChanged: plotType == "D" ?
-                                      (val) {
-                                  setState(() => tariffOrDia = val.toString());
-                                } :
-                                  null,
+                                    contentPadding:
+                                    EdgeInsets.symmetric(vertical: 16),
+                                    hintText: "Tariff"),
+                                items: _tariffList.map((tariff) {
+                                  return DropdownMenuItem(
+                                    child: Text(tariff),
+                                    value: tariff,
+                                  );
+                                }).toList(),
+                                onChanged: plotType == "D"
+                                    ? (val) {
+                                  setState(
+                                          () => tariffOrDia = val.toString());
+                                }
+                                    : null,
                               ),
                               DropdownButtonFormField(
-                                  decoration: const InputDecoration(
-                                      contentPadding: EdgeInsets.symmetric(vertical: 16),
-                                      hintText: "Dia"
-                                  ),
-                                  items:
-                                  _diaList.map((dia) {
-                                    return DropdownMenuItem(
-                                      child: Text(dia.toString()),
-                                      value: dia,
-                                    );
-                                  }).toList(),
-                                  onChanged: plotType == "C" ?
-                                      (val) {
-                                    setState(() => tariffOrDia = val.toString());
-                                  } :
-                                      null,
-                                  ),
+                                decoration: const InputDecoration(
+                                    contentPadding:
+                                    EdgeInsets.symmetric(vertical: 16),
+                                    hintText: "Dia"),
+                                items: _diaList.map((dia) {
+                                  return DropdownMenuItem(
+                                    child: Text(dia.toString()),
+                                    value: dia,
+                                  );
+                                }).toList(),
+                                onChanged: plotType == "C"
+                                    ? (val) {
+                                  setState(
+                                          () => tariffOrDia = val.toString());
+                                }
+                                    : null,
+                              ),
                               // DropdownButtonFormField(
                               //   value: "Select Tariff or Dia",
                               //     items: plotType == "Domestic" ? _tariffList.map((tariff) {
@@ -803,7 +868,7 @@ class _MapAppState extends State<MapApp> {
                                   )
                                 ],
                               ),
-                          /* UC list commented because it is not needed by Wasa currently, it will be
+                              /* UC list commented because it is not needed by Wasa currently, it will be
                               uncommented once they need it and have the relevant data  */
                               // DropdownButtonFormField(
                               //     decoration: const InputDecoration(
@@ -1001,22 +1066,34 @@ class _MapAppState extends State<MapApp> {
                     GestureDetector(
                       onTap: () async {
                         if (_formKey.currentState!.validate()) {
-
                           //Checking whether mobile number, Cnic, or email already exists in database, if it does, we just show an alert dialog
-                          numberExists = await _db.doesNumberAlreadyExist(number);
-                          nicNumExists = await _db.doesNicNumberAlreadyExist(nicNumber);
+                          numberExists =
+                          await _db.doesNumberAlreadyExist(number);
+                          nicNumExists =
+                          await _db.doesNicNumberAlreadyExist(nicNumber);
                           emailExists = await _db.doesEmailAlreadyExist(email);
                           if (numberExists || nicNumExists || emailExists) {
-                            CoolAlert.show(context: context,
+                            CoolAlert.show(
+                                context: context,
                                 type: CoolAlertType.error,
                                 text: "This Data already exists",
-                                autoCloseDuration: const Duration(milliseconds: 3000)
-                            );
-                          }
-                          else {
-                            entryNum = await _db.countEntriesInZoneWard(zone, ward) + 1;
-                            // plotType == "D" ? plotTypeLetter = "D" : plotTypeLetter = "C";
-                            consumerID = zone + "-" + ward + "-" + entryNum.toString() + "-" + plotType;
+                                autoCloseDuration:
+                                const Duration(milliseconds: 3000));
+                          } else {
+                            entryNum =
+                                await _db.countEntriesInZoneWard(zone, ward) +
+                                    1;
+                            // plotType == "Domestic"
+                            //     ? plotTypeLetter = "D"
+                            //     : plotTypeLetter = "C";
+
+                            consumerID = zone +
+                                "-" +
+                                ward +
+                                "-" +
+                                entryNum.toString() +
+                                "-" +
+                                plotType;
                             address = "";
                             address += "House # " +
                                 houseNum.toString() +
@@ -1031,31 +1108,31 @@ class _MapAppState extends State<MapApp> {
                             if (!isConnected) {
                               // If network detected is found to be false, then the consumer records are stored in SQLite db using the method below
                               DBProvider.db.insertConsumerEntryOffline(
-                                  consumerId: consumerID,
-                                plotType: plotType == "D"
-                                    ? "Domestic"
-                                    : "Commercial",
-                                  name: name,
-                                  number: number,
-                                  email: email,
-                                  cnic: nicNumber,
-                                  tariffOrDia: tariffOrDia,
-                                  taluka: taluka,
-                                  ucNum: uc,
-                                  zone: zone,
-                                  wardNumber: ward,
-                                  area: area,
-                                  houseNum: houseNum,
-                                  block: block,
-                                  unitNum: unitNum,
-                                  address: address,
-                                  newAddress: newAddress,
-                                  gasCompany: gasCompany,
-                                  electricCompany: electricCompany,
-                                  landlineCompany: landlineNumber,
+                                consumerId: consumerID,
+                                plotType:
+                                plotType == "D" ? "Domestic" : "Commercial",
+                                name: name,
+                                number: number,
+                                email: email,
+                                cnic: nicNumber,
+                                tariffOrDia: tariffOrDia,
+                                taluka: taluka,
+                                ucNum: uc,
+                                zone: zone,
+                                wardNumber: ward,
+                                area: area,
+                                houseNum: houseNum,
+                                block: block,
+                                unitNum: unitNum,
+                                address: address,
+                                newAddress: newAddress,
+                                gasCompany: gasCompany,
+                                electricCompany: electricCompany,
+                                landlineCompany: landlineNumber,
                                 surveyorName: loggedInUserName,
                                 surveyorEmail: loggedInUserEmail,
-                                dateTime: json.encode(DateTime.now().toIso8601String()),
+                                dateTime: json
+                                    .encode(DateTime.now().toIso8601String()),
                               );
                               showDialog(
                                   barrierDismissible: false,
@@ -1072,9 +1149,8 @@ class _MapAppState extends State<MapApp> {
                             }
                             if (isConnected) {
                               final consumer = {
-                                ConsumerFields.plotType: plotType == "D"
-                                  ? "Domestic"
-                                  : "Commercial",
+                                ConsumerFields.plotType:
+                                plotType == "D" ? "Domestic" : "Commercial",
                                 ConsumerFields.id: consumerID,
                                 ConsumerFields.name: name,
                                 ConsumerFields.number: number,
@@ -1092,46 +1168,51 @@ class _MapAppState extends State<MapApp> {
                                 ConsumerFields.address: address,
                                 ConsumerFields.newAddress: newAddress,
                                 ConsumerFields.gasCompanyId: gasCompany,
-                                ConsumerFields.electricCompanyId: electricCompany,
-                                ConsumerFields.landlineCompanyId: landlineNumber,
-                                ConsumerFields.dateTime: json.encode(DateTime.now().toIso8601String()) ,
+                                ConsumerFields.electricCompanyId:
+                                electricCompany,
+                                ConsumerFields.landlineCompanyId:
+                                landlineNumber,
+                                ConsumerFields.dateTime: json
+                                    .encode(DateTime.now().toIso8601String()),
                               };
-                              CoolAlert.show(context: context, type: CoolAlertType.loading);
+                              CoolAlert.show(
+                                  context: context,
+                                  type: CoolAlertType.loading);
                               await uploadFile();
                               Navigator.pop(context);
                               await ConsumerSheetsAPI.insert([consumer]);
                             }
                             // Along storing the data to sqlite, we also insert to Firebase, the data will be stored in firebase cache, and when network status changes, the offline data is synced with firebase
                             _db.addConsumerEntry(
-                                plotType: plotType == "D"
-                                    ? "Domestic"
-                                    : "Commercial",
-                              oldConsumerId: "",
-                              consumerID: consumerID,
-                              name: name,
-                              number: number,
-                              email: email,
-                              tariffOrDia: tariffOrDia,
-                              taluka: taluka,
-                              uc: uc,
-                              zone: zone,
-                              ward: ward,
-                              block: block,
-                              unitNum: unitNum,
-                              area: area,
-                              houseNum: houseNum,
-                              nicNum: nicNumber,
-                              address: address,
-                              gasCompany: gasCompany,
-                              electricCompany: electricCompany,
-                              landlineCompany: landlineNumber,
-                              location: GeoPoint(widget.lat, widget.lan),
-                              url: imageList.isNotEmpty ? imageList[0]
-                                  .toString() : "",
+                                plotType:
+                                plotType == "D" ? "Domestic" : "Commercial",
+                                oldConsumerId: oldconsumerID,
+                                consumerID: consumerID,
+                                name: name,
+                                number: number,
+                                email: email,
+                                tariffOrDia: tariffOrDia,
+                                taluka: taluka,
+                                uc: uc,
+                                zone: zone,
+                                ward: ward,
+                                block: block,
+                                unitNum: unitNum,
+                                area: area,
+                                houseNum: houseNum,
+                                nicNum: nicNumber,
+                                address: address,
+                                gasCompany: gasCompany,
+                                electricCompany: electricCompany,
+                                landlineCompany: landlineNumber,
+                                location: GeoPoint(widget.lat, widget.lan),
+                                url: imageList.isNotEmpty
+                                    ? imageList[0].toString()
+                                    : "",
                                 loggedInEmail: loggedInUserEmail,
                                 loggedInUser: loggedInUserName,
-                              dateTime: json.encode(DateTime.now().toIso8601String())
-                            );
+                                dateTime: json
+                                    .encode(DateTime.now().toIso8601String()));
                             showDialog(
                                 barrierDismissible: false,
                                 context: context,
@@ -1156,8 +1237,8 @@ class _MapAppState extends State<MapApp> {
                       },
                       child: Text(
                         "Save",
-                        style:
-                        TextStyle(fontWeight: FontWeight.bold, color: kMaroon),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: kMaroon),
                       ),
                     ),
                     GestureDetector(
@@ -1282,7 +1363,8 @@ class _MapAppState extends State<MapApp> {
         _markers.add(Marker(
             markerId: MarkerId(point.toString()),
             position: point,
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+            icon:
+            BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
             onTap: () {
               _showAlertDialog();
             }));
@@ -1293,9 +1375,12 @@ class _MapAppState extends State<MapApp> {
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
   @override
   Widget build(BuildContext context) {
-
     final user = Provider.of<User?>(context);
-    FirebaseFirestore.instance.collection("users").doc(user!.uid).get().then((value) {
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(user!.uid)
+        .get()
+        .then((value) {
       setState(() {
         loggedInUserName = value["userName"];
         loggedInUserEmail = value["Email"];
@@ -1659,9 +1744,12 @@ class _MapAppState extends State<MapApp> {
                             ConsumerFields.houseNum: element["House_Number"],
                             ConsumerFields.address: element["Address"],
                             ConsumerFields.newAddress: element["New_Address"],
-                            ConsumerFields.gasCompanyId: element["Gas_Company_Id"],
-                            ConsumerFields.electricCompanyId: element["Electricity_Company_Id"],
-                            ConsumerFields.landlineCompanyId: element["Landline_Company_Id"],
+                            ConsumerFields.gasCompanyId:
+                            element["Gas_Company_Id"],
+                            ConsumerFields.electricCompanyId:
+                            element["Electricity_Company_Id"],
+                            ConsumerFields.landlineCompanyId:
+                            element["Landline_Company_Id"],
                           };
                           await ConsumerSheetsAPI.insert([consumer]);
                         }
