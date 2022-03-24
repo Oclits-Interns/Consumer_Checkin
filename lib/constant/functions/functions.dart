@@ -24,8 +24,8 @@ String generateOTP() {
 }
 
 sendEmail(String otp, String userName, String email) async {
-  String userEmail = 'nanapatigar778866@gmail.com';
-  String password = 'maheenaapi.786';
+  String userEmail = 'wasa.hyd.pk@gmail.com';
+  String password = 'jaffri110';
 
   final smtpServer = gmail(userEmail, password);
 

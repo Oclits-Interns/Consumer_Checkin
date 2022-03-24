@@ -38,6 +38,8 @@ var nicNumExists;
 var emailExists;
 
 class _MapAppState extends State<MapApp> {
+
+  //Consumer data
   String consumerID = "";
   String oldAddress = "";
   String oldconsumerID = "";
@@ -64,12 +66,10 @@ class _MapAppState extends State<MapApp> {
   String loggedInUserName = "";
   String loggedInUserEmail = "";
   String surveyorEmail = "";
-  String plotTypeLetter = "";
   int entryNum = 0;
   bool isConnected = false;
   bool isLocked = false;
   late Uri url1;
-  bool uploading = false;
   double val = 0;
   final List<Uri> imageList = [];
   late firebase_storage.Reference ref;
@@ -77,90 +77,20 @@ class _MapAppState extends State<MapApp> {
   final picker = ImagePicker();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   var plotTypeDropDown = ["Domestic", "Commercial"];
-  final List<String> _talukaList = [
-    "Hyderabad Taluka",
-    "Qasimabad Taluka",
-    "Latifabad Taluka",
-    "Hyderabad City Taluka"
-  ];
-  final List<String> _unitNumList = [
-    "Unit # 1",
-    "Unit # 2",
-    "Unit # 3",
-    "Unit # 4",
-    "Unit # 5",
-    "Unit # 6",
-    "Unit # 7",
-    "Unit # 8",
-    "Unit # 9",
-    "Unit # 10",
-    "Unit # 11",
-    "Unit # 12",
-  ];
-  final List<String> _zoneList = [
-    "01",
-    "02",
-    "03",
-    "04",
-    "05",
-    "06",
-    "07",
-  ];
-  final List<String> _wardList = [
-    "01",
-    "02",
-    "03",
-    "04",
-    "05",
-    "06",
-    "07",
-    "08",
-    "09",
-    "10",
-  ];
-  // final List<String> _ucNumList = [
-  //   "UC # 1",
-  //   "UC # 2",
-  //   "UC # 3",
-  //   "UC # 4",
-  //   "UC # 5",
-  //   "UC # 6",
-  //   "UC # 7",
-  //   "UC # 8",
-  //   "UC # 9",
-  //   "UC # 10",
-  //   "UC # 11",
-  //   "UC # 12",
-  //   "UC # 13",
-  //   "UC # 14",
-  // ];
+  final List<String> _talukaList = ["Hyderabad Taluka", "Qasimabad Taluka", "Latifabad Taluka", "Hyderabad City Taluka"];
+  final List<String> _unitNumList = ["Unit # 1", "Unit # 2", "Unit # 3", "Unit # 4", "Unit # 5", "Unit # 6",
+    "Unit # 7", "Unit # 8", "Unit # 9", "Unit # 10", "Unit # 11", "Unit # 12",];
+  final List<String> _zoneList = ["01", "02", "03", "04", "05", "06", "07",];
+  final List<String> _wardList = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10",];
+  //final List<String> _ucNumList = ["UC # 1", "UC # 2", "UC # 3", "UC # 4", "UC # 5", "UC # 6", "UC # 7", "UC # 8", "UC # 9", "UC # 10", "UC # 11", "UC # 12", "UC # 13", "UC # 14",];
   final List<double> _diaList = [0.5, 0.75, 1, 1.5, 2];
   final List<String> _tariffList = [
-    "A",
-    "AG + 1",
-    "AG+2",
-    "AG + 3",
-    "B",
-    "BG + 1",
-    "BG + 2",
-    "BG + 3",
-    "C",
-    "CG + 1",
-    "CG + 2",
-    "CG + 3",
-    "D",
-    "DG + 1",
-    "DG + 2",
-    "DG + 3",
-    "E",
-    "EG + 1",
-    "EG + 2",
-    "EG + 3",
-    "F",
-    "FG + 1",
-    "FG + 2",
-    "FG + 3"
-  ];
+    "A", "AG + 1", "AG+2", "AG + 3",
+    "B", "BG + 1", "BG + 2", "BG + 3",
+    "C", "CG + 1", "CG + 2", "CG + 3",
+    "D", "DG + 1", "DG + 2", "DG + 3",
+    "E", "EG + 1", "EG + 2", "EG + 3",
+    "F", "FG + 1", "FG + 2", "FG + 3" ];
   final DatabaseService _db = DatabaseService();
   final AuthService _auth = AuthService();
   final _emailTextController = TextEditingController();
@@ -232,34 +162,6 @@ class _MapAppState extends State<MapApp> {
       oldconsumerID = oldidofconsumer;
     });
   }
-
-  // consumeridSubstring(dataById) {
-  //   String dataByIdintofeilds = dataById;
-  //   print("hhhhhhhhhhhhhh" + dataByIdintofeilds);
-  //   int startIndexConsumertype = 14;
-
-  //   String resultConsumertype = dataByIdintofeilds.substring(14);
-  //   print("hhhhhhhhhhhhhh" + resultConsumertype);
-  //   // _consumerIdTextController.text = resultConsumertype.toString();
-  //   //  consumerID = resultConsumertype;
-
-  //   int startIndexZone = 0;
-  //   int endIndexZone = 2;
-  //   String resultZone =
-  //       dataByIdintofeilds.substring(startIndexZone, endIndexZone);
-  //   print("hhhhhhhhhhhhhh" + resultZone);
-  //   //  _zoneTextController.text = resultZone;
-
-  //   int startIndexWard = 3;
-  //   int endIndexWard = 5;
-  //   String resultWard =
-  //       dataByIdintofeilds.substring(startIndexWard, endIndexWard);
-  //   setState(() {
-  //     ward = resultWard;
-  //   });
-  //   print("hhhhhhhhhhhhhh" + resultWard);
-  //   //    _wardTextController.text = resultWard;
-  // }
 
   consumerIdSubstring(dataById) {
     String dataByIdintofeilds = dataById;
@@ -357,24 +259,13 @@ class _MapAppState extends State<MapApp> {
       // int endIndexConsumerplot = 14;
       String resultConsumerplot = cid.substring(14);
       _plottypeTextController.text = resultConsumerplot.toString();
+      plotType = resultConsumerplot.toString();
     });
 
     Networkhelper networkhelper = Networkhelper(
         'http://182.176.105.49:8081/consumercheckin/linker.php?search_consumer=true&consumer_no=$id');
 
     var iddata = await networkhelper.getData();
-
-    // _zoneTextController.text =
-    //     iddata[1]["consumer_no"].toString() ?? "";
-    // zone = iddata[1]["consumer_no"].toString() ?? "";
-
-    // _wardTextController.text =
-    //     iddata[1]["consumer_no"].toString() ?? "";
-    // ward = iddata[1]["consumer_no"].toString() ?? "";
-
-    // _plottypeTextController.text =
-    //     iddata[1]["consumer_status"].toString() ?? "";
-    // plotType = iddata[1]["consumer_status"].toString() ?? "";
 
     if (iddata[1]["consumer_no"] == null ||
         iddata[1]["consumer_no"] == "null" ||
@@ -383,9 +274,9 @@ class _MapAppState extends State<MapApp> {
           barrierDismissible: false,
           context: context,
           builder: (context) {
-            // Future.delayed(const Duration(milliseconds: 1500), () {
-            //   Navigator.of(context).pop(true);
-            // });
+            Future.delayed(const Duration(milliseconds: 1500), () {
+              Navigator.of(context).pop(true);
+            });
             return const AlertDialog(
               title: Text('No such data'),
             );
@@ -648,9 +539,7 @@ class _MapAppState extends State<MapApp> {
                                 decoration: const InputDecoration(
                                   labelText: 'Plot Type',
                                 ),
-                                onChanged: (val) => setState(() {
-                                  plotType = val.toString();
-                                }),
+                                onChanged: (val) => setState(() =>  plotType = val.toString()),
                                 validator: (String? val) {
                                   if (val == null || val.trim().isEmpty) {
                                     return "Please select a plot type first";
@@ -795,28 +684,6 @@ class _MapAppState extends State<MapApp> {
                                 }
                                     : null,
                               ),
-                              // DropdownButtonFormField(
-                              //   value: "Select Tariff or Dia",
-                              //     items: plotType == "Domestic" ? _tariffList.map((tariff) {
-                              //   return DropdownMenuItem(
-                              //     child: Text(tariff),
-                              //     value: tariff,
-                              //   );
-                              // }).toList()
-                              //     :
-                              //   _diaList.map((dia) {
-                              //     return DropdownMenuItem(
-                              //       child: Text(dia.toString()),
-                              //       value: dia,
-                              //     );
-                              //   }).toList(),
-                              //     decoration: const InputDecoration(
-                              //       contentPadding: EdgeInsets.symmetric(vertical: 16),
-                              //       hintText: "Tariff / Dia"
-                              //     ),
-                              //     onChanged: (val) {
-                              //       setState(() => tariffOrDia = val.toString());
-                              //     }),
                               Row(
                                 children: [
                                   Expanded(
@@ -953,29 +820,6 @@ class _MapAppState extends State<MapApp> {
                                 children: [
                                   Expanded(
                                     child: TextFormField(
-                                      controller: _areaTextController,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Area',
-                                        suffixText: '*',
-                                        suffixStyle: TextStyle(
-                                          color: Colors.red,
-                                        ),
-                                      ),
-                                      onChanged: (val) => setState(() {
-                                        area = val;
-                                      }),
-                                      validator: (String? val) {
-                                        if (val == null || val.trim().isEmpty) {
-                                          return "Please enter an area";
-                                        } else {
-                                          return null;
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(width: 20),
-                                  Expanded(
-                                    child: TextFormField(
                                       controller: _houseNumTextController,
                                       keyboardType: TextInputType.number,
                                       decoration: const InputDecoration(
@@ -996,7 +840,23 @@ class _MapAppState extends State<MapApp> {
                                         }
                                       },
                                     ),
-                                  )
+                                  ),
+                                  const SizedBox(width: 20),
+                                  Expanded(
+                                    child: TextFormField(
+                                      controller: _areaTextController,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Area',
+                                        suffixText: '*',
+                                        suffixStyle: TextStyle(
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                      onChanged: (val) => setState(() {
+                                        area = val;
+                                      }),
+                                    ),
+                                  ),
                                 ],
                               ),
                               Row(
@@ -1098,12 +958,11 @@ class _MapAppState extends State<MapApp> {
                             address += "House # " +
                                 houseNum.toString() +
                                 " " +
-                                " block " +
-                                block.toString() +
+                                area.toString()
+                                + " block " + block.toString() +
                                 " " +
                                 unitNum.toString() +
-                                " " +
-                                area.toString();
+                                " " ;
 
                             if (!isConnected) {
                               // If network detected is found to be false, then the consumer records are stored in SQLite db using the method below
