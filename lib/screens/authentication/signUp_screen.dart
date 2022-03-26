@@ -33,14 +33,14 @@ class _SignUpState extends State<SignUp> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: kMaroon,
-        title: const Text(
-          "Sign up",
-          style: TextStyle(
-              color: Colors.black
-          ),),
+        // title: const Text(
+        //   "Sign up",
+        //   style: TextStyle(
+        //       color: Colors.black
+        //   ),),
         centerTitle: true,
         leading: GestureDetector(
-            child: const Icon(Icons.arrow_back, color: Colors.black),
+            child: const Icon(Icons.arrow_back),
           onTap: widget.toggleView,
         ),
       ),
@@ -158,7 +158,7 @@ class _SignUpState extends State<SignUp> {
                                 borderRadius: BorderRadius.circular(8),
                                 color: kMaroon
                             ),
-                            child: const Center(child: Text("Register", style: TextStyle(color: Colors.black),)),
+                            child: const Center(child: Text("Register", style: TextStyle(color: Colors.white),)),
                           ),
                         ),
                       ),

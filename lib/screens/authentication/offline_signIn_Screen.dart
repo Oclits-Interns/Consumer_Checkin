@@ -26,10 +26,10 @@ class _OfflineSignInState extends State<OfflineSignIn> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: kMaroon,
-        title: const Text("Login",
-          style: TextStyle(
-              color: Colors.black
-          ),),
+        // title: const Text("Login",
+        //   style: TextStyle(
+        //       color: Colors.black
+        //   ),),
         centerTitle: true,
       ),
       body: SingleChildScrollView(

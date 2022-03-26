@@ -28,10 +28,10 @@ class _SignInState extends State<SignIn> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: kMaroon,
-        title: const Text("Login",
-        style: TextStyle(
-          color: Colors.black
-        ),),
+        // title: const Text("Login",
+        // style: TextStyle(
+        //   color: Colors.black
+        // ),),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -124,7 +124,7 @@ class _SignInState extends State<SignIn> {
                                 borderRadius: BorderRadius.circular(8),
                                 color: kMaroon
                               ),
-                              child: const Center(child: Text("Login", style: TextStyle(color: Colors.black),)),
+                              child: const Center(child: Text("Login", style: TextStyle(color: Colors.white),)),
                             ),
                           ),
                         ),
@@ -139,7 +139,7 @@ class _SignInState extends State<SignIn> {
                                   borderRadius: BorderRadius.circular(8),
                                   color: kYellow,
                               ),
-                              child: const Center(child: Text("Sign-up", style: TextStyle(color: Colors.black),)),
+                              child: const Center(child: Text("Sign-up", style: TextStyle(color: Colors.white),)),
                             ),
                           ),
                         ),

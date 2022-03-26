@@ -29,7 +29,10 @@ class _VerifyEmailState extends State<VerifyEmail> {
       key: _scaffoldkey,
       appBar: AppBar(
         backgroundColor: kMaroon,
-        title: const Text("Verify your Email"),
+        title: const Text("Verify your Email",
+        style: TextStyle(
+          color: Colors.black
+        ),),
         centerTitle: true,
         actions: [
           GestureDetector(
@@ -79,7 +82,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
                   width: MediaQuery.of(context).size.width * 0.45,
                   height: MediaQuery.of(context).size.height * 0.08,
                   child: const Center(child: Text("Check email verification", style: TextStyle(
-                      color: Colors.white
+                      color: Colors.black
                   ),)),
                 ),
               ),
@@ -129,9 +132,17 @@ class _VerifyEmailState extends State<VerifyEmail> {
             suffixIcon: GestureDetector(
                 onTap: () async {
                   isAuthenticated = await DatabaseService().getOtp(otp);
-                  FirebaseFirestore.instance.collection("users").doc(
-                      user!.uid).update(
-                      {"Authenticated": isAuthenticated});
+                  if(isAuthenticated == true) {
+                    FirebaseFirestore.instance.collection("users").doc(
+                        user!.uid).update(
+                        {"Authenticated": isAuthenticated});
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:
+                    Text("OTP confirmed, you should now be redirected to home screen \n"
+                        "If you are not redirected automatically, please restart the app and try again")));
+                  }
+                  else {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Invalid OTP, please try again")));
+                  }
                 },
                 child: const Icon(Icons.arrow_forward)),
           ),

@@ -123,6 +123,10 @@ flutter:
     - family: Oswald
       fonts:
        - asset: assets/fonts/Oswald-VariableFont_wght.ttf
+    - family: IBMPlexSerif
+      fonts:
+        - asset: assets/fonts/IBMPlexSerif-Medium.ttf
+
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

@@ -13,25 +13,26 @@ class Logo extends StatelessWidget {
     //NetworkImage("https://oclits.com/wp-content/uploads/elementor/thumbs/ConsumerCheckInSL512x512-oe6w0zaw1l5468ajcv2mps6mjmoh866bq4kxtq9udc.png")),
         const SizedBox(height: 20,),
         Text(
-            "CONSUMER",
+            "DIGITAL SURVEY",
             style: TextStyle(
-                letterSpacing: 3,
+                letterSpacing: 4,
+                //fontStyle: FontStyle.italic,
                 color: kMaroon,
-                fontWeight: FontWeight.bold,
-                fontSize: 28,
-                fontFamily: "Montserrat"
+                fontWeight: FontWeight.w900,
+                fontSize: 30,
+                fontFamily: "IBMPlexSerif"
             )),
-        const Text(
-            "CHECKIN",
-            style: TextStyle(
-                letterSpacing: 8,
-                color: Colors.amber,
-                fontWeight: FontWeight.bold,
-                fontSize: 22,
-                fontFamily: "Montserrat"
-            )),
+        // Text(
+        //     "Survey",
+        //     style: TextStyle(
+        //         letterSpacing: 8,
+        //         color: kYellow,
+        //         fontWeight: FontWeight.bold,
+        //         fontSize: 22,
+        //         fontFamily: "Montserrat"
+        //     )),
         const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 90.0),
+          padding: EdgeInsets.symmetric(horizontal: 70.0),
           child: Divider(
             color: Colors.black,
             thickness: 2,
@@ -40,7 +41,9 @@ class Logo extends StatelessWidget {
         const Text(
           "ALL UTILITIES HUB",
           style: TextStyle(
-              fontFamily: "Oswald",
+              fontFamily: "IBMPlexSerif",
+
+              fontWeight: FontWeight.bold,
               fontSize: 18,
               letterSpacing: 4
           ),

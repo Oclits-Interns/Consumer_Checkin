@@ -580,7 +580,7 @@ class _MapAppState extends State<MapApp> {
                                 }),
                                 validator: (String? val) {
                                   if (val == null || val.trim().isEmpty) {
-                                    return "Consumer Number is mandatory";
+                                    return "Mobile number is mandatory";
                                   } else if (val.length < 12) {
                                     return "Consumer Number is Invalid";
                                   } else {
@@ -622,18 +622,18 @@ class _MapAppState extends State<MapApp> {
                                   email = val;
                                 }),
                                 validator: (val) {
-                                  // Check if this field is empty
-                                  if (val == null || val.isEmpty) {
-                                    return 'This field is required';
+                                  // Check if mobile number field is empty, only then is this field required
+                                  if ((val == null || val.isEmpty) && number == "") {
+                                    return 'Please enter either mobile number or Email';
                                   }
                                   // using regular expression
-                                  if (!RegExp(
-                                      r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]"
-                                      r"{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]"
-                                      r"{0,253}[a-zA-Z0-9])?)*$")
-                                      .hasMatch(val)) {
-                                    return "Please enter a valid email address";
-                                  }
+                                  // else if ((val != null || val!.isNotEmpty) && !RegExp(
+                                  //     r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+                                  //     r"{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+                                  //     r"{0,253}[a-zA-Z0-9])?)*$")
+                                  //     .hasMatch(val)) {
+                                  //   return "Please enter a valid email address";
+                                  // }
                                   // the email is valid
                                   return null;
                                 },

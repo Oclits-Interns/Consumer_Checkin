@@ -17,11 +17,11 @@ class _SplashState extends State<Splash> {
   @override
   void initState() {
     super.initState();
-    CheckConnection();
+    checkConnection();
     DBProvider.db.initDB();
   }
 
-  CheckConnection() async {
+  checkConnection() async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.mobile) {
       navigateToOnlineAuth();
