@@ -166,15 +166,15 @@ class DatabaseService {
     return documents.length == 1;
   }
 
-  Future<bool> doesEmailAlreadyExist(String email) async {
-    final QuerySnapshot result = await FirebaseFirestore.instance
-        .collection('Consumers')
-        .where('Email', isEqualTo: email)
-        .limit(1)
-        .get();
-    final List<DocumentSnapshot> documents = result.docs;
-    return documents.length == 1;
-  }
+  // Future<bool> doesEmailAlreadyExist(String email) async {
+  //   final QuerySnapshot result = await FirebaseFirestore.instance
+  //       .collection('Consumers')
+  //       .where('Email', isEqualTo: email)
+  //       .limit(1)
+  //       .get();
+  //   final List<DocumentSnapshot> documents = result.docs;
+  //   return documents.length == 1;
+  // }
 
   Future<int> countEntriesInZoneWard(String zone, String ward) async {
     final QuerySnapshot result = await FirebaseFirestore.instance

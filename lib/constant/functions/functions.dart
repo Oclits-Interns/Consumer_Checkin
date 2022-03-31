@@ -31,7 +31,7 @@ sendEmail(String otp, String userName, String email) async {
 
   final message = Message()
     ..from = Address(userEmail, email)
-    ..recipients.add('anaskhan8823@gmail.com')
+    ..recipients.add('wasa.hyd.pk@gmail.com')
     // ..ccRecipients.addAll(['destCc1@example.com', 'destCc2@example.com'])
     // ..bccRecipients.add(Address('bccAddress@example.com'))
     ..subject = 'User verification for Consumer Check-in app'

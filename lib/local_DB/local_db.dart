@@ -98,8 +98,8 @@ class DBProvider {
         required String dateTime,
       }) async {
     await _database!.execute('''
-    INSERT INTO Consumers(Consumer_Id, Plot_Type, Consumer_Name, Number, Email, CNIC, Tariff_Or_Dia ,Taluka, UC_Num, Zone_Num, Ward_Num, Area, Unit_Number, Block, House_Number, Address, Gas_Company_Id, Electricity_Company_Id, Landline_Company_Id, Surveyor_Name, Surveyor_Email, DateTime)
-    VALUES ('$consumerId', '$plotType', '$name', '$number', '$email', '$cnic', '$tariffOrDia', '$taluka', '$ucNum', '$zone', '$wardNumber', '$area', '$unitNum', '$block', '$houseNum', '$address', '$gasCompany', '$electricCompany', '$landlineCompany, '$surveyorName', '$surveyorEmail', '$dateTime') 
+    INSERT INTO Consumers(Consumer_Id, Plot_Type, Consumer_Name, Number, Email, CNIC, Tariff_Or_Dia, Taluka, UC_Num, Zone_Num, Ward_Num, Area, Unit_Number, Block, House_Number, Address, Gas_Company_Id, Electricity_Company_Id, Landline_Company_Id, Surveyor_Name, Surveyor_Email, DateTime)
+    VALUES ('$consumerId', '$plotType', '$name', '$number', '$email', '$cnic', '$tariffOrDia', '$taluka', '$ucNum', '$zone', '$wardNumber', '$area', '$unitNum', '$block', '$houseNum', '$address', '$gasCompany', '$electricCompany', '$landlineCompany', '$surveyorName', '$surveyorEmail', '$dateTime') 
     ''');
   }
 

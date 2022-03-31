@@ -80,7 +80,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
                   ),
                   width: MediaQuery.of(context).size.width * 0.45,
                   height: MediaQuery.of(context).size.height * 0.08,
-                  child: const Center(child: Text("Check email verification",)),
+                  child: const Center(child: Text("Check email verification", style: TextStyle(color: Colors.white),)),
                 ),
               ),
             ),

@@ -34,7 +34,6 @@ class MapApp extends StatefulWidget {
 
 var numberExists;
 var nicNumExists;
-var emailExists;
 
 class _MapAppState extends State<MapApp> {
 
@@ -67,7 +66,7 @@ class _MapAppState extends State<MapApp> {
   String loggedInUserEmail = "loading..";
   String surveyorEmail = "";
   int entryNum = 0;
-  bool isConnected = false;
+  bool isConnected = true;
   bool isLocked = false;
   late Uri url1;
   double val = 0;
@@ -392,7 +391,9 @@ class _MapAppState extends State<MapApp> {
     super.initState();
     checkConn();
     imageList.clear();
-    getLoggedInUserOffline();
+    if(!isConnected) {
+      getLoggedInUserOffline();
+    }
   }
 
   @override
@@ -936,8 +937,8 @@ class _MapAppState extends State<MapApp> {
                           await _db.doesNumberAlreadyExist(number);
                           nicNumExists =
                           await _db.doesNicNumberAlreadyExist(nicNumber);
-                          emailExists = await _db.doesEmailAlreadyExist(email);
-                          if (numberExists || nicNumExists || emailExists) {
+                          //emailExists = await _db.doesEmailAlreadyExist(email);
+                          if (numberExists || nicNumExists) {
                             CoolAlert.show(
                                 context: context,
                                 type: CoolAlertType.error,
@@ -973,8 +974,7 @@ class _MapAppState extends State<MapApp> {
                               // If network detected is found to be false, then the consumer records are stored in SQLite db using the method below
                               DBProvider.db.insertConsumerEntryOffline(
                                 consumerId: consumerID,
-                                plotType:
-                                plotType == "D" ? "Domestic" : "Commercial",
+                                plotType: plotType == "D" ? "Domestic" : "Commercial",
                                 name: name,
                                 number: number,
                                 email: email,
