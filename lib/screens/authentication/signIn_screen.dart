@@ -17,8 +17,8 @@ class _SignInState extends State<SignIn> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final AuthService _auth = AuthService();
-  String _email = "ali.naqvi@gmail.com";
-  String _password = "123456";
+  String _email = "";
+  String _password = "";
   bool _showPassword = true;
   Icon showPasswordIcon = const Icon(Icons.visibility_rounded);
 

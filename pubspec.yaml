@@ -63,7 +63,6 @@ dependencies:
   gallery_saver: ^2.3.2
   qr_flutter: ^4.0.0
   cool_alert: ^1.1.0
-  firebase_phone_auth_handler: ^1.0.1
   mailer: ^5.1.0
 
 
@@ -116,13 +115,6 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-    - family: Montserrat
-      fonts:
-       - asset: assets/fonts/Montserrat-Italic-VariableFont_wght.ttf
-       - asset: assets/fonts/Montserrat-VariableFont_wght.ttf
-    - family: Oswald
-      fonts:
-       - asset: assets/fonts/Oswald-VariableFont_wght.ttf
     - family: IBMPlexSerif
       fonts:
         - asset: assets/fonts/IBMPlexSerif-Medium.ttf

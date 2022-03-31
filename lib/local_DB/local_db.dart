@@ -12,6 +12,8 @@ class DBProvider {
   static Database? _database;
   static const userCredentialsTable = 'UserCredentials';
   static const consumersTable = "Consumers";
+  static const signedInUser = "SignedInUser";
+  static const userName = "UserName";
   static const email = 'email';
   static const password = 'password';
 
@@ -131,7 +133,9 @@ class DBProvider {
     await _database?.execute('''
           CREATE TABLE IF NOT EXISTS $userCredentialsTable(
       $email nvarchar  ,
-      $password nvarchar
+      $password nvarchar  ,
+      emailVerified TEXT  ,
+      otpVerified TEXT
   )
           ''');
   }
@@ -141,26 +145,85 @@ class DBProvider {
     _database = await db.validateDBAtLogin();
     dynamic userValidated = Sqflite.firstIntValue(
         await _database!.rawQuery('''
-      SELECT COUNT(*) FROM $userCredentialsTable WHERE $email=? AND $password=?
+      SELECT COUNT(*) FROM $userCredentialsTable 
+      WHERE $email=? AND $password=? AND emailVerified =? AND otpVerified =?
     ''',
-        ['$_email', '$_password'])
+        [_email, _password, "true", "true"])
     );
     return userValidated;
   }
 
-
-  //to clear a table content
-  Future deleteSigninUser() async {
+  //Method to delete from userCredentials table if there are multiple records for a single user
+  Future deleteUserCredentials() async {
     _database = await db.validateDBAtLogin();
     _database?.rawQuery('''
       DELETE FROM $userCredentialsTable
     ''');
   }
 
-  Future insertSigninUser(String _email, String _password) async {
+  //Method to create a new user in local database which will be used to sign in
+  Future insertUserCredentials(String _email, String _password) async {
     _database = await db.validateDBAtLogin();
     _database?.rawInsert('''
-      INSERT INTO $userCredentialsTable($email, $password)  VALUES("$_email", "$_password")
+      INSERT INTO $userCredentialsTable($email, $password, emailVerified, otpVerified)  VALUES("$_email", "$_password", "false", "false")
     ''');
+  }
+
+  Future createSignedInUserTable() async {
+
+
+    _database = await db.validateDBAtLogin();
+    await _database?.execute('''
+          CREATE TABLE IF NOT EXISTS $signedInUser(
+      $userName nvarchar  ,
+      $email nvarchar  ,
+      $password nvarchar
+  )
+          ''');
+  }
+
+   /*There can only be one signedIn User, so the table is cleared before
+     inserting a new signed in user with the method below */
+  Future deleteSignedInUser() async {
+    _database = await db.validateDBAtLogin();
+    _database?.rawQuery('''
+      DELETE FROM $signedInUser
+    ''');
+  }
+
+  // Method to insert signed in user, to track the signedIn user
+  Future insertSignedInUser(String _userName , String _email, String _password) async {
+    _database = await db.validateDBAtLogin();
+    _database?.rawInsert('''
+      INSERT INTO $signedInUser($userName, $email, $password)  VALUES("$_userName", "$_email", "$_password")
+    ''');
+  }
+
+  Future emailVerified(String _email) async {
+    _database = await db.validateDBAtLogin();
+    _database?.rawUpdate('''
+      UPDATE $userCredentialsTable
+      SET emailVerified = "true"
+      WHERE $email = "$_email"
+    ''');
+  }
+
+  Future otpVerified(String _email) async {
+    _database = await db.validateDBAtLogin();
+    _database?.rawUpdate('''
+      UPDATE $userCredentialsTable
+      SET otpVerified = "true"
+      WHERE $email = "$_email"
+    ''');
+  }
+
+ Future getLoggedInUser() async {
+    if(_database == null) {
+      _database = await initDB();
+      return await _database!.rawQuery('SELECT * FROM $signedInUser');
+    }
+    else {
+      return await _database!.rawQuery('SELECT * FROM $signedInUser');
+    }
   }
 }

@@ -7,14 +7,14 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-   <application
-        android:label="Consumer Checkin"
+    <application
+        android:label="Digital Survey"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <meta-data android:name="com.google.android.geo.API_KEY"
-        android:value="AIzaSyAOLvE2sYeiZuH7HW5jkD3nOxV_lnBk-pI"/>
+            android:value="AIzaSyAOLvE2sYeiZuH7HW5jkD3nOxV_lnBk-pI"/>
         <meta-data android:name="com.mapbox.token"
-        android:value="pk.eyJ1IjoiYW5hc2toYW44ODIzIiwiYSI6ImNrejNwYzZyZzAweHYydmp3eTF3dXJqenMifQ.V5nkuR9NI3ukogPuj66JVA" />
+            android:value="pk.eyJ1IjoiYW5hc2toYW44ODIzIiwiYSI6ImNrejNwYzZyZzAweHYydmp3eTF3dXJqenMifQ.V5nkuR9NI3ukogPuj66JVA" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -28,9 +28,9 @@
                  while the Flutter UI initializes. After that, this theme continues
                  to determine the Window background behind the Flutter UI. -->
             <meta-data
-              android:name="io.flutter.embedding.android.NormalTheme"
-              android:resource="@style/NormalTheme"
-              />
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/NormalTheme"
+                />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -42,5 +42,5 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
-  
+
 </manifest>

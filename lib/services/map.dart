@@ -7,7 +7,6 @@ import 'package:consumer_checkin/constant/colors_constant.dart';
 import 'package:consumer_checkin/local_DB/local_db.dart';
 import 'package:consumer_checkin/models/consumer.dart';
 import 'package:consumer_checkin/screens/retrieve_locations.dart';
-import 'package:consumer_checkin/services/auth.dart';
 import 'package:consumer_checkin/services/db_firestore.dart';
 import 'package:consumer_checkin/services/google_sheets.dart';
 import 'package:consumer_checkin/services/networking.dart';
@@ -63,8 +62,9 @@ class _MapAppState extends State<MapApp> {
   String nicNumber = "";
   String taluka = "";
   String searchID = "";
-  String loggedInUserName = "";
-  String loggedInUserEmail = "";
+  late List<Map<String, dynamic>> loggedInUser;
+  String loggedInUserName = "loading..";
+  String loggedInUserEmail = "loading..";
   String surveyorEmail = "";
   int entryNum = 0;
   bool isConnected = false;
@@ -92,7 +92,6 @@ class _MapAppState extends State<MapApp> {
     "E", "EG + 1", "EG + 2", "EG + 3",
     "F", "FG + 1", "FG + 2", "FG + 3" ];
   final DatabaseService _db = DatabaseService();
-  final AuthService _auth = AuthService();
   final _emailTextController = TextEditingController();
   final _consumerIdTextController = TextEditingController();
   final _oldconsumerIdTextController = TextEditingController();
@@ -167,9 +166,9 @@ class _MapAppState extends State<MapApp> {
     String dataByIdintofeilds = dataById;
     //int startIndexConsumertype = 14;
 
-    String resultConsumertype = dataByIdintofeilds.substring(14);
-    // _consumerIdTextController.text = resultConsumertype.toString();
-    //  consumerID = resultConsumertype;
+    /*String resultConsumertype = dataByIdintofeilds.substring(14);
+     _consumerIdTextController.text = resultConsumertype.toString();
+      consumerID = resultConsumertype;*/
 
     int startIndexZone = 0;
     int endIndexZone = 2;
@@ -382,11 +381,18 @@ class _MapAppState extends State<MapApp> {
     }
   }
 
+  getLoggedInUserOffline() async {
+      loggedInUser = await DBProvider.db.getLoggedInUser();
+      loggedInUserName = loggedInUser[0]["UserName"];
+      loggedInUserEmail = loggedInUser[0]["email"];
+  }
+
   @override
   void initState() {
     super.initState();
     checkConn();
     imageList.clear();
+    getLoggedInUserOffline();
   }
 
   @override
@@ -638,7 +644,6 @@ class _MapAppState extends State<MapApp> {
                                   return null;
                                 },
                               ),
-
                               TextField(
                                   enabled: false,
                                   controller: _oldAddressTextController,
@@ -1234,17 +1239,19 @@ class _MapAppState extends State<MapApp> {
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<User?>(context);
-    FirebaseFirestore.instance
-        .collection("users")
-        .doc(user!.uid)
-        .get()
-        .then((value) {
-      setState(() {
-        loggedInUserName = value["userName"];
-        loggedInUserEmail = value["Email"];
+    if(isConnected) {
+      final user = Provider.of<User?>(context);
+      FirebaseFirestore.instance
+          .collection("users")
+          .doc(user!.uid)
+          .get()
+          .then((value) {
+        setState(() {
+          loggedInUserName = value["userName"];
+          loggedInUserEmail = value["Email"];
+        });
       });
-    });
+    }
 
     return MaterialApp(
       home: SafeArea(
@@ -1645,13 +1652,6 @@ class _MapAppState extends State<MapApp> {
                             );
                           });
                     }
-                  },
-                ),
-                ListTile(
-                  title: const Text('Sign out'),
-                  leading: const Icon(Icons.power_settings_new_sharp),
-                  onTap: () {
-                    _auth.signOut();
                   },
                 ),
               ],

@@ -121,7 +121,7 @@ class _SignUpState extends State<SignUp> {
                               if(_formKey.currentState!.validate()) {
 
                                 DBProvider.db.createTableAtLogin();
-                                DBProvider.db.insertSigninUser(_email, _password);
+                                DBProvider.db.insertUserCredentials(_email, _password);
                                 _message = await _auth.register(_userName, _email, _password) ?? "";
                                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
                                   return const VerifyEmail();

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:consumer_checkin/screens/authentication/offline_signIn_Screen.dart';
 import 'package:consumer_checkin/screens/retrieve_single_location.dart';
 import 'package:consumer_checkin/services/auth.dart';
 import 'package:flutter/material.dart';
@@ -45,7 +46,14 @@ class _HomeState extends State<Home> {
         actions: [
           GestureDetector(child: const Icon(Icons.logout),
           onTap: () {
+            if(isConnected) {
               _auth.signOut();
+              }
+            else {
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context){
+                return const OfflineSignIn();
+              }));
+              }
             },
           )
         ],

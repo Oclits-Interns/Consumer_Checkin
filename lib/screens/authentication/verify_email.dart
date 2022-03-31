@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:consumer_checkin/constant/colors_constant.dart';
+import 'package:consumer_checkin/local_DB/local_db.dart';
 import 'package:consumer_checkin/services/db_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -29,10 +30,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
       key: _scaffoldkey,
       appBar: AppBar(
         backgroundColor: kMaroon,
-        title: const Text("Verify your Email",
-        style: TextStyle(
-          color: Colors.black
-        ),),
+        title: const Text("Verify your Email"),
         centerTitle: true,
         actions: [
           GestureDetector(
@@ -72,6 +70,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
                         ],
                       );
                     });
+                    DBProvider.db.emailVerified(user!.email.toString());
                   }
                 },
                 child: Container(
@@ -81,9 +80,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
                   ),
                   width: MediaQuery.of(context).size.width * 0.45,
                   height: MediaQuery.of(context).size.height * 0.08,
-                  child: const Center(child: Text("Check email verification", style: TextStyle(
-                      color: Colors.black
-                  ),)),
+                  child: const Center(child: Text("Check email verification",)),
                 ),
               ),
             ),
@@ -136,6 +133,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
                     FirebaseFirestore.instance.collection("users").doc(
                         user!.uid).update(
                         {"Authenticated": isAuthenticated});
+                    DBProvider.db.otpVerified(user!.email.toString());
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:
                     Text("OTP confirmed, you should now be redirected to home screen \n"
                         "If you are not redirected automatically, please restart the app and try again")));
